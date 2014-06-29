@@ -1,0 +1,15 @@
+name: entity
+version: 0.3.0
+description: > 
+  A simple ORM for Relational and NoSQL database.
+authors:
+- Tom Yeh <tomyeh@rikulo.org>
+homepage: https://github.com/rikulo/entity
+documentation: https://github.com/rikulo/entity
+dependencies:
+  logging: any
+dev_dependencies:
+  unittest: any
+  browser: any
+environment:
+  sdk: ">=1.4.0"
