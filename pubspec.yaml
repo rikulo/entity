@@ -11,5 +11,7 @@ dependencies:
 dev_dependencies:
   unittest: any
   browser: any
+  couchclient: any
+  postgresql: any
 environment:
   sdk: ">=1.4.0"

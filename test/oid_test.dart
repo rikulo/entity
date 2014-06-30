@@ -1,7 +1,7 @@
 //Copyright (C) 2013 Potix Corporation. All Rights Reserved.
 //History: Thu, May 02, 2013  2:44:51 PM
 // Author: tomyeh
-library entity_oid_test;
+library entity.oid_test;
 
 import "dart:convert" show JSON;
 import 'package:unittest/unittest.dart';

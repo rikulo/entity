@@ -1,7 +1,7 @@
 //Copyright (C) 2013 Potix Corporation. All Rights Reserved.
 //History: Mon, May 06, 2013  3:08:02 PM
 // Author: tomyeh
-library entity_oid;
+library entity.oid;
 
 import "dart:math" show Random, min;
 
