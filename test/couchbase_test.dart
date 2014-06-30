@@ -92,6 +92,12 @@ void run() {
       for (int i = m.details.length; --i >= 0;)
         expect(m.details[i], m1.details[i]);
 
+      return Future.wait([m1.delete(access), d1.delete(access), d2.delete(access)]);
+    })
+    .then((_) => storage.loadIfAny(access, new Master.be(m1.oid)))
+    .then((Master m) {
+      expect(m, isNull);
+
       new Future.delayed(const Duration(seconds: 1), () => exit(0));
     })
   );
