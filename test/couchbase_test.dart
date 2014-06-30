@@ -1,19 +1,25 @@
 //Copyright (C) 2014 Potix Corporation. All Rights Reserved.
 //History: Mon, Jun 30, 2014  4:00:13 PM
 // Author: tomyeh
-library entity.map_store_test;
+library entity.couchbse_test;
 
 import "dart:async";
+import "dart:io" show exit;
+
 import 'package:unittest/unittest.dart';
 import 'package:entity/entity.dart';
-import 'package:entity/map_storage.dart';
+import 'package:entity/couchbase.dart';
 
-final MapAccess access = new MapAccess();
+import "package:couchclient/couchclient.dart"
+  show CouchClient;
+
+CouchbaseAccess access;
 final Storage storage = new Storage();
 
 class Master extends Entity {
   String name;
-  List<Detail> details;
+  ///A list of OID of [Detail] instances.
+  List<String> details;
 
   Master(this.name): details = [];
   Master.be(String oid): super.be(oid);
@@ -22,13 +28,13 @@ class Master extends Entity {
   void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
     super.write(writer, data, fields);
     data["name"] = name;
-    data["details"] = writer.entities(details);
+    data["details"] = details;
   }
   @override
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     super.read(reader, data, fields);
     name = data["name"];
-    details = reader.entities(data["details"]);
+    details = data["details"];
   }
 
   @override
@@ -60,31 +66,33 @@ class Detail extends Entity {
 }
 
 void main() {
+  final List<Uri> baseList = [Uri.parse("http://127.0.0.1:8091/pools")];
+  CouchClient.connect(baseList, "default", null)
+  .then((CouchClient client) {
+    access = new CouchbaseAccess(client);
+    run();
+  });
+}
+void run() {
   Master m1 = new Master("m1");
   Detail d1 = new Detail(new DateTime.now(), 100);
   Detail d2 = new Detail(new DateTime.now(), 200);
-  m1.details..add(d1)..add(d2);
+  m1.details..add(d1.oid)..add(d2.oid);
   d1.save(access);
   d2.save(access);
   m1.save(access);
-  access.clearCache();
 
-  test("Entity Test on Map",
-    //Note: we have to load details first, since Master.read() invokies
-    //reader.entities().
-    () => Future.wait([
-        storage.load(access, new Detail.be(d1.oid)),
-        storage.load(access, new Detail.be(d2.oid))])
-    .then((_) => storage.load(access, new Master.be(m1.oid)))
+  test("Entity Test on Couchbase",
+    () => storage.load(access, new Master.be(m1.oid))
     .then((Master m) {
       expect(identical(m, m1), false); //not the same instance
       expect(m.name, m1.name);
       expect(m.details.length, m1.details.length);
 
-      for (int i = m.details.length; --i >= 0;) {
-        expect(m.details[i].when, m1.details[i].when);
-        expect(m.details[i].value, m1.details[i].value);
-      }
+      for (int i = m.details.length; --i >= 0;)
+        expect(m.details[i], m1.details[i]);
+
+      new Future.delayed(const Duration(seconds: 1), () => exit(0));
     })
   );
 }

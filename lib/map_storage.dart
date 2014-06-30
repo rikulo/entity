@@ -1,4 +1,4 @@
-//--Map Storage Plugin--//
+//--Map-based Storage Plugin--//
 //Copyright (C) 2014 Potix Corporation. All Rights Reserved.
 //History: Mon, Jun 30, 2014  1:40:00 PM
 // Author: tomyeh
@@ -14,6 +14,9 @@ import "entity.dart";
  * A map-based storage plugin.
  * You can use it to store entities in a map, `window.localStorage`
  * and `window.sessionStorage`.
+ * 
+ * Note: this implementation supports cache. It is mainly designed for using
+ * on the client.
  */
 class MapAccess implements Access {
   //The persistent storage.
