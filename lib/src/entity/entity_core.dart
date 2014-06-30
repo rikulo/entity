@@ -3,45 +3,6 @@
 // Author: tomyeh
 part of entity;
 
-/** A storage, aka., a database.
- */
-class Storage {
-  /** Loads the data of the given OID from the storage into the given entity.
-   *
-   * * [entity] - the entity to hold the data loaded from database.
-   * It is usually instantiated with the `be` constructor (see [Entity.be]).
-   * * [fields] - a collection of fields to load.
-   * 
-   * It throws [EntityNotFoundException] if the entity is not found
-   * (including oid is null).
-   */
-  Future<Entity> load(Access access, Entity entity, [Iterable<String> fields])
-  => loadIfAny(access, entity, fields)
-  .then((Entity e) {
-    if (e == null)
-      throw new EntityNotFoundException(entity.oid);
-    return e;
-  });
-
-  /** Loads the entity of the given OID, and return a [Future] carrying
-   * null if not found.
-   */
-  Future<Entity> loadIfAny(Access access, Entity entity, [Iterable<String> fields]) {
-    final String oid = entity.oid;
-    if (oid == null)
-      return new Future.value();
-
-    final Set<String> fds = _toSet(fields);
-    return access.load(entity, fds)
-    .then((Map<String, dynamic> data) {
-      if (data != null) {
-        entity.read(access.reader, data, fds);
-        return entity;
-      }
-    });
-  }
-}
-
 /** An entity which can be stored into an entity store.
  */
 abstract class Entity {
@@ -236,4 +197,49 @@ class DBControl {
   bool stored = false;
   ///Whether this entity has been deleted (i.e., [Entity.delete] was called).
   bool get deleted => _deleted;
+}
+
+/** Loads the data of the given OID from the storage into the given entity.
+ *
+ * Note: it will invoke `access[oid]` first to see if there is a cached version.
+ * If so, return it directly.
+ *
+ * * [newInstance] - the method to instantiate the entity for holding
+ * the data loaded from database.
+ * You usually instantiate it with the `be` constructor (see [Entity.be]).
+ * * [fields] - a collection of fields to load.
+ * 
+ * It throws [EntityNotFoundException] if the entity is not found
+ * (including oid is null).
+ */
+Future<Entity> load(Access access, String oid,
+    Entity newInstance(String oid), [Iterable<String> fields])
+  => loadIfAny(access, oid, newInstance, fields)
+  .then((Entity entity) {
+    if (entity == null)
+      throw new EntityNotFoundException(entity.oid);
+    return entity;
+  });
+
+/** Loads the entity of the given OID, and return a [Future] carrying
+ * null if not found.
+ */
+Future<Entity> loadIfAny(Access access, String oid,
+    Entity newInstance(String oid), [Iterable<String> fields]) {
+  if (oid == null)
+    return new Future.value();
+
+  Entity entity = access[oid];
+  if (entity != null)
+    return new Future.value(entity);
+
+  final Set<String> fds = _toSet(fields);
+  entity = newInstance(oid);
+  return access.load(entity, fds)
+  .then((Map<String, dynamic> data) {
+    if (data != null) {
+      entity.read(access.reader, data, fds);
+      return entity;
+    }
+  });
 }

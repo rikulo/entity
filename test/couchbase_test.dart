@@ -4,7 +4,6 @@
 library entity.couchbse_test;
 
 import "dart:async";
-import "dart:io" show exit;
 
 import 'package:unittest/unittest.dart';
 import 'package:entity/entity.dart';
@@ -14,7 +13,6 @@ import "package:couchclient/couchclient.dart"
   show CouchClient;
 
 CouchbaseAccess access;
-final Storage storage = new Storage();
 
 class Master extends Entity {
   String name;
@@ -65,6 +63,9 @@ class Detail extends Entity {
   String get otype => "Detail";
 }
 
+Master beMaster(String oid) => new Master.be(oid);
+Detail beDetail(String oid) => new Detail.be(oid);
+
 void main() {
   final List<Uri> baseList = [Uri.parse("http://127.0.0.1:8091/pools")];
   CouchClient.connect(baseList, "default", null)
@@ -83,7 +84,7 @@ void run() {
   m1.save(access);
 
   test("Entity Test on Couchbase",
-    () => storage.load(access, new Master.be(m1.oid))
+    () => load(access, m1.oid, beMaster)
     .then((Master m) {
       expect(identical(m, m1), false); //not the same instance
       expect(m.name, m1.name);
@@ -94,11 +95,11 @@ void run() {
 
       return Future.wait([m1.delete(access), d1.delete(access), d2.delete(access)]);
     })
-    .then((_) => storage.loadIfAny(access, new Master.be(m1.oid)))
+    .then((_) => loadIfAny(access, m1.oid, beMaster))
     .then((Master m) {
       expect(m, isNull);
 
-      new Future.delayed(const Duration(seconds: 1), () => exit(0));
+      access.client.close();
     })
   );
 }

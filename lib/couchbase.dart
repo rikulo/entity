@@ -25,6 +25,9 @@ class CouchbaseAccess implements Access {
   CouchbaseAccess(CouchClient this.client);
 
   @override
+  Entity operator[](String oid) => null; //no cache supported
+
+  @override
   final AccessReader reader = new AccessReader();
   @override
   final AccessWriter writer = new AccessWriter();

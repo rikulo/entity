@@ -12,6 +12,11 @@ part of entity;
  * How to instantiate an instance depends on the plugin you use.
  */
 abstract class Access {
+  /** Returns the entity of the given OID, if it is stored in the cache.
+   * It always return null if the plugin doesn't support the cache.
+   */
+  Entity operator[](String oid);
+
   /** Loads the data of the given OID.
    * 
    * * [fields] - a collection of fields to load. If null, it means all.

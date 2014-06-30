@@ -18,21 +18,24 @@ import "entity.dart";
  * Note: this implementation supports cache. It is mainly designed for using
  * on the client.
  */
-class MapAccess implements Access {
+class MapStorageAccess implements Access {
   //The persistent storage.
   final Map<String, String> _storage;
   ///The cached entities.
   final Map<String, Entity> _cache = new HashMap();
 
+  MapStorageAccess([Map<String, String> storage])
+  : _storage = storage != null ? storage: new HashMap() {
+  	(reader as _AccessReader)._cache = _cache;
+  }
+
+  @override
+  Entity operator[](String oid) => _cache[oid];
+
   @override
   final AccessReader reader = new _AccessReader();
   @override
   final AccessWriter writer = new AccessWriter();
-
-  MapAccess([Map<String, String> storage])
-  : _storage = storage != null ? storage: new HashMap() {
-  	(reader as _AccessReader)._cache = _cache;
-  }
 
   ///Clear the cache.
   void clearCache() => _cache.clear();
