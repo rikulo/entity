@@ -13,6 +13,9 @@ import "client_sample.dart";
 final MapStorageAccess access = new MapStorageAccess();
 
 void main() {
+  test("Entity Test on Map", test1);
+}
+Future test1() {
   Master m1 = new Master("m1");
   Detail d1 = new Detail(new DateTime.now(), 100);
   Detail d2 = new Detail(new DateTime.now(), 200);
@@ -22,22 +25,20 @@ void main() {
   m1.save(access);
   access.clearCache();
 
-  test("Entity Test on Map",
-    //Note: we have to load details first, since Master.read() invokies
-    //reader.entities().
-    () => Future.wait([
-        load(access, d1.oid, beDetail),
-        load(access, d2.oid, beDetail)])
-    .then((_) => load(access, m1.oid, beMaster))
-    .then((Master m) {
-      expect(identical(m, m1), false); //not the same instance
-      expect(m.name, m1.name);
-      expect(m.details.length, m1.details.length);
+  //Note: we have to load details first, since Master.read() invokies
+  //reader.entities().
+  return Future.wait([
+      load(access, d1.oid, beDetail),
+      load(access, d2.oid, beDetail)])
+  .then((_) => load(access, m1.oid, beMaster))
+  .then((Master m) {
+    expect(identical(m, m1), false); //not the same instance
+    expect(m.name, m1.name);
+    expect(m.details.length, m1.details.length);
 
-      for (int i = m.details.length; --i >= 0;) {
-        expect(m.details[i].when, m1.details[i].when);
-        expect(m.details[i].value, m1.details[i].value);
-      }
-    })
-  );
+    for (int i = m.details.length; --i >= 0;) {
+      expect(m.details[i].createdAt, m1.details[i].createdAt);
+      expect(m.details[i].value, m1.details[i].value);
+    }
+  });
 }

@@ -3,7 +3,6 @@
 // Author: tomyeh
 library entity.client_sample;
 
-import "dart:async";
 import 'package:entity/entity.dart';
 
 class Master extends Entity {
@@ -31,23 +30,23 @@ class Master extends Entity {
 }
 
 class Detail extends Entity {
-  DateTime when;
+  DateTime createdAt;
   int value;
 
-  Detail(this.when, this.value);
+  Detail(this.createdAt, this.value);
   Detail.be(String oid): super.be(oid);
 
   @override
   void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
     super.write(writer, data, fields);
-    data["when"] = writer.dateTime(when);
+    data["createdAt"] = writer.dateTime(createdAt);
     data["value"] = value;
   }
   @override
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     super.read(reader, data, fields);
     value = data["value"];
-    when = reader.dateTime(data["when"]);
+    createdAt = reader.dateTime(data["createdAt"]);
   }
 
   @override

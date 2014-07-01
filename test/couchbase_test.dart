@@ -17,24 +17,22 @@ import "server_sample.dart";
 CouchbaseAccess access;
 
 void main() {
+  test("Entity Test on Couchbase", test1);
+}
+
+Future test1() {
   final List<Uri> baseList = [Uri.parse("http://127.0.0.1:8091/pools")];
-  CouchClient.connect(baseList, "default", null)
+  return CouchClient.connect(baseList, "default", null)
   .then((CouchClient client) {
     access = new CouchbaseAccess(client);
-    run();
-  });
-}
-void run() {
-  Master m1 = new Master("m1");
-  Detail d1 = new Detail(new DateTime.now(), 100);
-  Detail d2 = new Detail(new DateTime.now(), 200);
-  m1.details..add(d1.oid)..add(d2.oid);
-  d1.save(access);
-  d2.save(access);
-  m1.save(access);
 
-  test("Entity Test on Couchbase",
-    () => load(access, m1.oid, beMaster)
+    Master m1 = new Master("m1");
+    Detail d1 = new Detail(new DateTime.now(), 100);
+    Detail d2 = new Detail(new DateTime.now(), 200);
+    m1.details..add(d1.oid)..add(d2.oid);
+
+    return Future.wait([d1.save(access), d2.save(access), m1.save(access)])
+    .then((_) => load(access, m1.oid, beMaster))
     .then((Master m) {
       expect(identical(m, m1), false); //not the same instance
       expect(m.name, m1.name);
@@ -50,6 +48,6 @@ void run() {
       expect(m, isNull);
 
       access.client.close();
-    })
-  );
+    });
+  });
 }
