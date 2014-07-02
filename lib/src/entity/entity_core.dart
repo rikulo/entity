@@ -106,7 +106,7 @@ abstract class Entity {
    * data members. For example,
    *
    *     void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
-   *       super.write(data, fields);
+   *       super.write(writer, data, fields);
    *       data["someData"] = someData;
    *       data["someEntity"] = writer.entity(someEntity);
    *       data["someDateTime"] = writer.dateTime(someDateTime);
@@ -142,8 +142,8 @@ abstract class Entity {
    * The deriving class must override this method to read all data memeber
    * stored in [write]. For example,
    *
-   *     void read(AccessReader reader, Map<String, dynamic> data) {
-   *       super.read(data);
+   *     void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
+   *       super.read(reader, data, fields);
    *       someData = data["someData"];
    *       someEntity = reader.entity(data["someEntity"]);
    *       someDateTime = reader.dateTime(data["someDateTime"]);
@@ -151,6 +151,9 @@ abstract class Entity {
    *
    * As shown, you can use utilities in [reader] to convert [Entity]
    * and [DateTime].
+   *
+   * * [fields] - the fields being loaded. If null, it means all fields.
+   * In general, you can ignore this argument (but use [data] instead).
    */
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     if (data.remove("-c") == true) //(dirty) sent from the client for creation
@@ -162,8 +165,6 @@ abstract class Entity {
   @override
   int get hashCode => oid.hashCode;
 }
-
-Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();
 
 /** Indicates the entity is not found.
  */
@@ -233,8 +234,8 @@ Future<Entity> loadIfAny(Access access, String oid,
   if (entity != null)
     return new Future.value(entity);
 
-  final Set<String> fds = _toSet(fields);
   entity = newInstance(oid);
+  final Set<String> fds = _toSet(fields);
   return access.load(entity, fds)
   .then((Map<String, dynamic> data) {
     if (data != null) {
@@ -243,3 +244,5 @@ Future<Entity> loadIfAny(Access access, String oid,
     }
   });
 }
+
+Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();

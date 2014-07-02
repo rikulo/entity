@@ -26,14 +26,14 @@ class MapStorageAccess implements Access {
 
   MapStorageAccess([Map<String, String> storage])
   : _storage = storage != null ? storage: new HashMap() {
-  	(reader as _AccessReader)._cache = _cache;
+  	(reader as CachedAccessReader).cache = _cache;
   }
 
   @override
   Entity operator[](String oid) => _cache[oid];
 
   @override
-  final AccessReader reader = new _AccessReader();
+  final AccessReader reader = new CachedAccessReader();
   @override
   final AccessWriter writer = new AccessWriter();
 
@@ -94,20 +94,5 @@ class MapStorageAccess implements Access {
     _cache.remove(oid);
     _storage.remove(oid);
     return new Future.value();
-  }
-}
-
-class _AccessReader extends AccessReader {
-  Map<String, Entity> _cache;
-  _AccessReader([this._cache]);
-
-  Entity entity(String json, {bool lenient: false}) {
-    if (json != null) {
-      final Entity entity = _cache[json];
-      if (!lenient && entity == null)
-      	throw new StateError("Not loaded: $json");
-      return entity;
-    }
-    return null;
   }
 }

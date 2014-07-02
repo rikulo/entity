@@ -125,57 +125,102 @@ class AccessWriter {
  * The plugin can extend it and implement its own converters.
  */
 class AccessReader {
-  //Parses into [DateTime]
+  //Return the [DateTime] instance representing the JSON value.
   DateTime dateTime(json)
     => json != null ? new DateTime.fromMillisecondsSinceEpoch(json): null;
 
-  /** Returns the entity of the given OID that was loaded.
+  /** Returns the entity of the given OID, or null if not loaded.
    *
-   * Note: this method shall not try to load the entity from the database.
-   * Rather, it shall get it from a in-memory cache, if supported,
-   * which is updated when the corresponding methods of [Access]
-   * were called.
+   * It is similar to [entity], except [entity] shows an exception if OID
+   * is not null and the entity is not found.
    * 
-   * Default: it assumes no cache is supported, i.e., it throws
-   * throws [UnsupportedError] if [json] is not null and [lenient] is false.
+   * Default: always returns null.
+   */
+  Entity operator[](String oid) => null;
+
+  /** Returns the entity of the given OID if it was loaded.
+   * It throws [StateError] if not loaded. Alternatively, you can use [operator[]]
+   * instead.
+   * 
+   * Note: this method shall not try to load the entity from the database.
+   * Rather, it shall get it from a in-memory cache, if supported.
+   * 
+   * Default: it invokes `this[json]` and throws [StateError]
+   * if not found and [json] is not null.
+   * Note: it returns null if [json] is null.
    *
    * * [json] - the json object to convert from. It is actually the OID.
-   * * [lenient] - whether *not* to throw an exception if not found.
-   * Default: false (i.e., it will throw an exception if not found).
    */
-  Entity entity(String json, {bool lenient: false}) {
-  	if (json != null && !lenient)
-  		throw new UnsupportedError("No cache");
-  	return null; //no cache supported
+  Entity entity(String json) {
+    final Entity entity = this[json];
+    if (entity == null && json != null)
+  		throw new StateError(""); //Not loaded or cached
+  	return entity; //no cache supported
   }
 
   /** Parses the given collection of OIDs into the corresponding entities.
-   *
-   * * [lenient] - whether *not* to throw an exception if not found.
+   * It throws [StateError] if not loaded.
    */
-  List<Entity> entities(Iterable<String> json, {lenient: false}) {
+  List<Entity> entities(Iterable<String> json) {
     if (json == null)
       return null;
 
     final List entities = [];
     for (final String each in json) {
-      final Entity val = entity(each, lenient: lenient);
+      final Entity val = entity(each);
       if (val != null)
         entities.add(val);
     }
     return entities;
   }
   /** Parses the given map of OIDs into the corresponding entities.
-   *
-   * * [lenient] - whether *not* to throw an exception if not found.
+   * It throws [StateError] if not loaded.
    */
-  Map<dynamic, Entity> entityMap(Map<dynamic, String> json, {lenient: false}) {
+  Map<dynamic, Entity> entityMap(Map<dynamic, String> json) {
     if (json == null)
       return null;
 
     final Map<dynamic, Entity> entities = new HashMap();
     for (final key in json.keys)
-      entities[key] = entity(json[key], lenient: lenient);
+      entities[key] = entity(json[key]);
     return entities;
   }
+}
+
+/** An extension of [AccessReader] that support a cache.
+ */
+class CachedAccessReader extends AccessReader {
+  Map<String, Entity> cache;
+  CachedAccessReader([this.cache]);
+
+  @override
+  Entity operator[](String oid) => cache[oid];
+}
+
+/** A wrapper of [Access] to simplify the implementation of interception.
+ */
+class AccessWrapper implements Access {
+  Access origin;
+  AccessWrapper(Access this.origin);
+
+  @override
+  Entity operator[](String oid) => origin[oid];
+
+  @override
+  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields])
+  => origin.load(entity, fields);
+  @override
+  Future update(Entity entity, Map<String, dynamic> data, Set<String> fields)
+  => origin.update(entity, data, fields);
+  @override
+  Future create(Entity entity, Map<String, dynamic> data)
+  => origin.create(entity, data);
+
+  @override
+  Future delete(Entity entity) => origin.delete(entity);
+
+  @override
+  AccessReader get reader => origin.reader;
+  @override
+  AccessWriter get writer => origin.writer;
 }

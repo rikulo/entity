@@ -29,7 +29,7 @@ class PostgresqlAccess implements Access {
    */
   PostgresqlAccess(Connection this.conn, {bool cache:true})
   : _cache = cache != null ? new HashMap(): null {
-     (reader as _AccessReader)._cache = _cache;
+     (reader as _AccessReader).cache = _cache;
   }
 
   @override
@@ -63,6 +63,7 @@ class PostgresqlAccess implements Access {
       query.add("*");
     }
     query..add(' from "')..add(entity.otype)..add('" where "oid"=@oid');
+
     return conn.query(query.join(''), {F_OID: entity.oid}).toList()
     .then((List<Row> rows) {
       if (rows.isNotEmpty) {
@@ -70,6 +71,8 @@ class PostgresqlAccess implements Access {
         final Row row = rows.first;
         final Map<String, dynamic> data = new HashMap();
         row.forEach((String name, value) => data[name] = value);
+        if (_cache != null)
+          _cache[entity.oid] = entity; //update cache
         return data;
       }
     });
@@ -112,30 +115,31 @@ class PostgresqlAccess implements Access {
     query.add(')');
     param.add(')');
     data[F_OID] = entity.oid;
-    return conn.execute(query.join('') + param.join(''), data);
+
+    return conn.execute(query.join('') + param.join(''), data)
+    .then((_) {
+      if (_cache != null)
+        _cache[entity.oid] = entity; //update cache
+    });
   }
 
   @override
   Future delete(Entity entity) {
     final List<String> query = ['delete from "', entity.otype, '" where "oid"=@oid'];
-    return conn.execute(query.join(''), {F_OID: entity.oid});
+    return conn.execute(query.join(''), {F_OID: entity.oid})
+    .then((_) {
+      if (_cache != null)
+        _cache.remove(entity.oid); //update cache
+    });
   }
 }
 
 class _AccessReader extends AccessReader {
-  Map<String, Entity> _cache;
-  _AccessReader([this._cache]);
+  Map<String, Entity> cache;
+  _AccessReader([this.cache]);
 
   @override
-  Entity entity(String json, {bool lenient: false}) {
-    if (json != null) {
-      final Entity entity = _cache != null ? _cache[json]: null;
-      if (!lenient && entity == null)
-        throw new StateError("Not loaded: $json");
-      return entity;
-    }
-    return null;
-  }
+  Entity operator[](String oid) => cache != null ? cache[oid]: null;
 
   @override
   DateTime dateTime(json) => json;
