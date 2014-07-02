@@ -3,7 +3,7 @@
 // Author: tomyeh
 library entity.client_sample;
 
-import 'package:entity/entity.dart';
+import "package:entity/entity.dart";
 
 class Master extends Entity {
   String name;

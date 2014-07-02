@@ -4,9 +4,9 @@
 library entity.map_store_test;
 
 import "dart:async";
-import 'package:unittest/unittest.dart';
-import 'package:entity/entity.dart';
-import 'package:entity/map_storage.dart';
+import "package:unittest/unittest.dart";
+import "package:entity/entity.dart";
+import "package:entity/map_storage.dart";
 
 import "client_sample.dart";
 

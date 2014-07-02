@@ -5,14 +5,14 @@ library entity.couchbse_test;
 
 import "dart:async";
 
-import 'package:unittest/unittest.dart';
-import 'package:entity/entity.dart';
-import 'package:entity/couchbase.dart';
+import "package:unittest/unittest.dart";
+import "package:entity/entity.dart";
+import "package:entity/couchbase.dart";
 
 import "package:couchclient/couchclient.dart"
   show CouchClient;
 
-import "server_sample.dart";
+import "nosql_sample.dart";
 
 CouchbaseAccess access;
 

@@ -1,9 +1,9 @@
 //Copyright (C) 2014 Potix Corporation. All Rights Reserved.
 //History: Tue, Jul 01, 2014 10:02:56 AM
 // Author: tomyeh
-library entity.server_sample;
+library entity.nosql_sample;
 
-import 'package:entity/entity.dart';
+import "package:entity/entity.dart";
 
 class Master extends Entity {
   String name;

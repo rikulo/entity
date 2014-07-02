@@ -4,15 +4,15 @@
 
 import "dart:async";
 
-import 'package:unittest/unittest.dart';
-import 'package:entity/entity.dart';
-import 'package:entity/postgresql.dart';
+import "package:unittest/unittest.dart";
+import "package:entity/entity.dart";
+import "package:entity/postgresql.dart";
 
 import "package:postgresql/postgresql.dart" show Connection, connect;
 
 import "sql_sample.dart";
 
-const String DB_URI = 'postgres://postgres:123@localhost:5432/testdb';
+const String DB_URI = "postgres://postgres:123@localhost:5432/testdb";
 
 void main() {
   test("Entity Test on PostgreSQL", test1);
