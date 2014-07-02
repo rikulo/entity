@@ -46,9 +46,7 @@ Future test1() {
   })
   .whenComplete(() {
     if (conn != null) {
-      return cleanDB(conn)
-      .then((_) => conn.close())
-      .catchError((ex, st) => print("Error ${ex.runtimeType}: $ex\n$st"));
+      conn.close();
     } else {
       print("Make sure you create a case-sensitive database called testdb, "
         "and the password must be 123");
@@ -59,12 +57,12 @@ Future test1() {
 Future initDB(Connection conn)
 => Future.forEach(const [
   """
-  create table "Master" (
+  create temporary table "Master" (
     "oid" varchar(40) primary key,
     "name" varchar(60)
   )
   """, """
-  create table "Detail" (
+  create temporary table "Detail" (
     "oid" varchar(40) primary key,
     "createdAt" timestamp without time zone null,
     "value" integer,
@@ -72,7 +70,3 @@ Future initDB(Connection conn)
   )
   """],
   (String stmt) => conn.execute(stmt));
-
-Future cleanDB(Connection conn)
-=> Future.forEach(const ['"Detail"', '"Master"'],
-  (String otype) => conn.execute("drop table $otype"));
