@@ -23,7 +23,7 @@ Future test1() {
   return connect(DB_URI)
   .then((_) => initDB(conn = _))
   .then((_) {
-    final PostgresqlAccess access = new PostgresqlAccess(conn);
+    final PostgresqlAccess access = new PostgresqlAccess(conn, cache: false);
     Master m1 = new Master("m1");
     Detail d1 = new Detail(new DateTime.now(), 100);
     d1.master = m1.oid;
@@ -33,6 +33,7 @@ Future test1() {
     return Future.forEach([m1, d1, d2], (Entity e) => e.save(access))
     .then((_) => load(access, m1.oid, beMaster))
     .then((Master m) {
+      expect(m, m1);
       expect(identical(m, m1), isFalse); //not the same instance
       expect(m.name, m1.name);
     })

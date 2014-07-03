@@ -28,7 +28,7 @@ class PostgresqlAccess implements Access {
    * * [cache] - whether to enable the cache. Default: true.
    */
   PostgresqlAccess(Connection this.conn, {bool cache:true})
-  : _cache = cache != null ? new HashMap(): null {
+  : _cache = cache ? new HashMap(): null {
      (reader as _AccessReader).cache = _cache;
   }
 
