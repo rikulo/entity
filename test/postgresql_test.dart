@@ -65,7 +65,7 @@ Future initDB(Connection conn)
   """, """
   create temporary table "Detail" (
     "oid" varchar(40) primary key,
-    "createdAt" timestamp without time zone null,
+    "createdAt" timestamptz null,
     "value" integer,
     "master" varchar(40) null references "Master"("oid")
   )
