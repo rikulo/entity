@@ -88,36 +88,6 @@ class AccessWriter {
       json[key] = entity(value[key]);
     return json;
   }
-
-  /** Minimizes the JSON map to be stored into DB or sent over internet
-   * by removing the entries whose value is null.
-   *
-   * It can be useful when implementing a plugin, since you don't have
-   * to store the null values (in a key-value-type database).
-   *
-   * It is also useful if an entity contains a PODO object whose
-   * `toJson()` returns a map with several null values, such as
-   *
-   *     class Inner {
-   *       String some;
-   *       String another;
-   *       toJson() => Write.minify({"some": some, "another": another})
-   *     }
-   */
-  Map<String, dynamic> minify(Map<String, dynamic> json) {
-    if (json == null || json.isEmpty)
-      return json;
-
-    final Map<String, dynamic> result = new LinkedHashMap();
-      //Note: we have to preserve the order since it might be important
-      //to the user
-    for (final name in json.keys) {
-      final value = json[name];
-      if (value != null)
-        result[name] = value is Map ? minify(value): value;
-    }
-    return result;
-  }
 }
 
 /** A reader for converting data read from the database.
@@ -125,7 +95,7 @@ class AccessWriter {
  * The plugin can extend it and implement its own converters.
  */
 class AccessReader {
-  //Return the [DateTime] instance representing the JSON value.
+  ///Return the [DateTime] instance representing the JSON value.
   DateTime dateTime(json)
     => json != null ? new DateTime.fromMillisecondsSinceEpoch(json): null;
 
@@ -223,4 +193,34 @@ class AccessWrapper implements Access {
   AccessReader get reader => origin.reader;
   @override
   AccessWriter get writer => origin.writer;
+}
+
+/** Minimizes the JSON map to be stored into DB or sent over internet
+ * by removing the entries whose value is null.
+ *
+ * It can be useful when implementing a plugin, since you don't have
+ * to store the null values (in a key-value-type database).
+ *
+ * It is also useful if an entity contains a PODO object whose
+ * `toJson()` returns a map with several null values, such as
+ *
+ *     class Inner {
+ *       String some;
+ *       String another;
+ *       toJson() => minify({"some": some, "another": another})
+ *     }
+ */
+Map<String, dynamic> minify(Map<String, dynamic> json) {
+  if (json == null || json.isEmpty)
+    return json;
+
+  final Map<String, dynamic> result = new LinkedHashMap();
+    //Note: we have to preserve the order since it might be important
+    //to the user
+  for (final name in json.keys) {
+    final value = json[name];
+    if (value != null)
+      result[name] = value is Map ? minify(value): value;
+  }
+  return result;
 }

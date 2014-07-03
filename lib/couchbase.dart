@@ -75,11 +75,11 @@ class CouchbaseAccess implements Access {
     });
   }
   Future _replace(String oid, Map<String, dynamic> data)
-  => client.replace(oid, UTF8.encode(JSON.encode(writer.minify(data))));
+  => client.replace(oid, UTF8.encode(JSON.encode(minify(data))));
 
   @override
   Future create(Entity entity, Map<String, dynamic> data)
-  => client.add(entity.oid, UTF8.encode(JSON.encode(writer.minify(data))));
+  => client.add(entity.oid, UTF8.encode(JSON.encode(minify(data))));
 
   @override
   Future delete(Entity entity)
