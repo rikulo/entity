@@ -30,7 +30,7 @@ Future test1() {
     Detail d2 = new Detail(new DateTime.now(), 200);
     d2.master = m1.oid;
 
-    return Future.forEach([m1, d1, d2], (Entity e) => e.save(access))
+    return Future.forEach([m1, d1, d2], (Entity e) => e.save(access, null))
     .then((_) => load(access, m1.oid, beMaster))
     .then((Master m) {
       expect(m, m1);

@@ -20,9 +20,9 @@ Future test1() {
   Detail d1 = new Detail(new DateTime.now(), 100);
   Detail d2 = new Detail(new DateTime.now(), 200);
   m1.details..add(d1)..add(d2);
-  d1.save(access);
-  d2.save(access);
-  m1.save(access);
+  d1.save(access, null);
+  d2.save(access, null);
+  m1.save(access, null);
   access.clearCache();
 
   //Note: we have to load details first, since Master.read() invokies

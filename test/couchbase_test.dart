@@ -31,7 +31,7 @@ Future test1() {
     Detail d2 = new Detail(new DateTime.now(), 200);
     m1.details..add(d1.oid)..add(d2.oid);
 
-    return Future.wait([d1.save(access), d2.save(access), m1.save(access)])
+    return Future.wait([d1.save(access, null), d2.save(access, null), m1.save(access, null)])
     .then((_) => load(access, m1.oid, beMaster))
     .then((Master m) {
       expect(identical(m, m1), false); //not the same instance

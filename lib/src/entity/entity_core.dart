@@ -54,13 +54,14 @@ abstract class Entity {
   /** Saves this entity.
    *
    * * [fields] - a collection of fields to update.
-   * If omitted, all fields (returned by [write]) will be updated.
+   * If null, all fields (returned by [write]) will be updated.
    *     > Notice: [fields] is meaningful only if `dbc.stored` is true.
+   *     > In other words, it was ignored if it is a new entity (not-saved-yet)
    * * [beforeSave] - allows the caller to modify the JSON object and fields
    * before saving to the entitystore.
    */
-  Future save(Access access, [Iterable<String> fields,
-      void beforeSave(Entity entity, Map<String, dynamic> data, Set<String> fields)]) {
+  Future save(Access access, Iterable<String> fields,
+      [void beforeSave(Entity entity, Map<String, dynamic> data, Set<String> fields)]) {
     _check();
 
     final Set<String> fds = fields != null && dbc.stored ? _toSet(fields): null;
