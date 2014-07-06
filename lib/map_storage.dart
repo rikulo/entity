@@ -41,7 +41,7 @@ class MapStorageAccess implements Access {
   void clearCache() => _cache.clear();
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields]) {
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {
     final String oid = entity.oid;
     final Map<String, dynamic> data = _load(oid);
     if (data != null) {

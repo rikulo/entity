@@ -6,15 +6,12 @@ part of entity;
 /** An entity which can be stored into an entity store.
  */
 abstract class Entity {
-  //Members//
-  final DBControl _dbc;
-
   /** Instantiates a new entity that is not stored in DB yet.
    * 
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity([String oid]): _dbc = new DBControl(),
+  Entity([String oid]): _stored = false,
       this.oid = oid != null ? oid: nextOid();
   /**
    * Instantiates an entity that will be passed to [Storage.load]
@@ -34,9 +31,7 @@ abstract class Entity {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(this.oid): _dbc = new DBControl() {
-    _dbc.stored = true;
-  }
+  Entity.be(this.oid): _stored = true;
 
   ///The OID.
   final String oid;
@@ -48,51 +43,44 @@ abstract class Entity {
    */
   String get otype;
 
-  ///The DB control for this entity.
-  DBControl get dbc => _dbc;
+  /** Whether this entity has been stored into database.
+   * It is fasle if it is loaded from database or [save] was called.
+   */
+  bool get stored => _stored;
+  bool _stored;
 
   /** Saves this entity.
    *
    * * [fields] - a collection of fields to update.
    * If null, all fields (returned by [write]) will be updated.
-   *     > Notice: [fields] is meaningful only if `dbc.stored` is true.
+   *     > Notice: [fields] is meaningful only if [stored] is true.
    *     > In other words, it was ignored if it is a new entity (not-saved-yet)
    * * [beforeSave] - allows the caller to modify the JSON object and fields
    * before saving to the entitystore.
    */
   Future save(Access access, Iterable<String> fields,
       [void beforeSave(Entity entity, Map<String, dynamic> data, Set<String> fields)]) {
-    _check();
 
-    final Set<String> fds = fields != null && dbc.stored ? _toSet(fields): null;
+    final Set<String> fds = fields != null && stored ? _toSet(fields): null;
 
     final Map<String, dynamic> data = new HashMap();
     write(access.writer, data, fds);
     if (beforeSave != null)
       beforeSave(this, data, fds);
 
-    if (_dbc.stored)
+    if (stored)
       return access.update(this, data, fds);
 
     //new instance
-    _dbc.stored = true;
+    _stored = true;
     return access.create(this, data);
   }
 
   /** Deletes this entity.
-   *
-   * To know if an entity is deleted, you can check `entity.dbc.deleted`.
    */
   Future delete(Access access) {
-    _check();
-
-    _dbc._deleted = true;
+    _stored = false;
     return access.delete(this);
-  }
-
-  void _check() {
-    if (_dbc._deleted)
-      throw new StateError("deleted");
   }
 
   /** Writes this entity to a JSON object that can be serialized to
@@ -158,7 +146,7 @@ abstract class Entity {
    */
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     if (data.remove("-c") == true) //(dirty) sent from the client for creation
-      _dbc.stored = false;
+      _stored = false;
   }
 
   @override
@@ -185,22 +173,27 @@ class EntityNotFoundException extends EntityException {
   String toString() => "$oid not found";
 }
 
-/** The DB control for an entity.
- * Each entity has exactly one DB control.
+/** The interface to decorate [Entity] if it allowed to load
+ * into the same entity multiple times (with different fields).
+ * 
+ * If [Entity] implements [MultiLoad], [load] and [loadIfAny]
+ * will check if the required fields are loaded. If not, it will
+ * load them from database and put into the same entity.
+ * If yes, the entity will be returned directly wihout consulting
+ * database.
+ * 
+ * On the other hand, if this interface is not implemented,
+ * the cached entity, if any, will be returned directly.
  */
-class DBControl {
-  bool _deleted = false;
-
-  /** Whether this entity has been stored.
+abstract class MultiLoad {
+  /** Returns the collection of fields being loaded (never null).
    *
-   * It shall be considered as read-only.
-   * Don't set it directly, unless you know what're you doing.
+   * > Note: [loadedFields] is maintained by [load] and [loadIfAny].
+   * The implementation just needs to declare a data member initialized
+   * with an empty set.
    */
-  bool stored = false;
-  ///Whether this entity has been deleted (i.e., [Entity.delete] was called).
-  bool get deleted => _deleted;
+  Set<String> get loadedFields;
 }
-
 /** Loads the data of the given OID from the storage into the given entity.
  *
  * Note: it will invoke `access[oid]` first to see if there is a cached version.
@@ -210,6 +203,8 @@ class DBControl {
  * the data loaded from database.
  * You usually instantiate it with the `be` constructor (see [Entity.be]).
  * * [fields] - a collection of fields to load.
+ * * [cache] - how to use the cache. It is meaningful only if [access]
+ * supports it. Default: [LD_OVERWRITE_CACHE].
  * 
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
@@ -232,18 +227,37 @@ Future<Entity> loadIfAny(Access access, String oid,
     return new Future.value();
 
   Entity entity = access[oid];
-  if (entity != null)
-    return new Future.value(entity);
+  Set<String> fds;
+  if (entity != null) {
+    if (entity is! MultiLoad
+    || (entity as MultiLoad).loadedFields.contains(_ALL_FIELDS_LOADED))
+      return new Future.value(entity);
 
-  entity = newInstance(oid);
-  final Set<String> fds = _toSet(fields);
+    fds = _toSet(fields);
+    if (fds != null) {
+      fds = fds.difference((entity as MultiLoad).loadedFields);
+      if (fds.isEmpty)
+        return new Future.value(entity);
+    }
+  } else {
+    fds = _toSet(fields);
+    entity = newInstance(oid);
+  }
+
   return access.load(entity, fds)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
+      if (entity is MultiLoad) {
+        if (fds == null)
+          (entity as MultiLoad).loadedFields.add(_ALL_FIELDS_LOADED);
+        else
+          (entity as MultiLoad).loadedFields.addAll(fds);
+      }
       return entity;
     }
   });
 }
 
 Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();
+const String _ALL_FIELDS_LOADED = "_all.ld";

@@ -24,7 +24,7 @@ abstract class Access {
    * 
    * Note: it shall return a Future carrying null if not found.
    */
-  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields]);
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain
@@ -177,7 +177,7 @@ class AccessWrapper implements Access {
   Entity operator[](String oid) => origin[oid];
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields])
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields)
   => origin.load(entity, fields);
   @override
   Future update(Entity entity, Map<String, dynamic> data, Set<String> fields)

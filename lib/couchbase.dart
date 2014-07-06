@@ -33,7 +33,7 @@ class CouchbaseAccess implements Access {
   final AccessWriter writer = new AccessWriter();
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields]) {
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {
     final String oid = entity.oid;
     return _load(oid)
     .then((Map<String, dynamic> data) {

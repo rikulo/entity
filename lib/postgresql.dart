@@ -29,7 +29,7 @@ class PostgresqlAccess implements Access {
    */
   PostgresqlAccess(Connection this.conn, {bool cache:true})
   : _cache = cache ? new HashMap(): null {
-     (reader as _AccessReader).cache = _cache;
+     (reader as _AccessReader)._cache = _cache;
   }
 
   @override
@@ -45,9 +45,21 @@ class PostgresqlAccess implements Access {
     if (_cache != null)
       _cache.clear();
   }
+  /** Caches the given entity.
+   */
+  void cache(Entity entity) {
+    if (_cache != null)
+      _cache[entity.oid] = entity;
+  }
+  /** Removes the caching of the entity of the given OID.
+   */
+  void uncache(String oid) {
+    if (_cache != null)
+      _cache.remove(oid);
+  }
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, [Set<String> fields]) {
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {
     final List<String> query = ["select "];
     if (fields != null) {
       if (fields.isEmpty)
@@ -135,11 +147,11 @@ class PostgresqlAccess implements Access {
 }
 
 class _AccessReader extends AccessReader {
-  Map<String, Entity> cache;
-  _AccessReader([this.cache]);
+  Map<String, Entity> _cache;
+  _AccessReader([this._cache]);
 
   @override
-  Entity operator[](String oid) => cache != null ? cache[oid]: null;
+  Entity operator[](String oid) => _cache != null ? _cache[oid]: null;
 
   @override
   DateTime dateTime(json) => json;

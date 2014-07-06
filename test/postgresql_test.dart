@@ -60,7 +60,8 @@ Future initDB(Connection conn)
   """
   create temporary table "Master" (
     "oid" varchar(40) primary key,
-    "name" varchar(60)
+    "name" varchar(60),
+    "foo" json null
   )
   """, """
   create temporary table "Detail" (
