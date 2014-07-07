@@ -11,7 +11,7 @@ abstract class Entity {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity([String oid]): _stored = false,
+  Entity([String oid]): stored = false,
       this.oid = oid != null ? oid: nextOid();
   /**
    * Instantiates an entity that will be passed to [Storage.load]
@@ -31,7 +31,7 @@ abstract class Entity {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(this.oid): _stored = true;
+  Entity.be(this.oid): stored = true;
 
   ///The OID.
   final String oid;
@@ -44,10 +44,11 @@ abstract class Entity {
   String get otype;
 
   /** Whether this entity has been stored into database.
-   * It is fasle if it is loaded from database or [save] was called.
+   * It is false if it is loaded from database or [save] was called.
+   * 
+   * It is maintained automatically. The caller shall assume it is readonly.
    */
-  bool get stored => _stored;
-  bool _stored;
+  bool stored;
 
   /** Saves this entity.
    *
@@ -56,7 +57,7 @@ abstract class Entity {
    *     > Notice: [fields] is meaningful only if [stored] is true.
    *     > In other words, it was ignored if it is a new entity (not-saved-yet)
    * * [beforeSave] - allows the caller to modify the JSON object and fields
-   * before saving to the entitystore.
+   * before saving to the database.
    */
   Future save(Access access, Iterable<String> fields,
       [void beforeSave(Entity entity, Map<String, dynamic> data, Set<String> fields)]) {
@@ -72,14 +73,14 @@ abstract class Entity {
       return access.update(this, data, fds);
 
     //new instance
-    _stored = true;
+    stored = true;
     return access.create(this, data);
   }
 
   /** Deletes this entity.
    */
   Future delete(Access access) {
-    _stored = false;
+    stored = false;
     return access.delete(this);
   }
 
@@ -128,7 +129,7 @@ abstract class Entity {
    * * `-c`: it set `db.stored` to false (indicating the entity is
    * not stored to database yet)
    *
-   * The deriving class must override this method to read all data memeber
+   * The deriving class must override this method to read all data member
    * stored in [write]. For example,
    *
    *     void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
@@ -146,7 +147,7 @@ abstract class Entity {
    */
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     if (data.remove("-c") == true) //(dirty) sent from the client for creation
-      _stored = false;
+      stored = false;
   }
 
   @override
@@ -179,7 +180,7 @@ class EntityNotFoundException extends EntityException {
  * If [Entity] implements [MultiLoad], [load] and [loadIfAny]
  * will check if the required fields are loaded. If not, it will
  * load them from database and put into the same entity.
- * If yes, the entity will be returned directly wihout consulting
+ * If yes, the entity will be returned directly without consulting
  * database.
  * 
  * On the other hand, if this interface is not implemented,
@@ -222,7 +223,16 @@ Future<Entity> load(Access access, String oid,
  * null if not found.
  */
 Future<Entity> loadIfAny(Access access, String oid,
-    Entity newInstance(String oid), [Iterable<String> fields]) {
+    Entity newInstance(String oid), [Iterable<String> fields])
+=> loadIfAny_(access, oid, newInstance,
+  (Entity entity, Set<String> fields) => access.load(entity, fields),
+  fields);
+
+///A utility to implement [loadIfAny] and custom load functions.
+Future<Entity> loadIfAny_(Access access, String oid,
+    Entity newInstance(String oid),
+    Future<Map<String, dynamic>> load(Entity entity, Set<String> fields),
+    Iterable<String> fields) {
   if (oid == null)
     return new Future.value();
 
@@ -244,7 +254,7 @@ Future<Entity> loadIfAny(Access access, String oid,
     entity = newInstance(oid);
   }
 
-  return access.load(entity, fds)
+  return load(entity, fds)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
