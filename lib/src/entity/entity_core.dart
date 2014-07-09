@@ -70,18 +70,18 @@ abstract class Entity {
       beforeSave(this, data, fds);
 
     if (stored)
-      return access.update(this, data, fds);
+      return access.agent.update(this, data, fds);
 
     //new instance
     stored = true;
-    return access.create(this, data);
+    return access.agent.create(this, data);
   }
 
   /** Deletes this entity.
    */
   Future delete(Access access) {
     stored = false;
-    return access.delete(this);
+    return access.agent.delete(this);
   }
 
   /** Writes this entity to a JSON object that can be serialized to
@@ -225,7 +225,7 @@ Future<Entity> load(Access access, String oid,
 Future<Entity> loadIfAny(Access access, String oid,
     Entity newInstance(String oid), [Iterable<String> fields])
 => loadIfAny_(access, oid, newInstance,
-  (Entity entity, Set<String> fields) => access.load(entity, fields),
+  (Entity entity, Set<String> fields) => access.agent.load(entity, fields),
   fields);
 
 ///A utility to implement [loadIfAny] and custom load functions.

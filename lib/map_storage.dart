@@ -19,26 +19,38 @@ import "entity.dart";
  * on the client.
  */
 class MapStorageAccess implements Access {
-  //The persistent storage.
-  final Map<String, String> _storage;
-  ///The cached entities.
-  final Map<String, Entity> _cache = new HashMap();
-
+  final MapStorageAccessAgent _agent;
+  
   MapStorageAccess([Map<String, String> storage])
-  : _storage = storage != null ? storage: new HashMap() {
-  	(reader as CachedAccessReader).cache = _cache;
+  : _agent = new MapStorageAccessAgent(storage) {
+  	(reader as CachedAccessReader).cache = _agent._cache;
   }
 
   @override
-  Entity operator[](String oid) => _cache[oid];
+  Entity operator[](String oid) => _agent._cache[oid];
 
   @override
   final AccessReader reader = new CachedAccessReader();
   @override
   final AccessWriter writer = new AccessWriter();
 
+  @override
+  AccessAgent get agent => _agent;
+
   ///Clear the cache.
-  void clearCache() => _cache.clear();
+  void clearCache() => _agent._cache.clear();
+}
+
+/** The access aggent for map-based storage.
+ */
+class MapStorageAccessAgent implements AccessAgent {
+  //The persistent storage.
+  final Map<String, String> _storage;
+  ///The cached entities.
+  final Map<String, Entity> _cache = new HashMap();
+
+  MapStorageAccessAgent([Map<String, String> storage]):
+      _storage = storage != null ? storage: new HashMap();
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {

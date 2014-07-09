@@ -20,15 +20,12 @@ import "entity.dart";
  * 3. It assumes case-sensitive for the names of tables and columns.
  */
 class PostgresqlAccess implements Access {
-  final Connection conn;
-  final Map<String, Entity> _cache;
-
   /** Constructor.
    *
    * * [cache] - whether to enable the cache. Default: true.
    */
-  PostgresqlAccess(Connection this.conn, {bool cache:true})
-  : _cache = cache ? new HashMap(): null {
+  PostgresqlAccess(Connection conn, {bool cache:true}):
+      agent = new PostgresqlAccessAgent(conn, cache: cache) {
      (reader as _AccessReader)._cache = _cache;
   }
 
@@ -39,6 +36,13 @@ class PostgresqlAccess implements Access {
   final AccessReader reader = new _AccessReader();
   @override
   final AccessWriter writer = new _AccessWriter();
+  @override
+  final AccessAgent agent;
+
+  ///The connection to the postgreSQL server.
+  Connection get conn => (agent as PostgresqlAccessAgent).conn;
+
+  Map<String, Entity> get _cache => (agent as PostgresqlAccessAgent)._cache;
 
   ///Clear the cache.
   void clearCache() {
@@ -57,6 +61,17 @@ class PostgresqlAccess implements Access {
     if (_cache != null)
       _cache.remove(oid);
   }
+}
+
+/** The agent for accessing PostgreSQL.
+ */
+class PostgresqlAccessAgent implements AccessAgent {
+  ///The connection to the postgreSQL server.
+  final Connection conn;
+  final Map<String, Entity> _cache;
+
+  PostgresqlAccessAgent(Connection this.conn, {bool cache:true})
+  : _cache = cache ? new HashMap(): null;
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {

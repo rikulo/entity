@@ -20,9 +20,11 @@ import "entity.dart";
  * sense in a clustering environment.
  */
 class CouchbaseAccess implements Access {
-  final CouchClient client;
+  CouchbaseAccess(CouchClient client):
+      agent = new CouchbaseAccessAgent(client);
 
-  CouchbaseAccess(CouchClient this.client);
+  ///The couchbase client.
+  CouchClient get client => (agent as CouchbaseAccessAgent).client;
 
   @override
   Entity operator[](String oid) => null; //no cache supported
@@ -31,6 +33,18 @@ class CouchbaseAccess implements Access {
   final AccessReader reader = new AccessReader();
   @override
   final AccessWriter writer = new AccessWriter();
+
+  @override
+  final AccessAgent agent;
+}
+
+/** The agent for accessing Couchbase.
+ */
+class CouchbaseAccessAgent implements AccessAgent {
+  ///The couchbase client.
+  final CouchClient client;
+
+  CouchbaseAccessAgent(CouchClient this.client);
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {

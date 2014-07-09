@@ -17,6 +17,28 @@ abstract class Access {
    */
   Entity operator[](String oid);
 
+  /** The access reader for converting data from what the database returns.
+   */
+  AccessReader get reader;
+  /** The access writer for converting data into what the database accepts.
+   */
+  AccessWriter get writer;
+
+  /** The interface for accessing the storage (aka., database).
+   * 
+   * This method is called internally and implemented by
+   * an access provider. The application rarely need to invoke it.
+   */
+  AccessAgent get agent;
+}
+
+/** An agent for handling [load], [update], [create] and [delete]
+ * from/into database.
+ * 
+ * This interface is called internally and implemented by
+ * an access provider. The application rarely need to invoke it.
+ */
+abstract class AccessAgent {
   /** Loads the data of the given OID.
    * 
    * * [fields] - a collection of fields to load. If null, it means all.
@@ -43,13 +65,6 @@ abstract class Access {
   /** Deletes the entity from database.
    */
   Future delete(Entity entity);
-
-  /** The access reader for converting data from what the database returns.
-   */
-  AccessReader get reader;
-  /** The access writer for converting data into what the database accepts.
-   */
-  AccessWriter get writer;
 }
 
 /** A writer for converting data for saving to the database.
@@ -165,34 +180,6 @@ class CachedAccessReader extends AccessReader {
 
   @override
   Entity operator[](String oid) => cache[oid];
-}
-
-/** A wrapper of [Access] to simplify the implementation of interception.
- */
-class AccessWrapper implements Access {
-  Access origin;
-  AccessWrapper(Access this.origin);
-
-  @override
-  Entity operator[](String oid) => origin[oid];
-
-  @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields)
-  => origin.load(entity, fields);
-  @override
-  Future update(Entity entity, Map<String, dynamic> data, Set<String> fields)
-  => origin.update(entity, data, fields);
-  @override
-  Future create(Entity entity, Map<String, dynamic> data)
-  => origin.create(entity, data);
-
-  @override
-  Future delete(Entity entity) => origin.delete(entity);
-
-  @override
-  AccessReader get reader => origin.reader;
-  @override
-  AccessWriter get writer => origin.writer;
 }
 
 /** Minimizes the JSON map to be stored into DB or sent over internet
