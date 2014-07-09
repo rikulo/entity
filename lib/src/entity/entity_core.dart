@@ -231,7 +231,7 @@ Future<Entity> loadIfAny(Access access, String oid,
 ///A utility to implement [loadIfAny] and custom load functions.
 Future<Entity> loadIfAny_(Access access, String oid,
     Entity newInstance(String oid),
-    Future<Map<String, dynamic>> load(Entity entity, Set<String> fields),
+    Future<Map<String, dynamic>> loader(Entity entity, Set<String> fields),
     Iterable<String> fields) {
   if (oid == null)
     return new Future.value();
@@ -254,7 +254,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     entity = newInstance(oid);
   }
 
-  return load(entity, fds)
+  return loader(entity, fds)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
