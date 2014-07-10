@@ -211,8 +211,10 @@ abstract class MultiLoad {
  * (including oid is null).
  */
 Future<Entity> load(Access access, String oid,
-    Entity newInstance(String oid), [Iterable<String> fields])
-  => loadIfAny(access, oid, newInstance, fields)
+    Entity newInstance(String oid),
+    {Iterable<String> fields, bool forUpdate: false})
+  => loadIfAny(access, oid, newInstance,
+      fields: fields, forUpdate: forUpdate)
   .then((Entity entity) {
     if (entity == null)
       throw new EntityNotFoundException(entity.oid);
@@ -223,16 +225,19 @@ Future<Entity> load(Access access, String oid,
  * null if not found.
  */
 Future<Entity> loadIfAny(Access access, String oid,
-    Entity newInstance(String oid), [Iterable<String> fields])
+    Entity newInstance(String oid),
+    {Iterable<String> fields, bool forUpdate: false})
 => loadIfAny_(access, oid, newInstance,
-  (Entity entity, Set<String> fields) => access.agent.load(entity, fields),
-  fields);
+  (Entity entity, Set<String> fields, forUpdate)
+    => access.agent.load(entity, fields, forUpdate),
+  fields, forUpdate: forUpdate);
 
 ///A utility to implement [loadIfAny] and custom load functions.
 Future<Entity> loadIfAny_(Access access, String oid,
     Entity newInstance(String oid),
-    Future<Map<String, dynamic>> loader(Entity entity, Set<String> fields),
-    Iterable<String> fields) {
+    Future<Map<String, dynamic>> loader(
+        Entity entity, Set<String> fields, bool forUpdate),
+    Iterable<String> fields, {bool forUpdate: false}) {
   if (oid == null)
     return new Future.value();
 
@@ -254,7 +259,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     entity = newInstance(oid);
   }
 
-  return loader(entity, fds)
+  return loader(entity, fds, forUpdate)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);

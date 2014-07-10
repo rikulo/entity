@@ -45,8 +45,12 @@ abstract class AccessAgent {
    * If the plugin doesn't support partial load, it can ignore [fields].
    * 
    * Note: it shall return a Future carrying null if not found.
+   * 
+   * * [forUpdate] - whether to turn on select-for-update.
+   * Ignore it if the access provider doesn't support it.
    */
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields);
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
+    bool forUpdate);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain

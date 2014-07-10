@@ -74,8 +74,9 @@ class PostgresqlAccessAgent implements AccessAgent {
   : _cache = cache ? new HashMap(): null;
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {
-    final List<String> query = ["select "];
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
+      bool forUpdate) {
+    final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty)
         throw new ArgumentError("fields");
@@ -83,15 +84,18 @@ class PostgresqlAccessAgent implements AccessAgent {
       bool first = true;
       for (final String fd in fields) {
         if (first) first = false;
-        else query.add(',');
-        query..add('"')..add(fd)..add('"');
+        else sql.write(',');
+        sql..write('"')..write(fd)..write('"');
       }
     } else {
-      query.add("*");
+      sql.write("*");
     }
-    query..add(' from "')..add(entity.otype)..add('" where "oid"=@oid');
 
-    return conn.query(query.join(''), {F_OID: entity.oid}).toList()
+    sql..write(' from "')..write(entity.otype)..write('" where "oid"=@oid');
+    if (forUpdate == true)
+      sql.write(' for update');
+
+    return conn.query(sql.toString(), {F_OID: entity.oid}).toList()
     .then((List<Row> rows) {
       if (rows.isNotEmpty) {
         assert(rows.length == 1);
@@ -107,7 +111,8 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future update(Entity entity, Map<String, dynamic> data, Set<String> fields) {
-    final List<String> query = ['update "', entity.otype, '" set '];
+    final StringBuffer sql = new  StringBuffer('update "')
+      ..write(entity.otype)..write('" set ');
     final Iterable<String> fds = fields == null ? data.keys: fields;
 
     bool first = true;
@@ -116,34 +121,35 @@ class PostgresqlAccessAgent implements AccessAgent {
         continue;
 
       if (first) first = false;
-      else query.add(',');
-      query..add('"')..add(fd)..add('"')..add("=@")..add(fd);
+      else sql.write(',');
+      sql..write('"')..write(fd)..write('"')..write("=@")..write(fd);
     }
     if (first)
       return new Future.value(); //nothing to update
 
-    query.add(' where "oid"=@oid');
+    sql.write(' where "oid"=@oid');
     data[F_OID] = entity.oid;
-    return conn.execute(query.join(''), data);
+    return conn.execute(sql.toString(), data);
   }
 
   @override
   Future create(Entity entity, Map<String, dynamic> data) {
-    final List<String> query = ['insert into "', entity.otype, '"("oid"'];
-    final List<String> param = [" values(@oid"];
+    final StringBuffer sql = new  StringBuffer('insert into "')
+      ..write(entity.otype)..write('"("oid"');
+    final StringBuffer param = new StringBuffer(" values(@oid");
 
     for (final String fd in data.keys) {
       if (fd == F_OTYPE || fd == F_OID)
         continue;
 
-      query..add(',"')..add(fd)..add('"');
-      param..add(',@')..add(fd);
+      sql..write(',"')..write(fd)..write('"');
+      param..write(',@')..write(fd);
     }
-    query.add(')');
-    param.add(')');
+    sql.write(')');
+    param.write(')');
     data[F_OID] = entity.oid;
 
-    return conn.execute(query.join('') + param.join(''), data)
+    return conn.execute(sql.toString() + param.toString(), data)
     .then((_) {
       if (_cache != null)
         _cache[entity.oid] = entity; //update cache
@@ -152,8 +158,9 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future delete(Entity entity) {
-    final List<String> query = ['delete from "', entity.otype, '" where "oid"=@oid'];
-    return conn.execute(query.join(''), {F_OID: entity.oid})
+    return conn.execute(
+      'delete from "${entity.otype}" where "oid"=@oid',
+      {F_OID: entity.oid})
     .then((_) {
       if (_cache != null)
         _cache.remove(entity.oid); //update cache

@@ -53,7 +53,8 @@ class MapStorageAccessAgent implements AccessAgent {
       _storage = storage != null ? storage: new HashMap();
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields) {
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
+      bool forUpdate) {
     final String oid = entity.oid;
     final Map<String, dynamic> data = _load(oid);
     if (data != null) {
