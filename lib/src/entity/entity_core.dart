@@ -244,15 +244,21 @@ Future<Entity> loadIfAny_(Access access, String oid,
   Entity entity = access[oid];
   Set<String> fds;
   if (entity != null) {
-    if (entity is! MultiLoad
-    || (entity as MultiLoad).loadedFields.contains(_ALL_FIELDS_LOADED))
-      return new Future.value(entity);
-
-    fds = _toSet(fields);
-    if (fds != null) {
-      fds = fds.difference((entity as MultiLoad).loadedFields);
-      if (fds.isEmpty)
+    if (forUpdate) { //we have to go thru [loader] to ensure the lock
+      fds = _toSet(fields);
+      if (fds != null && entity is MultiLoad)
+        fds = fds.difference((entity as MultiLoad).loadedFields);
+    } else {
+      if (entity is! MultiLoad
+      || (entity as MultiLoad).loadedFields.contains(_ALL_FIELDS_LOADED))
         return new Future.value(entity);
+
+      fds = _toSet(fields);
+      if (fds != null) {
+        fds = fds.difference((entity as MultiLoad).loadedFields);
+        if (fds.isEmpty)
+          return new Future.value(entity);
+      }
     }
   } else {
     fds = _toSet(fields);

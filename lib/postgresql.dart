@@ -78,8 +78,11 @@ class PostgresqlAccessAgent implements AccessAgent {
       bool forUpdate) {
     final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
-      if (fields.isEmpty)
-        throw new ArgumentError("fields");
+      if (fields.isEmpty) {
+        if (!forUpdate)
+          throw new ArgumentError("fields");
+        fields.add(F_OID); //possible and allowed
+      }
 
       bool first = true;
       for (final String fd in fields) {
