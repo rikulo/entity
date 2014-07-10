@@ -37,7 +37,8 @@ Future test1() {
       expect(identical(m, m1), isFalse); //not the same instance
       expect(m.name, m1.name);
     })
-    .then((_) => load(access, d1.oid, beDetail, const ["value", "createdAt"]))
+    .then((_) => load(access, d1.oid, beDetail,
+          fields: const ["value", "createdAt"]))
     .then((Detail d) {
       expect(identical(d, d1), isFalse);
       expect(d.createdAt, d1.createdAt);
