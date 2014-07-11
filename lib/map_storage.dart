@@ -54,7 +54,7 @@ class MapStorageAccessAgent implements AccessAgent {
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      bool forUpdate) {
+      option) {
     final String oid = entity.oid;
     final Map<String, dynamic> data = _load(oid);
     if (data != null) {

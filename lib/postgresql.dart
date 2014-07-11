@@ -75,11 +75,11 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      bool forUpdate) {
+      option) {
     final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty) {
-        if (!forUpdate)
+        if (option == null)
           throw new ArgumentError("fields");
         fields.add(F_OID); //possible and allowed
       }
@@ -95,8 +95,10 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
 
     sql..write(' from "')..write(entity.otype)..write('" where "oid"=@oid');
-    if (forUpdate == true)
+    if (option == FOR_UPDATE)
       sql.write(' for update');
+    else if (option == FOR_SHARE)
+      sql.write(' for share');
 
     return conn.query(sql.toString(), {F_OID: entity.oid}).toList()
     .then((List<Row> rows) {

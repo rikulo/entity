@@ -46,11 +46,14 @@ abstract class AccessAgent {
    * 
    * Note: it shall return a Future carrying null if not found.
    * 
-   * * [forUpdate] - whether to turn on select-for-update.
-   * Ignore it if the access provider doesn't support it.
+   * * [option] - an option for loading the entity.
+   * It is the option passed from [load] and [loadIfAny],
+   * so it can be application specific.
+   * You can ignore it if not supported.
+   * For SQL, it is better to supporte `null`, [FOR_SHARE] and [FOR_UPDATE].
    */
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-    bool forUpdate);
+    option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain

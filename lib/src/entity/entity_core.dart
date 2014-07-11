@@ -3,6 +3,15 @@
 // Author: tomyeh
 part of entity;
 
+/** Used with [load] and [loadIfAny] to indicat the locking
+ * is *select-for-share* (i.e., read lock).
+ */
+const int FOR_SHARE = 1;
+/** Used with [load] and [loadIfAny] to indicat the locking
+ * is *select-for-update* (i.e., updatelock).
+ */
+const int FOR_UPDATE = 2;
+
 /** An entity which can be stored into an entity store.
  */
 abstract class Entity {
@@ -204,17 +213,18 @@ abstract class MultiLoad {
  * the data loaded from database.
  * You usually instantiate it with the `be` constructor (see [Entity.be]).
  * * [fields] - a collection of fields to load.
- * * [cache] - how to use the cache. It is meaningful only if [access]
- * supports it. Default: [LD_OVERWRITE_CACHE].
+ * * [option] - an option for loading the entity.
+ * Technically, you can pass anything that your access provider supports.
+ * For SQL, itt could be `null`,
+ * [FOR_SHARE] and [FOR_UPDATE]. Default: null (means no lock at all).
  * 
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
  */
 Future<Entity> load(Access access, String oid,
     Entity newInstance(String oid),
-    {Iterable<String> fields, bool forUpdate: false})
-  => loadIfAny(access, oid, newInstance,
-      fields: fields, forUpdate: forUpdate)
+    [Iterable<String> fields, option])
+  => loadIfAny(access, oid, newInstance, fields, option)
   .then((Entity entity) {
     if (entity == null)
       throw new EntityNotFoundException(entity.oid);
@@ -223,28 +233,30 @@ Future<Entity> load(Access access, String oid,
 
 /** Loads the entity of the given OID, and return a [Future] carrying
  * null if not found.
+ *
+ * Please refer to [load] for details.
  */
 Future<Entity> loadIfAny(Access access, String oid,
     Entity newInstance(String oid),
-    {Iterable<String> fields, bool forUpdate: false})
+    [Iterable<String> fields, option])
 => loadIfAny_(access, oid, newInstance,
-  (Entity entity, Set<String> fields, forUpdate)
-    => access.agent.load(entity, fields, forUpdate),
-  fields, forUpdate: forUpdate);
+  (Entity entity, Set<String> fields, option)
+    => access.agent.load(entity, fields, option),
+  fields, option);
 
 ///A utility to implement [loadIfAny] and custom load functions.
 Future<Entity> loadIfAny_(Access access, String oid,
     Entity newInstance(String oid),
     Future<Map<String, dynamic>> loader(
-        Entity entity, Set<String> fields, bool forUpdate),
-    Iterable<String> fields, {bool forUpdate: false}) {
+        Entity entity, Set<String> fields, option),
+    Iterable<String> fields, [option]) {
   if (oid == null)
     return new Future.value();
 
   Entity entity = access[oid];
   Set<String> fds;
   if (entity != null) {
-    if (forUpdate) { //we have to go thru [loader] to ensure the lock
+    if (option != null) { //we have to go thru [loader] to ensure the lock
       fds = _toSet(fields);
       if (fds != null && entity is MultiLoad)
         fds = fds.difference((entity as MultiLoad).loadedFields);
@@ -265,7 +277,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     entity = newInstance(oid);
   }
 
-  return loader(entity, fds, forUpdate)
+  return loader(entity, fds, option)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
