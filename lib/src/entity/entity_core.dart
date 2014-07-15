@@ -223,7 +223,7 @@ abstract class MultiLoad {
  */
 Future<Entity> load(Access access, String oid,
     Entity newInstance(String oid),
-    [Iterable<String> fields, option])
+    [Iterable<String> fields, int option])
   => loadIfAny(access, oid, newInstance, fields, option)
   .then((Entity entity) {
     if (entity == null)
@@ -238,7 +238,7 @@ Future<Entity> load(Access access, String oid,
  */
 Future<Entity> loadIfAny(Access access, String oid,
     Entity newInstance(String oid),
-    [Iterable<String> fields, option])
+    [Iterable<String> fields, int option])
 => loadIfAny_(access, oid, newInstance,
   (Entity entity, Set<String> fields, option)
     => access.agent.load(entity, fields, option),
@@ -249,7 +249,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     Entity newInstance(String oid),
     Future<Map<String, dynamic>> loader(
         Entity entity, Set<String> fields, option),
-    Iterable<String> fields, [option]) {
+    Iterable<String> fields, [int option]) {
   if (oid == null)
     return new Future.value();
 

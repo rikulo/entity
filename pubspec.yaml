@@ -1,5 +1,5 @@
 name: entity
-version: 0.5.0
+version: 0.5.2
 description: > 
   A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 authors:
@@ -11,6 +11,7 @@ dev_dependencies:
   browser: any
   couchclient: any
   postgresql: any
+  postgresql2: any
 environment:
   sdk: ">=1.4.0"
 dependencies:
