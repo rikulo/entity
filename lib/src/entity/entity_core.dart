@@ -20,8 +20,9 @@ abstract class Entity {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity([String oid]): stored = false,
-      this.oid = oid != null ? oid: nextOid();
+  Entity([String oid]): this.oid = oid != null ? oid: nextOid() {
+    stored = false;
+  }
   /**
    * Instantiates an entity that will be passed to [Storage.load]
    * for holding the data loaded from database.
@@ -40,7 +41,9 @@ abstract class Entity {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(this.oid): stored = true;
+  Entity.be(this.oid) {
+    stored = true;
+  }
 
   ///The OID.
   final String oid;
@@ -54,10 +57,22 @@ abstract class Entity {
 
   /** Whether this entity has been stored into database.
    * It is false if it is loaded from database or [save] was called.
+   */
+  bool get stored => _stored;
+  /** Sets whether this entity has been stored into database.
    * 
    * It is maintained automatically. The caller shall assume it is readonly.
+   * 
+   * > Note: if false
    */
-  bool stored;
+  void set stored(bool stored) {
+    if (_stored != stored) {
+      _stored = stored;
+      if (!_stored && this is MultiLoad)
+        (this as MultiLoad).loadedFields.add("*");
+    }
+  } 
+  bool _stored;
 
   /** Saves this entity.
    *
@@ -198,6 +213,7 @@ abstract class MultiLoad {
    */
   Set<String> get loadedFields;
 }
+
 /** Loads the data of the given OID from the storage into the given entity.
  *
  * Note: it will invoke `access[oid]` first to see if there is a cached version.
@@ -252,11 +268,15 @@ Future<Entity> loadIfAny_(Access access, String oid,
   if (entity != null) {
     if (option != null) { //we have to go thru [loader] to ensure the lock
       fds = _toSet(fields);
-      if (fds != null && entity is MultiLoad)
-        fds = fds.difference((entity as MultiLoad).loadedFields);
+
+      if (entity is MultiLoad) {
+        final Set<String> loaded = (entity as MultiLoad).loadedFields;
+        fds = loaded.contains("*") ? new HashSet(): //nothing needed
+                fds != null ? fds.difference(loaded): null;
+      }
     } else {
       if (entity is! MultiLoad
-      || (entity as MultiLoad).loadedFields.contains(_ALL_FIELDS_LOADED))
+      || (entity as MultiLoad).loadedFields.contains("*"))
         return new Future.value(entity);
 
       fds = _toSet(fields);
@@ -276,10 +296,11 @@ Future<Entity> loadIfAny_(Access access, String oid,
     if (data != null) {
       entity.read(access.reader, data, fds);
       if (entity is MultiLoad) {
+        final Set<String> loaded = (entity as MultiLoad).loadedFields;
         if (fds == null)
-          (entity as MultiLoad).loadedFields.add(_ALL_FIELDS_LOADED);
+          loaded.add("*");
         else
-          (entity as MultiLoad).loadedFields.addAll(fds);
+          loaded.addAll(fds);
       }
       return entity;
     }
@@ -287,4 +308,3 @@ Future<Entity> loadIfAny_(Access access, String oid,
 }
 
 Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();
-const String _ALL_FIELDS_LOADED = "_all.ld";
