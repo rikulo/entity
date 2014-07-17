@@ -76,6 +76,8 @@ abstract class AccessAgent {
 
 /** A writer for converting data for saving to the database.
  *
+ * By default, [dateTime] will convert [DateTime] to an integer.
+ *
  * The plugin can extend it and implement its own converters.
  */
 class AccessWriter {
@@ -113,6 +115,8 @@ class AccessWriter {
 }
 
 /** A reader for converting data read from the database.
+ *
+ * By default, [dateTime] will convert an integer to [DateTime].
  *
  * The plugin can extend it and implement its own converters.
  */
