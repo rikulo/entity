@@ -132,12 +132,8 @@ abstract class Entity {
    * It is used by the plugin to initialize an entity (instantiated by
    * [Entity.be]).
    *
-   * Default: no fields are parsed and read, except the following
-   * special fields:
+   * Default: does nothing (no fields are parsed and read).
    * 
-   * * `-c`: it set `db.stored` to false (indicating the entity is
-   * not stored to database yet)
-   *
    * The deriving class must override this method to read all data member
    * stored in [write]. For example,
    *
@@ -155,8 +151,6 @@ abstract class Entity {
    * In general, you can ignore this argument (but use [data] instead).
    */
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
-    if (data.remove("-c") == true) //(dirty) sent from the client for creation
-      stored = false;
   }
 
   @override
