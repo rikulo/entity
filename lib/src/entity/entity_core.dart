@@ -58,21 +58,7 @@ abstract class Entity {
   /** Whether this entity has been stored into database.
    * It is false if it is loaded from database or [save] was called.
    */
-  bool get stored => _stored;
-  /** Sets whether this entity has been stored into database.
-   * 
-   * It is maintained automatically. The caller shall assume it is readonly.
-   * 
-   * > Note: if false
-   */
-  void set stored(bool stored) {
-    if (_stored != stored) {
-      _stored = stored;
-      if (!_stored && this is MultiLoad)
-        (this as MultiLoad).loadedFields.add("*");
-    }
-  } 
-  bool _stored;
+  bool stored;
 
   /** Saves this entity.
    *
@@ -295,6 +281,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
+
       if (entity is MultiLoad) {
         final Set<String> loaded = (entity as MultiLoad).loadedFields;
         if (fds == null)

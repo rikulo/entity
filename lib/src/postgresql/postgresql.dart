@@ -71,11 +71,8 @@ class PostgresqlAccessAgent implements AccessAgent {
       option) {
     final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
-      if (fields.isEmpty) {
-        if (option == null)
-          throw new ArgumentError("fields");
+      if (fields.isEmpty)
         fields.add(F_OID); //possible and allowed
-      }
 
       bool first = true;
       for (final String fd in fields) {
@@ -137,7 +134,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     final StringBuffer param = new StringBuffer(" values(@oid");
 
     for (final String fd in data.keys) {
-      if (fd == F_OTYPE || fd == F_OID)
+      if (fd == F_OTYPE || fd == F_OID || data[fd] == null)
         continue;
 
       sql..write(',"')..write(fd)..write('"');
