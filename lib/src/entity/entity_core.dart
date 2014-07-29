@@ -252,9 +252,14 @@ Future<Entity> loadIfAny_(Access access, String oid,
   Entity entity = access[oid];
   final Entity newEntity = newInstance(oid);
   Set<String> fds;
-  if (entity != null && entity.otype == newEntity.otype) {
-  //Note: it is possible entity.otype != newEntity.otype if the app tries
-  //to load the entity from several tables
+  if (entity != null) {
+    //Note: it is possible entity.otype != newEntity.otype if the app
+    //tries to load the entity from several tables.
+    //
+    //Also, if access allows caching, oid shall be able to identify
+    //an entity regardless its otype. Thus, we can assume not-found here.
+    if (entity.otype != newEntity.otype)
+      return null;
 
     if (option != null) { //we have to go thru [loader] to ensure the lock
       fds = _toSet(fields);

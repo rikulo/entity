@@ -14,6 +14,9 @@ part of entity;
 abstract class Access {
   /** Returns the entity of the given OID, if it is stored in the cache.
    * It always return null if the plugin doesn't support the cache.
+   * 
+   * > Note: if cache is supported, it also implies [oid] can identify
+   * > an entity uniquely (regardless of what its otype is).
    */
   Entity operator[](String oid);
 
