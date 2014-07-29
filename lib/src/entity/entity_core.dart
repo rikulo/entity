@@ -250,8 +250,12 @@ Future<Entity> loadIfAny_(Access access, String oid,
     return new Future.value();
 
   Entity entity = access[oid];
+  final Entity newEntity = newInstance(oid);
   Set<String> fds;
-  if (entity != null) {
+  if (entity != null && entity.otype == newEntity.otype) {
+  //Note: it is possible entity.otype != newEntity.otype if the app tries
+  //to load the entity from several tables
+
     if (option != null) { //we have to go thru [loader] to ensure the lock
       fds = _toSet(fields);
 
@@ -274,7 +278,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     }
   } else {
     fds = _toSet(fields);
-    entity = newInstance(oid);
+    entity = newEntity;
   }
 
   return loader(entity, fds, option)
