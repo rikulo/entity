@@ -259,7 +259,7 @@ Future<Entity> loadIfAny_(Access access, String oid,
     //Also, if access allows caching, oid shall be able to identify
     //an entity regardless its otype. Thus, we can assume not-found here.
     if (entity.otype != newEntity.otype)
-      return null;
+      return new Future<Entity>.value();
 
     if (option != null) { //we have to go thru [loader] to ensure the lock
       fds = _toSet(fields);
