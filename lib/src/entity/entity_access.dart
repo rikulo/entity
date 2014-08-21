@@ -130,35 +130,31 @@ class AccessReader {
 
   /** Returns the entity of the given OID, or null if not loaded.
    *
-   * It is similar to [entity], except [entity] shows an exception if OID
-   * is not null and the entity is not found.
+   * Note: this method shall not try to load the entity from the database.
+   * Rather, it shall get it from a in-memory cache, if supported.
    * 
    * Default: always returns null.
    */
   Entity operator[](String oid) => null;
 
   /** Returns the entity of the given OID if it was loaded.
-   * It throws [StateError] if not loaded. Alternatively, you can use [operator[]]
+   * It is the same as [operator[]],
    * instead.
    * 
-   * Note: this method shall not try to load the entity from the database.
-   * Rather, it shall get it from a in-memory cache, if supported.
-   * 
-   * Default: it invokes `this[json]` and throws [StateError]
-   * if not found and [json] is not null.
-   * Note: it returns null if [json] is null.
+   * Default: invokes [operator[]].
    *
    * * [json] - the json object to convert from. It is actually the OID.
    */
-  Entity entity(String json) {
-    final Entity entity = this[json];
-    if (entity == null && json != null)
-  		throw new StateError(""); //Not loaded or cached
-  	return entity; //no cache supported
-  }
+  Entity entity(String json) => this[json];
 
   /** Parses the given collection of OIDs into the corresponding entities.
-   * It throws [StateError] if not loaded.
+   *
+   * > Note: if OID specified in [json] is not found (and not null), it
+   * > will be ignored. In other words, the result list can be shorter.
+   
+   * > For example, assume [json] is `['oidA', null, 'oidB']` and `oidA`
+   * > is found while `oidB` is not, then the result is
+   * > `[entityA, null]`.
    */
   List<Entity> entities(Iterable<String> json) {
     if (json == null)
@@ -167,11 +163,12 @@ class AccessReader {
     final List entities = [];
     for (final String each in json) {
       final Entity val = entity(each);
-      if (val != null)
+      if (each == null || val != null)
         entities.add(val);
     }
     return entities;
   }
+
   /** Parses the given map of OIDs into the corresponding entities.
    * It throws [StateError] if not loaded.
    */
