@@ -108,7 +108,7 @@ abstract class Entity {
    *     void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
    *       super.write(writer, data, fields);
    *       data["someData"] = someData;
-   *       data["someEntity"] = writer.entity(someEntity);
+   *       data["someEntity"] = writer.entity(SomeType, someEntity);
    *       data["someDateTime"] = writer.dateTime(someDateTime);
    *       if (fields == null || fields.contains("someComplexField")) //optional but optimize
    *         data["someComplexField"] = writer.entities("someComplexField");
@@ -141,7 +141,7 @@ abstract class Entity {
    *     void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
    *       super.read(reader, data, fields);
    *       someData = data["someData"];
-   *       someEntity = reader.entity(data["someEntity"]);
+   *       someEntity = reader.entity(SomeType, data["someEntity"]);
    *       someDateTime = reader.dateTime(data["someDateTime"]);
    *     }
    *
@@ -249,8 +249,8 @@ Future<Entity> loadIfAny_(Access access, String oid,
   if (oid == null)
     return new Future.value();
 
-  Entity entity = access[oid];
   final Entity newEntity = newInstance(oid);
+  Entity entity = access.get(newEntity.otype, oid);
   Set<String> fds;
   if (entity != null) {
     //Note: it is possible entity.otype != newEntity.otype if the app

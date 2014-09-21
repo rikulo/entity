@@ -23,7 +23,8 @@ class PostgresqlAccess implements Access {
   }
 
   @override
-  Entity operator[](String oid) => _cache != null ? _cache[oid]: null;
+  Entity get(String otype, String oid)
+  => _cache != null ? _cache.get(otype, oid): null;
 
   @override
   final AccessReader reader = new _AccessReader();
@@ -35,7 +36,7 @@ class PostgresqlAccess implements Access {
   ///The connection to the postgreSQL server.
   Connection get conn => (agent as PostgresqlAccessAgent).conn;
 
-  Map<String, Entity> get _cache => (agent as PostgresqlAccessAgent)._cache;
+  EntityCache get _cache => (agent as PostgresqlAccessAgent)._cache;
 
   ///Clear the cache.
   void clearCache() {
@@ -46,13 +47,13 @@ class PostgresqlAccess implements Access {
    */
   void cache(Entity entity) {
     if (_cache != null)
-      _cache[entity.oid] = entity;
+      _cache.put(entity);
   }
-  /** Removes the caching of the entity of the given OID.
+  /** Removes the caching of the entity of the given [otype] and [oid].
    */
-  void uncache(String oid) {
+  void uncache(String otype, String oid) {
     if (_cache != null)
-      _cache.remove(oid);
+      _cache.remove(otype, oid);
   }
 }
 
@@ -61,10 +62,12 @@ class PostgresqlAccess implements Access {
 class PostgresqlAccessAgent implements AccessAgent {
   ///The connection to the postgreSQL server.
   final Connection conn;
-  final Map<String, Entity> _cache;
+  final EntityCache _cache;
 
   PostgresqlAccessAgent(Connection this.conn, {bool cache:true})
-  : _cache = cache ? new HashMap(): null;
+  : _cache = cache ? new EntityCache(): null;
+  PostgresqlAccessAgent.by(Connection this.conn, EntityCache cache)
+  : _cache = cache;
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
@@ -98,7 +101,7 @@ class PostgresqlAccessAgent implements AccessAgent {
         final Map<String, dynamic> data = new HashMap();
         row.forEach((String name, value) => data[name] = value);
         if (_cache != null)
-          _cache[entity.oid] = entity; //update cache
+          _cache.put(entity); //update cache
         return data;
       }
     });
@@ -147,7 +150,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     return conn.execute(sql.toString() + param.toString(), data)
     .then((_) {
       if (_cache != null)
-        _cache[entity.oid] = entity; //update cache
+        _cache.put(entity); //update cache
     });
   }
 
@@ -158,17 +161,18 @@ class PostgresqlAccessAgent implements AccessAgent {
       {F_OID: entity.oid})
     .then((_) {
       if (_cache != null)
-        _cache.remove(entity.oid); //update cache
+        _cache.remove(entity.otype, entity.oid); //update cache
     });
   }
 }
 
 class _AccessReader extends AccessReader {
-  Map<String, Entity> _cache;
+  EntityCache _cache; //not final since it might be assigned by caller
   _AccessReader([this._cache]);
 
   @override
-  Entity operator[](String oid) => _cache != null ? _cache[oid]: null;
+  Entity entity(String otype, String oid)
+  => _cache != null ? _cache.get(otype, oid): null;
 
   @override
   DateTime dateTime(json) => json;

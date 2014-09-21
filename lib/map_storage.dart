@@ -16,7 +16,8 @@ import "entity.dart";
  * and `window.sessionStorage`.
  * 
  * Note: this implementation supports cache. It is mainly designed for using
- * on the client.
+ * on the client. If you don't want, you can pass a dummy [EntityCache] to
+ * [MapStorageAccess.by].
  */
 class MapStorageAccess implements Access {
   final MapStorageAccessAgent _agent;
@@ -25,9 +26,13 @@ class MapStorageAccess implements Access {
   : _agent = new MapStorageAccessAgent(storage) {
   	(reader as CachedAccessReader).cache = _agent._cache;
   }
+  MapStorageAccess.by(EntityCache cache, [Map<String, String> storage])
+  : _agent = new MapStorageAccessAgent.by(cache, storage) {
+  	(reader as CachedAccessReader).cache = _agent._cache;
+  }
 
   @override
-  Entity operator[](String oid) => _agent._cache[oid];
+  Entity get(String otype, String oid) => _agent._cache.get(otype, oid);
 
   @override
   final AccessReader reader = new CachedAccessReader();
@@ -47,19 +52,25 @@ class MapStorageAccessAgent implements AccessAgent {
   //The persistent storage.
   final Map<String, String> _storage;
   ///The cached entities.
-  final Map<String, Entity> _cache = new HashMap();
+  final EntityCache _cache;
 
   MapStorageAccessAgent([Map<String, String> storage]):
-      _storage = storage != null ? storage: new HashMap();
+    this.by(new EntityCache(), storage);
+  /** Constructs with the given [cache].
+   *
+   * * [cache] - the cache for storing the entity. It can't be null.
+   */
+  MapStorageAccessAgent.by(EntityCache cache, [Map<String, String> storage]):
+      _storage = storage != null ? storage: new HashMap(),
+      _cache = cache;
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
       option) {
-    final String oid = entity.oid;
-    final Map<String, dynamic> data = _load(oid);
+    final Map<String, dynamic> data = _load(entity.oid);
     if (data != null) {
       assert(data[F_OTYPE] == entity.otype);
-      _cache[oid] = entity; //update cache
+      _cache.put(entity); //update cache
     }
     return new Future.value(data);
   }
@@ -96,7 +107,7 @@ class MapStorageAccessAgent implements AccessAgent {
   @override
   Future create(Entity entity, Map<String, dynamic> data) {
     final String oid = entity.oid;
-    _cache[oid] = entity;
+    _cache.put(entity);
     _storage[oid] = JSON.encode(data);
     return new Future.value();
   }
@@ -104,7 +115,7 @@ class MapStorageAccessAgent implements AccessAgent {
   @override
   Future delete(Entity entity) {
     final String oid = entity.oid;
-    _cache.remove(oid);
+    _cache.remove(entity.otype, oid);
     _storage.remove(oid);
     return new Future.value();
   }

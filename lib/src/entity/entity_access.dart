@@ -18,7 +18,7 @@ abstract class Access {
    * > Note: if cache is supported, it also implies [oid] can identify
    * > an entity uniquely (regardless of what its otype is).
    */
-  Entity operator[](String oid);
+  Entity get(String otype, String oid);
 
   /** The access reader for converting data from what the database returns.
    */
@@ -135,17 +135,7 @@ class AccessReader {
    * 
    * Default: always returns null.
    */
-  Entity operator[](String oid) => null;
-
-  /** Returns the entity of the given OID if it was loaded.
-   * It is the same as [operator[]],
-   * instead.
-   * 
-   * Default: invokes [operator[]].
-   *
-   * * [json] - the json object to convert from. It is actually the OID.
-   */
-  Entity entity(String json) => this[json];
+  Entity entity(String otype, String json) => null;
 
   /** Parses the given collection of OIDs into the corresponding entities.
    *
@@ -156,13 +146,13 @@ class AccessReader {
    * > is found while `oidB` is not, then the result is
    * > `[entityA, null]`.
    */
-  List<Entity> entities(Iterable<String> json) {
+  List<Entity> entities(String otype, Iterable<String> json) {
     if (json == null)
       return null;
 
     final List entities = [];
     for (final String each in json) {
-      final Entity val = entity(each);
+      final Entity val = entity(otype, each);
       if (each == null || val != null)
         entities.add(val);
     }
@@ -172,13 +162,13 @@ class AccessReader {
   /** Parses the given map of OIDs into the corresponding entities.
    * It throws [StateError] if not loaded.
    */
-  Map<dynamic, Entity> entityMap(Map<dynamic, String> json) {
+  Map<dynamic, Entity> entityMap(String otype, Map<dynamic, String> json) {
     if (json == null)
       return null;
 
     final Map<dynamic, Entity> entities = new HashMap();
     for (final key in json.keys)
-      entities[key] = entity(json[key]);
+      entities[key] = entity(otype, json[key]);
     return entities;
   }
 }
@@ -186,11 +176,11 @@ class AccessReader {
 /** An extension of [AccessReader] that support a cache.
  */
 class CachedAccessReader extends AccessReader {
-  Map<String, Entity> cache;
-  CachedAccessReader([this.cache]);
+  EntityCache cache;
+  CachedAccessReader([EntityCache this.cache]);
 
   @override
-  Entity operator[](String oid) => cache[oid];
+  Entity entity(String otype, String oid) => cache.get(otype, oid);
 }
 
 /** Minimizes the JSON map to be stored into DB or sent over internet
@@ -221,4 +211,60 @@ Map<String, dynamic> minify(Map<String, dynamic> json) {
       result[name] = value is Map ? minify(value): value;
   }
   return result;
+}
+
+/** A cache for storing entities.
+ */
+abstract class EntityCache {
+  factory EntityCache() => new _EntityCache();
+
+  /** Gets the entity of the given [otype] and [oid].
+   */
+  Entity get(String otype, String oid);
+  /** Caches an entity.
+   */
+  Entity put(Entity entity);
+
+  /** Remove the cache of an entity.
+   */
+  bool remove(String otype, String oid);
+
+  /** Clears the whole cache.
+   */
+  void clear();
+}
+
+/** A utility class for storing the pair of [otype] and [oid].
+ * It is mainly used as the key for accessing a cache (aka., a map)
+ * of entities.
+ */
+class _CacheKey {
+  final String otype;
+  final String oid;
+
+  _CacheKey(String this.otype, String this.oid);
+
+	@override
+  int get hashCode => otype.hashCode + oid.hashCode;
+	@override
+  bool operator==(o) => o is _CacheKey && o.otype == otype && o.oid == oid;
+}
+
+class _EntityCache implements EntityCache {
+  final Map<_CacheKey, Entity> _cache = new HashMap();
+
+  _EntityCache();
+
+  @override
+  Entity get(String otype, String oid) => _cache[new _CacheKey(otype, oid)];
+  @override
+  Entity put(Entity entity)
+  => _cache[new _CacheKey(entity.otype, entity.oid)] = entity;
+
+  @override
+  bool remove(String otype, String oid)
+  => _cache.remove(new _CacheKey(otype, oid)) != null;
+
+  @override
+  void clear() => _cache.clear();
 }

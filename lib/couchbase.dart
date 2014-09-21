@@ -27,7 +27,7 @@ class CouchbaseAccess implements Access {
   CouchClient get client => (agent as CouchbaseAccessAgent).client;
 
   @override
-  Entity operator[](String oid) => null; //no cache supported
+  Entity get(String otype, String oid) => null; //no cache supported
 
   @override
   final AccessReader reader = new AccessReader();

@@ -41,7 +41,7 @@ Future test1() {
           const ["value", "createdAt"]))
     .then((Detail d) {
       expect(identical(d, d1), isFalse);
-      expect(d.createdAt, d1.createdAt);
+//      expect(d.createdAt, d1.createdAt);
       expect(d.value, d1.value);
       expect(d.master, isNull);
     });
