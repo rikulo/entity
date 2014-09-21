@@ -145,16 +145,26 @@ class AccessReader {
    * > For example, assume [json] is `['oidA', null, 'oidB']` and `oidA`
    * > is found while `oidB` is not, then the result is
    * > `[entityA, null]`.
+   *
+   * * [facade] - if specified and an entity is not found,
+   * it will be invoked to instantiate an entity repreenting the
+   * not-found entity. It is useful if an entity is no longer available. 
    */
-  List<Entity> entities(String otype, Iterable<String> json) {
+  List<Entity> entities(String otype, Iterable<String> json,
+      {Entity facade(String oid)}) {
     if (json == null)
       return null;
 
     final List entities = [];
-    for (final String each in json) {
-      final Entity val = entity(otype, each);
-      if (each == null || val != null)
-        entities.add(val);
+    for (final String oid in json) {
+      Entity en;
+      if (oid != null) {
+        en = entity(otype, oid);
+        if (en == null && facade != null)
+          en = facade(oid);
+      }
+      if (oid == null || en != null)
+        entities.add(en);
     }
     return entities;
   }
