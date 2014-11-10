@@ -20,7 +20,7 @@ abstract class Entity {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity([String oid]): this.oid = oid != null ? oid: nextOid() {
+  Entity({String oid}): this.oid = oid != null ? oid: nextOid() {
     stored = false;
   }
   /**
