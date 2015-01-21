@@ -178,6 +178,28 @@ class EntityNotFoundException extends EntityException {
   String toString() => "$oid not found";
 }
 
+/** The interface to decorate [Entity] if it allowed to load
+ * into the same entity multiple times (with different fields).
+ * 
+ * If [Entity] implements [MultiLoad], [load] and [loadIfAny]
+ * will check if the required fields are loaded. If not, it will
+ * load them from database and put into the same entity.
+ * If yes, the entity will be returned directly without consulting
+ * database.
+ * 
+ * On the other hand, if this interface is not implemented,
+ * the cached entity, if any, will be returned directly.
+ */
+abstract class MultiLoad {
+  /** Returns the collection of fields being loaded (never null).
+   *
+   * > Note: [loadedFields] is maintained by [load] and [loadIfAny].
+   * The implementation just needs to declare a data member initialized
+   * with an empty set.
+   */
+  Set<String> get loadedFields;
+}
+
 /** Loads the data of the given OID from the storage into the given entity.
  *
  * Note: it will invoke `access[oid]` first to see if there is a cached version.
@@ -229,16 +251,53 @@ Future<Entity> loadIfAny_(Access access, String oid,
 
   final Entity newEntity = newInstance(oid);
   Entity entity = access.get(newEntity.otype, oid);
-  if (entity == null || entity.otype != newEntity.otype)
-    entity = newEntity;
+  Set<String> fds;
+  if (entity != null) {
     //Note: it is possible entity.otype != newEntity.otype if the app
-    //tries to load the entity from multiple tables and PK is the same.
+    //tries to load the entity from several tables.
+    //
+    //Also, if access allows caching, oid shall be able to identify
+    //an entity regardless its otype. Thus, we can assume not-found here.
+    if (entity.otype != newEntity.otype)
+      return new Future<Entity>.value();
 
-  final Set<String> fds = _toSet(fields);
+    if (option != null) { //we have to go thru [loader] to ensure the lock
+      fds = _toSet(fields);
+
+      if (entity is MultiLoad) {
+        final Set<String> loaded = (entity as MultiLoad).loadedFields;
+        fds = loaded.contains("*") ? new HashSet(): //nothing needed
+                fds != null ? fds.difference(loaded): null;
+      }
+    } else {
+      if (entity is! MultiLoad
+      || (entity as MultiLoad).loadedFields.contains("*"))
+        return new Future.value(entity);
+
+      fds = _toSet(fields);
+      if (fds != null) {
+        fds = fds.difference((entity as MultiLoad).loadedFields);
+        if (fds.isEmpty)
+          return new Future.value(entity);
+      }
+    }
+  } else {
+    fds = _toSet(fields);
+    entity = newEntity;
+  }
+
   return loader(entity, fds, option)
   .then((Map<String, dynamic> data) {
     if (data != null) {
       entity.read(access.reader, data, fds);
+
+      if (entity is MultiLoad) {
+        final Set<String> loaded = (entity as MultiLoad).loadedFields;
+        if (fds == null)
+          loaded.add("*");
+        else
+          loaded.addAll(fds);
+      }
       return entity;
     }
   });
