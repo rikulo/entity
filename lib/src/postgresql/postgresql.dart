@@ -121,6 +121,9 @@ class PostgresqlAccessAgent implements AccessAgent {
       if (first) first = false;
       else sql.write(',');
       sql..write('"')..write(fd)..write('"')..write("=@")..write(fd);
+
+      if (!data.containsKey(fd)) //postgresql driver needs every field
+        data[fd] = null;
     }
     if (first)
       return new Future.value(); //nothing to update
