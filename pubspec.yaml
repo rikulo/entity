@@ -7,7 +7,7 @@ authors:
 homepage: https://github.com/rikulo/entity
 documentation: https://github.com/rikulo/entity
 dev_dependencies:
-  unittest: any
+  test: any
   browser: any
   couchclient: any
   postgresql: any

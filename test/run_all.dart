@@ -3,7 +3,7 @@
 // Author: tomyeh
 library test_run_all;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 import 'oid_test.dart' as oid_test;
 

@@ -4,7 +4,7 @@
 
 import "dart:async";
 
-import "package:unittest/unittest.dart";
+import 'package:test/test.dart';
 import "package:entity/entity.dart";
 import "package:entity/postgresql.dart";
 
