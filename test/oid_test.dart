@@ -35,15 +35,15 @@ void main() {
 
         if (oid.substring(1) != prevOid.substring(1)) {
           ++cntSeed;
-          logMessage("$cntSeed: $prevOid => $oid (#$cntOid)");
+          print("$cntSeed: $prevOid => $oid (#$cntOid)");
           cntOid = 0;
         }
       }
       prevOid = oid;
 
 //      if (i < 500)
-//        logMessage("$i: $oid");
+//        print("$i: $oid");
     }
-    logMessage("Average: ${LOOPS / cntSeed} per seed");
+    print("Average: ${LOOPS / cntSeed} per seed");
   });
 }
