@@ -78,14 +78,6 @@ void seedOid() {
   for (int i = OID_LENGTH - 1; --i >= 0;)
     bytes[i] = _escOid(bytes[i]);
   _body = new String.fromCharCodes(bytes);
-
-  //OID must match a pattern (and not starts with underscore)
-  //[isValidOid] depends on it.
-  if (_oidPattern.firstMatch(_body) == null) {
-    //make sure the prefix is a digit if no match
-    _prefix &= 0x7;
-    _prefixEnd = 9;
-  }
 }
 
 ///Test if the given value is a valid OID.
@@ -95,8 +87,7 @@ bool isValidOid(String value)
 => value.length == OID_LENGTH && !value.startsWith('_')
   && _oidPattern.firstMatch(value) != null;
 
-final RegExp _oidPattern = new RegExp(r'[0-9]|([a-z][A-Z])');
-  //1. at least one digit, 2. upper-case follows lower-case
+final RegExp _oidPattern = new RegExp(r'^[0-9a-zA-Z_]*$');
 
 /** The function used to generate a list of random integers to construct OID.
  *
