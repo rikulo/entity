@@ -191,13 +191,16 @@ class EntityNotFoundException extends EntityException {
  * the cached entity, if any, will be returned directly.
  */
 abstract class MultiLoad {
-  /** Returns the collection of fields being loaded (never null).
-   *
-   * > Note: [loadedFields] is maintained by [load] and [loadIfAny].
-   * The implementation just needs to declare a data member initialized
-   * with an empty set.
+  /** Returns the set of fields to load, or empty if
+   * nothing to load, or null to indicate all fields.
+   * 
+   * * [fields] - fields to load. If null, it means all.
    */
-  Set<String> get loadedFields;
+  Set<String> getFieldsToLoad(Iterable<String> fields);
+  /** Marks the given [fields] are loaded.
+   * If [fields] is null, it means all fields have been loaded.
+   */
+  void setFieldsLoaded(Iterable<String> fields);
 }
 
 /** Loads the data of the given OID from the storage into the given entity.
@@ -256,26 +259,11 @@ Future<Entity> loadIfAny_(Access access, String oid,
     fds = _toSet(fields);
     entity = newEntity;
   } else {
-    if (option != null) { //we have to go thru [loader] to ensure the lock
-      fds = _toSet(fields);
-
-      if (entity is MultiLoad) {
-        final Set<String> loaded = (entity as MultiLoad).loadedFields;
-        fds = loaded.contains("*") ? new HashSet(): //nothing needed
-                fds != null ? fds.difference(loaded): null;
-      }
-    } else {
-      if (entity is! MultiLoad
-      || (entity as MultiLoad).loadedFields.contains("*"))
+    fds = entity is MultiLoad ?
+        (entity as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
+    if (fds != null && fds.isEmpty && option == null)
         return new Future.value(entity);
-
-      fds = _toSet(fields);
-      if (fds != null) {
-        fds = fds.difference((entity as MultiLoad).loadedFields);
-        if (fds.isEmpty)
-          return new Future.value(entity);
-      }
-    }
+        //Note: if option != null, we have to go thru [loader] to ensure the lock
   }
 
   return loader(entity, fds, option)
@@ -283,13 +271,8 @@ Future<Entity> loadIfAny_(Access access, String oid,
     if (data != null) {
       entity.read(access.reader, data, fds);
 
-      if (entity is MultiLoad) {
-        final Set<String> loaded = (entity as MultiLoad).loadedFields;
-        if (fds == null)
-          loaded.add("*");
-        else
-          loaded.addAll(fds);
-      }
+      if (entity is MultiLoad)
+        (entity as MultiLoad).setFieldsLoaded(fds);
       return entity;
     }
   });
