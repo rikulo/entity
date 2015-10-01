@@ -3,7 +3,7 @@
 // Author: tomyeh
 library entity.oid;
 
-import "dart:math" show Random, min;
+import "dart:math" show Random, min, max;
 
 //Note: we use characters a-z, A-Z, 0-9 and _, s.t., the user  can select all
 //by double-clicking it (they also valid characters no need of escapes).
@@ -12,6 +12,7 @@ import "dart:math" show Random, min;
 //OID is 24 chars (23 random number + 1 random sequential number) > 63^23 = 2.4e41
 //so it is about 10K more than 128 bit UUID (where 122 is effective: 5.3e36)
 //(note: Git revision is 2^40 about 1.46e48)
+//(note: the sequential number is about 12 per seed, i.e., 63/12 ~ 5)
 
 /** The type of random generator
  *
@@ -70,9 +71,8 @@ void seedOid() {
     }
   }
 
-  _prefix = bytes[OID_LENGTH - 1] & 0x1f;
-  _prefixEnd = min((bytes[OID_LENGTH] & 0x1f) + _prefix + 5,
-      _CC_RANGE - 1);
+  _prefix = min(bytes[OID_LENGTH - 1] & 0x3f, _CC_RANGE - 1);
+  _prefixEnd = min(max(bytes[OID_LENGTH] & 0x3f, _prefix + 3), _CC_RANGE - 1);
 
   bytes.removeRange(OID_LENGTH - 1, _CHAR_PER_INT * _INT_LEN);
   for (int i = OID_LENGTH - 1; --i >= 0;)
