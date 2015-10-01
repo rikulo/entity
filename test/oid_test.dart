@@ -9,7 +9,7 @@ import 'package:entity/oid.dart';
 
 void main() {
   test("OID Test", () {
-    expect(isValidOid('_bcdefghijklmnopqrstuvwx'), isFalse);
+    expect(isValidOid('_bcdefghijklmnopqrstuvwx'), isTrue);
     expect(isValidOid('0bcdefghijklmn-pqrstuvwx'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW;'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);

@@ -71,8 +71,8 @@ void seedOid() {
   }
 
   _prefix = bytes[OID_LENGTH - 1] & 0x1f;
-  _prefixEnd = min((bytes[OID_LENGTH] & 0x1f) + _prefix + 27,
-      _CC_RANGE - 2); //exclude underscore
+  _prefixEnd = min((bytes[OID_LENGTH] & 0x1f) + _prefix + 5,
+      _CC_RANGE - 1);
 
   bytes.removeRange(OID_LENGTH - 1, _CHAR_PER_INT * _INT_LEN);
   for (int i = OID_LENGTH - 1; --i >= 0;)
@@ -84,8 +84,7 @@ void seedOid() {
 ///
 ///Note: for performance reason, it does only the basic check.
 bool isValidOid(String value)
-=> value.length == OID_LENGTH && !value.startsWith('_')
-  && _oidPattern.firstMatch(value) != null;
+=> value.length == OID_LENGTH && _oidPattern.firstMatch(value) != null;
 
 final RegExp _oidPattern = new RegExp(r'^[0-9a-zA-Z_]*$');
 
