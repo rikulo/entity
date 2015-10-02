@@ -30,12 +30,8 @@ const int
   _CHAR_PER_INT = 5; //63^5 < 2^31 (63^5: 992,436,543, 2^31: 2,147,483,648)
 
 /** Returns the next unique object ID.
- *
- * * [seed] - whether to re-generate a new seed. It is useful if
- *  you'd like to generate a secure link (s.t., the user is hard to guess
- * what will be next). The side effect is a little performance overhead.
  */
-String nextOid({bool seed:false}) {
+String nextOid() {
   final values = getRandomInts(_INT_LEN);
   assert(values.length == _INT_LEN);
   final List<int> bytes = [];
