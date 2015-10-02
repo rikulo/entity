@@ -17,7 +17,7 @@ void main() {
     String prevOid;
     const int LOOPS = 100000;
     final DateTime t0 = new DateTime.now();
-    for (int i = 0, cntOid = 0; i < LOOPS; i++) {
+    for (int i = 0; i < LOOPS; i++) {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);
       expect(oid.indexOf('\\'), -1);
