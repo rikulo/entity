@@ -9,9 +9,9 @@ import "dart:math" show Random;
 //by double-clicking it (they also valid characters no need of escapes).
 //So, it is 26 * 2 + 10 + 1 => 63 diff chars
 //
-//OID is 24 chars = 63^24 = 1.5e43
-//so it is about 10K more than 128 bit UUID (where 122 is effective: 5.3e36)
-//(note: Git revision is 2^40 about 1.46e48)
+//OID is 24 chars = 63^24 = 1.53e43
+//so it is about 2.8e6 more than 128 bit UUID (where 122 is effective: 5.3e36)
+//(note: Git revision is 36^40 about 1.79e62)
 
 /** The type of random generator
  *
