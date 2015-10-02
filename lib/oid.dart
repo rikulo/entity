@@ -3,16 +3,15 @@
 // Author: tomyeh
 library entity.oid;
 
-import "dart:math" show Random, min, max;
+import "dart:math" show Random;
 
 //Note: we use characters a-z, A-Z, 0-9 and _, s.t., the user  can select all
 //by double-clicking it (they also valid characters no need of escapes).
 //So, it is 26 * 2 + 10 + 1 => 63 diff chars
 //
-//OID is 24 chars (23 random number + 1 random sequential number) > 63^23 = 2.4e41
+//OID is 24 chars = 63^24 = 1.5e43
 //so it is about 10K more than 128 bit UUID (where 122 is effective: 5.3e36)
 //(note: Git revision is 2^40 about 1.46e48)
-//(note: the sequential number is about 12 per seed, i.e., 63/12 ~ 5)
 
 /** The type of random generator
  *
@@ -21,7 +20,7 @@ import "dart:math" show Random, min, max;
 typedef List<int> GetRandomInts(int length);
 
 ///Total number of characters per OID.
-const int OID_LENGTH = 24; //first char is sequential and the rest is random
+const int OID_LENGTH = 24;
 
 ///The character range
 const int _CC_RANGE = 63, _CC_0 = 48, _CC_9 = _CC_0 + 9, _CC_A = 65, _CC_a = 97,
@@ -37,9 +36,27 @@ const int
  * what will be next). The side effect is a little performance overhead.
  */
 String nextOid({bool seed:false}) {
-  if (seed || ++_prefix > _prefixEnd)
-    seedOid();
-  return new String.fromCharCode(_escOid(_prefix)) + _body;
+  final values = getRandomInts(_INT_LEN);
+  assert(values.length == _INT_LEN);
+  final List<int> bytes = [];
+  l_gen:
+  for (int i = values.length; --i >= 0;) {
+    int val = values[i];
+    if (val < 0)
+      val = -val;
+
+    for (int j = _CHAR_PER_INT;;) {
+      bytes.add(_escOid(val % _CC_RANGE));
+      if (bytes.length >= OID_LENGTH)
+        break l_gen;
+
+      if (--j == 0)
+        break;
+      val = val ~/ _CC_RANGE;
+    }
+  }
+
+  return new String.fromCharCodes(bytes);
 }
 /** Creates a new OID based two OIDs.
  *
@@ -49,36 +66,6 @@ String nextOid({bool seed:false}) {
  */
 String mergeOid(String oid1, String oid2)
 => "${oid1.substring(0, 12)}${oid2.substring(0, 12)}";
-
-/** Changes the seed of OID, such that next invocation of [nextOid]
- * will return a totally different sequence.
- */
-void seedOid() {
-  final values = getRandomInts(_INT_LEN);
-  assert(values.length == _INT_LEN);
-  final List<int> bytes = [];
-  for (int i = values.length; --i >= 0;) {
-    int val = values[i];
-    if (val < 0)
-      val = -val;
-
-    for (int j = _CHAR_PER_INT;;) {
-      bytes.add(val % _CC_RANGE);
-
-      if (--j == 0)
-        break;
-      val = val ~/ _CC_RANGE;
-    }
-  }
-
-  _prefix = min(bytes[OID_LENGTH - 1] & 0x3f, _CC_RANGE - 1);
-  _prefixEnd = min(max(bytes[OID_LENGTH] & 0x3f, _prefix + 3), _CC_RANGE - 1);
-
-  bytes.removeRange(OID_LENGTH - 1, _CHAR_PER_INT * _INT_LEN);
-  for (int i = OID_LENGTH - 1; --i >= 0;)
-    bytes[i] = _escOid(bytes[i]);
-  _body = new String.fromCharCodes(bytes);
-}
 
 ///Test if the given value is a valid OID.
 ///
@@ -121,6 +108,3 @@ int _escOid(int v) {
 }
 
 final Random _random = new Random();
-String _body;
-int _prefix = 0, _prefixEnd = 0;
-    //force _nextOid2 to call seedOid first

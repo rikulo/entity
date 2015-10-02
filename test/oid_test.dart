@@ -15,8 +15,8 @@ void main() {
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);
 
     String prevOid;
-    const int LOOPS = 15000;
-    int cntSeed = 0;
+    const int LOOPS = 100000;
+    final DateTime t0 = new DateTime.now();
     for (int i = 0, cntOid = 0; i < LOOPS; i++) {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);
@@ -25,21 +25,13 @@ void main() {
       expect(JSON.encode(oid), '"$oid"'); //no escape
       expect(Uri.encodeComponent(oid), oid); //no escape
 
-      ++cntOid;
-      if (prevOid != null) {
+      if (prevOid != null)
         expect(oid != prevOid, isTrue);
-
-        if (oid.substring(1) != prevOid.substring(1)) {
-          ++cntSeed;
-          print("$cntSeed: $prevOid => $oid (#$cntOid)");
-          cntOid = 0;
-        }
-      }
       prevOid = oid;
 
 //      if (i < 500)
 //        print("$i: $oid");
     }
-    print("Average: ${LOOPS / cntSeed} per seed");
+    print("Generate $LOOPS OIDs in ${new DateTime.now().difference(t0)}");
   });
 }
