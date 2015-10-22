@@ -17,9 +17,9 @@ class PostgresqlAccess implements Access {
    *
    * * [cache] - whether to enable the cache. Default: true.
    */
-  PostgresqlAccess(Connection conn, {bool cache:true}):
-      agent = new PostgresqlAccessAgent(conn, cache: cache) {
-     (reader as _AccessReader)._cache = _cache;
+  PostgresqlAccess(Connection this.conn, {bool cache:true}) {
+    _agent = new PostgresqlAccessAgent(this, cache: cache);
+    (reader as _AccessReader)._cache = _cache;
   }
 
   @override
@@ -31,12 +31,19 @@ class PostgresqlAccess implements Access {
   @override
   final AccessWriter writer = new _AccessWriter();
   @override
-  final AccessAgent agent;
+  AccessAgent get agent => _agent;
+  AccessAgent _agent;
 
   ///The connection to the postgreSQL server.
-  Connection get conn => (agent as PostgresqlAccessAgent).conn;
+  final Connection conn;
 
   EntityCache get _cache => (agent as PostgresqlAccessAgent)._cache;
+
+  /// Queues a command for execution, and when done, returns the number of rows
+  /// affected by the SQL command.
+  Future<int> execute(String sql, [values]) => conn.execute(sql, values);
+  /// Queue a SQL query to be run, returning a [Stream] of rows.
+  Stream<Row> query(String sql, [values]) => conn.query(sql, values);
 
   ///Clear the cache.
   void clearCache() {
@@ -61,12 +68,12 @@ class PostgresqlAccess implements Access {
  */
 class PostgresqlAccessAgent implements AccessAgent {
   ///The connection to the postgreSQL server.
-  final Connection conn;
+  final PostgresqlAccess access;
   final EntityCache _cache;
 
-  PostgresqlAccessAgent(Connection this.conn, {bool cache:true})
+  PostgresqlAccessAgent(PostgresqlAccess this.access, {bool cache:true})
   : _cache = cache ? new EntityCache(): null;
-  PostgresqlAccessAgent.by(Connection this.conn, EntityCache cache)
+  PostgresqlAccessAgent.by(PostgresqlAccess this.access, EntityCache cache)
   : _cache = cache;
 
   @override
@@ -93,7 +100,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     else if (option == FOR_SHARE)
       sql.write(' for share');
 
-    return conn.query(sql.toString(), {F_OID: entity.oid}).toList()
+    return access.query(sql.toString(), {F_OID: entity.oid}).toList()
     .then((List<Row> rows) {
       if (rows.isNotEmpty) {
         assert(rows.length == 1);
@@ -130,7 +137,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
     sql.write(' where "oid"=@oid');
     data[F_OID] = entity.oid;
-    return conn.execute(sql.toString(), data);
+    return access.execute(sql.toString(), data);
   }
 
   @override
@@ -150,7 +157,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     param.write(')');
     data[F_OID] = entity.oid;
 
-    return conn.execute(sql.toString() + param.toString(), data)
+    return access.execute(sql.toString() + param.toString(), data)
     .then((_) {
       if (_cache != null)
         _cache.put(entity); //update cache
@@ -159,7 +166,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future delete(Entity entity) {
-    return conn.execute(
+    return access.execute(
       'delete from "${entity.otype}" where "oid"=@oid',
       {F_OID: entity.oid})
     .then((_) {

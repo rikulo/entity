@@ -212,7 +212,7 @@ Map<String, dynamic> minify(Map<String, dynamic> json) {
   if (json == null || json.isEmpty)
     return json;
 
-  final Map<String, dynamic> result = new LinkedHashMap();
+  final Map<String, dynamic> result = {};
     //Note: we have to preserve the order since it might be important
     //to the user
   for (final name in json.keys) {
