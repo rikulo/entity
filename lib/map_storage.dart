@@ -6,7 +6,6 @@ library entity.map_storage;
 
 import "dart:async";
 import "dart:convert" show JSON;
-import "dart:collection" show HashMap;
 
 import "entity.dart";
 
@@ -61,7 +60,7 @@ class MapStorageAccessAgent implements AccessAgent {
    * * [cache] - the cache for storing the entity. It can't be null.
    */
   MapStorageAccessAgent.by(EntityCache cache, [Map<String, String> storage]):
-      _storage = storage != null ? storage: new HashMap(),
+      _storage = storage != null ? storage: {},
       _cache = cache;
 
   @override

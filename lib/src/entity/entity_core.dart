@@ -74,7 +74,7 @@ abstract class Entity {
 
     final Set<String> fds = fields != null && stored ? _toSet(fields): null;
 
-    final Map<String, dynamic> data = new HashMap();
+    final Map<String, dynamic> data = {};
     write(access.writer, data, fds);
     if (beforeSave != null)
       beforeSave(this, data, fds);

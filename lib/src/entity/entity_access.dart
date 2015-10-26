@@ -110,7 +110,7 @@ class AccessWriter {
     if (value == null)
       return null;
 
-    final Map<dynamic, String> json = new HashMap();
+    final Map<dynamic, String> json = {};
     for (final key in value.keys)
       json[key] = entity(value[key]);
     return json;
@@ -176,7 +176,7 @@ class AccessReader {
     if (json == null)
       return null;
 
-    final Map<dynamic, Entity> entities = new HashMap();
+    final Map<dynamic, Entity> entities = {};
     for (final key in json.keys)
       entities[key] = entity(otype, json[key]);
     return entities;
@@ -261,7 +261,7 @@ class _CacheKey {
 }
 
 class _EntityCache implements EntityCache {
-  final Map<_CacheKey, Entity> _cache = new HashMap();
+  final Map<_CacheKey, Entity> _cache = {};
 
   _EntityCache();
 

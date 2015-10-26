@@ -4,7 +4,6 @@
 library entity;
 
 import "dart:async" show Future;
-import "dart:collection" show HashSet, HashMap, LinkedHashMap, LinkedHashSet;
 
 import "oid.dart";
 
