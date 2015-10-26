@@ -70,14 +70,14 @@ abstract class Entity {
    * before saving to the database.
    */
   Future save(Access access, Iterable<String> fields,
-      [void beforeSave(Entity entity, Map<String, dynamic> data, Set<String> fields)]) {
+      [void beforeSave(Map<String, dynamic> data, Set<String> fields)]) {
 
     final Set<String> fds = fields != null && stored ? _toSet(fields): null;
 
     final Map<String, dynamic> data = {};
     write(access.writer, data, fds);
     if (beforeSave != null)
-      beforeSave(this, data, fds);
+      beforeSave(data, fds);
 
     if (stored)
       return access.agent.update(this, data, fds);
