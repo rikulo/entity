@@ -154,6 +154,9 @@ abstract class Entity {
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
   }
 
+  ///By default, it returns [oid] when jsonized.
+  String toJson() => oid;
+
   @override
   bool operator==(other) => other is Entity && oid == other.oid;
   @override
