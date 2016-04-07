@@ -194,10 +194,16 @@ class EntityNotFoundException extends EntityException {
  * the cached entity, if any, will be returned directly.
  */
 abstract class MultiLoad {
-  /** Returns the set of fields to load, or empty if
+  /** Returns the set of fields to load for the given [fields].
+   * That is, if the caller would like to load certain fields, they
+   * will be passed to this method to retrieve what fields really
+   * need to be load. For example, if a field has been loaded before,
+   * then it doesn't need be returned.
+   * 
+   * This method can return an empty set if
    * nothing to load, or null to indicate all fields.
    * 
-   * * [fields] - fields to load. If null, it means all.
+   * * [fields] - fields the caller'd like to load. If null, it means all.
    */
   Set<String> getFieldsToLoad(Iterable<String> fields);
   /** Marks the given [fields] are loaded.
