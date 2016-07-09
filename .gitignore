@@ -1,6 +1,7 @@
 .idea
 .packages
 .pub
+.DS_Store
 debug
 deploy
 codegen

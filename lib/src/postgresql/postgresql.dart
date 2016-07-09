@@ -88,7 +88,11 @@ class PostgresqlAccessAgent implements AccessAgent {
       for (final String fd in fields) {
         if (first) first = false;
         else sql.write(',');
-        sql..write('"')..write(fd)..write('"');
+
+        if (StringUtil.isChar(fd[0], digit: true, match: "("))
+          sql.write(fd);
+        else
+          sql..write('"')..write(fd)..write('"');
       }
     } else {
       sql.write("*");

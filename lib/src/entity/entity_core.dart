@@ -221,6 +221,9 @@ abstract class MultiLoad {
  * the data loaded from database.
  * You usually instantiate it with the `be` constructor (see [Entity.be]).
  * * [fields] - a collection of fields to load.
+ * Note: if you'd like to load an expression (aka., virutal column, or
+ * calculated column), you can pass `(SQL expression) name`.
+ * For example: `(due is not null and who is not null) active`.
  * * [option] - an option for loading the entity.
  * Technically, you can pass anything that your access provider supports.
  * For SQL, itt could be `null`,

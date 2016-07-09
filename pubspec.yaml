@@ -1,5 +1,5 @@
 name: entity
-version: 0.8.6
+version: 0.8.7
 description: > 
   A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 authors:
@@ -12,6 +12,7 @@ dev_dependencies:
   couchclient: any
   postgresql: any
   postgresql2: any
+  rikulo_commons: ">=2.0.0"
 environment:
   sdk: ">=1.4.0"
 dependencies:
