@@ -7,9 +7,9 @@ import "dart:math" show Random;
 
 //Note: we use characters a-z, A-Z, 0-9 and _, s.t., the user  can select all
 //by double-clicking it (they also valid characters no need of escapes).
-//So, it is 26 * 2 + 10 + 1 => 63 diff chars
+//So, it is 26 * 2 + 10 + 1 => 68 diff chars
 //
-//OID is 24 chars = 63^24 = 1.53e43
+//OID is 24 chars = 68^24 = 9.5e43
 //so it is about 2.8e6 more than 128 bit UUID (where 122 is effective: 5.3e36)
 //(note: Git revision is 36^40 about 1.79e62)
 
@@ -22,12 +22,16 @@ typedef List<int> GetRandomInts(int length);
 ///Total number of characters per OID.
 const int OID_LENGTH = 24;
 
+const List<int> _CC_EXTRA = const <int> [
+  33/*!*/, 42/***/, 45/*-*/, 46/*.*/, 95/*_*/, 126/*~*/,
+]; //40/*(*/, 41/*)*/ => not valid in email
+
 ///The character range
-const int _CC_RANGE = 63, _CC_0 = 48, _CC_9 = _CC_0 + 9, _CC_A = 65, _CC_a = 97,
-  _CC_UNDERSCORE = 95; //_
+const int _CC_RANGE = 68, //26*2+10+_CC_EXTRA.length
+  _CC_0 = 48, _CC_9 = _CC_0 + 9, _CC_A = 65, _CC_a = 97; //_
 const int
   _INT_LEN = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
-  _CHAR_PER_INT = 5; //63^5 < 2^31 (63^5: 992,436,543, 2^31: 2,147,483,648)
+  _CHAR_PER_INT = 5; //68^5 < 2^31 (68^5: 1,453,933,568, 2^31: 2,147,483,648)
 
 /** Returns the next unique object ID.
  */
@@ -69,7 +73,7 @@ String mergeOid(String oid1, String oid2)
 bool isValidOid(String value)
 => value.length == OID_LENGTH && _oidPattern.firstMatch(value) != null;
 
-final RegExp _oidPattern = new RegExp(r'^[0-9a-zA-Z_]*$');
+final RegExp _oidPattern = new RegExp(r'^[-0-9a-zA-Z!*._~]*$');
 
 /** The function used to generate a list of random integers to construct OID.
  *
@@ -100,7 +104,7 @@ int _escOid(int v) {
     return _CC_A + v;
   if ((v -= 26) < 26)
     return _CC_a + v;
-  return _CC_UNDERSCORE;
+  return _CC_EXTRA[v - 26];
 }
 
 final Random _random = new Random();
