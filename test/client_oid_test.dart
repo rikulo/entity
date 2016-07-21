@@ -14,7 +14,7 @@ void main() {
   getRandomInts =  _getCryptoInts;
 
   test("OID Dump Test", () {
-    expect(isValidOid('_bcdefghijkl.nop-~stuvwx'), isTrue);
+    expect(isValidOid('_bcdefghijkl.nop-rstuvwx'), isTrue);
     expect(isValidOid('0bcdefghijklmn/pqrstuvwx'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW;'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);
