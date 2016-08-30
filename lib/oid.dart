@@ -73,7 +73,7 @@ String mergeOid(String oid1, String oid2)
 ///
 ///Note: for performance reason, it does only the basic check.
 bool isValidOid(String value)
-=> value.length == OID_LENGTH && _oidPattern.firstMatch(value) != null;
+=> value.length == OID_LENGTH && _oidPattern.hasMatch(value);
 
 final RegExp _oidPattern = new RegExp(r'^[-0-9a-zA-Z._]*$');
 
