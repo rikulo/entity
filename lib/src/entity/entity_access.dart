@@ -102,19 +102,6 @@ class AccessWriter {
    */
   entities(Iterable<Entity> value)
     => value != null ? value.map((e) => entity(e)).toList(): null;
-  /** Converts a map of [Entity] instances.
-   *
-   * Default: serializes it by returning a map of OID (String).
-   */
-  entityMap(Map<dynamic, Entity> value) {
-    if (value == null)
-      return null;
-
-    final Map<dynamic, String> json = {};
-    for (final key in value.keys)
-      json[key] = entity(value[key]);
-    return json;
-  }
 }
 
 /** A reader for converting data read from the database.
@@ -166,19 +153,6 @@ class AccessReader {
       if (oid == null || en != null)
         entities.add(en);
     }
-    return entities;
-  }
-
-  /** Parses the given map of OIDs into the corresponding entities.
-   * It throws [StateError] if not loaded.
-   */
-  Map<dynamic, Entity> entityMap(String otype, Map<dynamic, String> json) {
-    if (json == null)
-      return null;
-
-    final Map<dynamic, Entity> entities = {};
-    for (final key in json.keys)
-      entities[key] = entity(otype, json[key]);
     return entities;
   }
 }
