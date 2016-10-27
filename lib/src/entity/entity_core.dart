@@ -233,14 +233,13 @@ abstract class MultiLoad {
  * (including oid is null).
  */
 Future<Entity> load(Access access, String oid,
-    Entity newInstance(String oid),
-    [Iterable<String> fields, int option])
-  => loadIfAny(access, oid, newInstance, fields, option)
-  .then((Entity entity) {
-    if (entity == null)
-      throw new EntityNotFoundException(entity.oid);
-    return entity;
-  });
+      Entity newInstance(String oid),
+      [Iterable<String> fields, int option]) async {
+  final Entity entity = await loadIfAny(access, oid, newInstance, fields, option);
+  if (entity == null)
+    throw new EntityNotFoundException(entity.oid);
+  return entity;
+}
 
 /** Loads the entity of the given OID, and return a [Future] carrying
  * null if not found.
@@ -255,14 +254,16 @@ Future<Entity> loadIfAny(Access access, String oid,
     => access.agent.load(entity, fields, option),
   fields, option);
 
-///A utility to implement [loadIfAny] and custom load functions.
+/// A utility to implement [loadIfAny] and custom load functions.
+/// 
+/// * [loader] - a function to load the data back. It must
+/// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
 Future<Entity> loadIfAny_(Access access, String oid,
     Entity newInstance(String oid),
-    Future<Map<String, dynamic>> loader(
-        Entity entity, Set<String> fields, option),
-    Iterable<String> fields, [int option]) {
+    loader(Entity entity, Set<String> fields, option),
+    Iterable<String> fields, [int option]) async {
   if (oid == null)
-    return new Future.value();
+    return null;
 
   final Entity newEntity = newInstance(oid);
   Entity entity = access.get(newEntity.otype, oid);
@@ -274,20 +275,18 @@ Future<Entity> loadIfAny_(Access access, String oid,
     fds = entity is MultiLoad ?
         (entity as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
     if (fds != null && fds.isEmpty && option == null)
-        return new Future.value(entity);
+        return entity;
         //Note: if option != null, we have to go thru [loader] to ensure the lock
   }
 
-  return loader(entity, fds, option)
-  .then((Map<String, dynamic> data) {
-    if (data != null) {
-      entity.read(access.reader, data, fds);
+  var data = loader(entity, fds, option);
+  if (data is Future) data = await data;
+  if (data == null) return null;
 
-      if (entity is MultiLoad)
-        (entity as MultiLoad).setFieldsLoaded(fds);
-      return entity;
-    }
-  });
+  entity.read(access.reader, data, fds);
+  if (entity is MultiLoad)
+    (entity as MultiLoad).setFieldsLoaded(fds);
+  return entity;
 }
 
 Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();

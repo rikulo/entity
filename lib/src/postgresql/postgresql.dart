@@ -78,7 +78,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      option) {
+      option) async {
     final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty)
@@ -104,18 +104,15 @@ class PostgresqlAccessAgent implements AccessAgent {
     else if (option == FOR_SHARE)
       sql.write(' for share');
 
-    return access.query(sql.toString(), {F_OID: entity.oid}).toList()
-    .then((List<Row> rows) {
-      if (rows.isNotEmpty) {
-        assert(rows.length == 1);
-        final Row row = rows.first;
-        final Map<String, dynamic> data = new HashMap();
-        row.forEach((String name, value) => data[name] = value);
-        if (_cache != null)
-          _cache.put(entity); //update cache
-        return data;
-      }
-    });
+    await for(final Row row in access.query(sql.toString(), {F_OID: entity.oid})) {
+      final Map<String, dynamic> data = new HashMap();
+      row.forEach((String name, value) => data[name] = value);
+      if (_cache != null)
+        _cache.put(entity); //update cache
+      return data;
+    }
+
+    return null;
   }
 
   @override
@@ -145,7 +142,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future create(Entity entity, Map<String, dynamic> data) {
+  Future create(Entity entity, Map<String, dynamic> data) async {
     final StringBuffer sql = new  StringBuffer('insert into "')
       ..write(entity.otype)..write('"("oid"');
     final StringBuffer param = new StringBuffer(" values(@oid");
@@ -161,22 +158,20 @@ class PostgresqlAccessAgent implements AccessAgent {
     param.write(')');
     data[F_OID] = entity.oid;
 
-    return access.execute(sql.toString() + param.toString(), data)
-    .then((_) {
-      if (_cache != null)
-        _cache.put(entity); //update cache
-    });
+    await access.execute(sql.toString() + param.toString(), data);
+
+    if (_cache != null)
+      _cache.put(entity); //update cache
   }
 
   @override
-  Future delete(Entity entity) {
-    return access.execute(
+  Future delete(Entity entity) async {
+    await access.execute(
       'delete from "${entity.otype}" where "oid"=@oid',
-      {F_OID: entity.oid})
-    .then((_) {
-      if (_cache != null)
-        _cache.remove(entity.otype, entity.oid); //update cache
-    });
+      {F_OID: entity.oid});
+
+    if (_cache != null)
+      _cache.remove(entity.otype, entity.oid); //update cache
   }
 }
 

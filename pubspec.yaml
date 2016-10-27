@@ -1,5 +1,5 @@
 name: entity
-version: 0.9.0
+version: 0.9.1
 description: > 
   A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 authors:
