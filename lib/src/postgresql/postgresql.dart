@@ -23,7 +23,7 @@ class PostgresqlAccess implements Access {
   }
 
   @override
-  Entity get(String otype, String oid)
+  T get<T extends Entity>(String otype, String oid)
   => _cache != null ? _cache.get(otype, oid): null;
 
   @override
@@ -180,7 +180,7 @@ class _AccessReader extends AccessReader {
   _AccessReader([this._cache]);
 
   @override
-  Entity entity(String otype, String oid)
+  T entity<T extends Entity>(String otype, String oid)
   => _cache != null ? _cache.get(otype, oid): null;
 
   @override

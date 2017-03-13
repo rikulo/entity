@@ -27,7 +27,7 @@ class CouchbaseAccess implements Access {
   CouchClient get client => (agent as CouchbaseAccessAgent).client;
 
   @override
-  Entity get(String otype, String oid) => null; //no cache supported
+  T get<T extends Entity>(String otype, String oid) => null; //no cache supported
 
   @override
   final AccessReader reader = new AccessReader();
@@ -65,7 +65,7 @@ class CouchbaseAccessAgent implements AccessAgent {
 
     return client.get(oid)
     .then((GetResult r) {
-      final data = JSON.decode(UTF8.decode(r.data));
+      final Map<String, dynamic> data = JSON.decode(UTF8.decode(r.data));
       assert(data is Map);
       return data;
     })

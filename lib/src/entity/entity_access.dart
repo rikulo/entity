@@ -18,7 +18,7 @@ abstract class Access {
    * > Note: if cache is supported, it also implies [oid] can identify
    * > an entity uniquely (regardless of what its otype is).
    */
-  Entity get(String otype, String oid);
+  T get<T extends Entity>(String otype, String oid);
 
   /** The access reader for converting data from what the database returns.
    */
@@ -122,7 +122,7 @@ class AccessReader {
    * 
    * Default: always returns null.
    */
-  Entity entity(String otype, String json) => null;
+  T entity<T extends Entity>(String otype, String json) => null;
 
   /** Parses the given collection of OIDs into the corresponding entities.
    *
@@ -137,14 +137,14 @@ class AccessReader {
    * it will be invoked to instantiate an entity repreenting the
    * not-found entity. It is useful if an entity is no longer available. 
    */
-  List<Entity> entities(String otype, Iterable<String> json,
-      {Entity facade(String oid)}) {
+  List<T> entities<T extends Entity>(String otype, Iterable<String> json,
+      {T facade(String oid)}) {
     if (json == null)
       return null;
 
-    final List entities = [];
+    final List<T> entities = <T>[];
     for (final String oid in json) {
-      Entity en;
+      T en;
       if (oid != null) {
         en = entity(otype, oid);
         if (en == null && facade != null)
@@ -164,7 +164,7 @@ class CachedAccessReader extends AccessReader {
   CachedAccessReader([EntityCache this.cache]);
 
   @override
-  Entity entity(String otype, String oid) => cache.get(otype, oid);
+  T entity<T extends Entity>(String otype, String oid) => cache.get(otype, oid);
 }
 
 /** Minimizes the JSON map to be stored into DB or sent over internet
@@ -192,7 +192,7 @@ Map<String, dynamic> minify(Map<String, dynamic> json) {
   for (final name in json.keys) {
     final value = json[name];
     if (value != null)
-      result[name] = value is Map ? minify(value): value;
+      result[name] = value is Map<String, dynamic> ? minify(value): value;
   }
   return result;
 }
@@ -204,10 +204,10 @@ abstract class EntityCache {
 
   /** Gets the entity of the given [otype] and [oid].
    */
-  Entity get(String otype, String oid);
+  T get<T extends Entity>(String otype, String oid);
   /** Caches an entity.
    */
-  Entity put(Entity entity);
+  T put<T extends Entity>(T entity);
 
   /** Remove the cache of an entity.
    */
@@ -240,9 +240,10 @@ class _EntityCache implements EntityCache {
   _EntityCache();
 
   @override
-  Entity get(String otype, String oid) => _cache[new _CacheKey(otype, oid)];
+  T get<T extends Entity>(String otype, String oid)
+  => _cache[new _CacheKey(otype, oid)] as T;
   @override
-  Entity put(Entity entity)
+  T put<T extends Entity>(T entity)
   => _cache[new _CacheKey(entity.otype, entity.oid)] = entity;
 
   @override

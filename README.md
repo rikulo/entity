@@ -2,7 +2,7 @@
 
 A very simple ORM for relational and NoSQL database.
 
-* [API Reference](http://www.dartdocs.org/documentation/entity/0.9.1)
+* [API Reference](http://www.dartdocs.org/documentation/entity/0.9.2)
 
 [![Build Status](https://drone.io/github.com/rikulo/entity/status.png)](https://drone.io/github.com/rikulo/entity/latest)
 

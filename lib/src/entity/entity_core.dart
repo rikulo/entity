@@ -232,10 +232,10 @@ abstract class MultiLoad {
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
  */
-Future<Entity> load(Access access, String oid,
-      Entity newInstance(String oid),
+Future<T> load<T extends Entity>(Access access, String oid,
+      T newInstance(String oid),
       [Iterable<String> fields, int option]) async {
-  final Entity entity = await loadIfAny(access, oid, newInstance, fields, option);
+  final T entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
     throw new EntityNotFoundException(entity.oid);
   return entity;
@@ -246,11 +246,11 @@ Future<Entity> load(Access access, String oid,
  *
  * Please refer to [load] for details.
  */
-Future<Entity> loadIfAny(Access access, String oid,
-    Entity newInstance(String oid),
+Future<T> loadIfAny<T extends Entity>(Access access, String oid,
+    T newInstance(String oid),
     [Iterable<String> fields, int option])
 => loadIfAny_(access, oid, newInstance,
-  (Entity entity, Set<String> fields, option)
+  (T entity, Set<String> fields, option)
     => access.agent.load(entity, fields, option),
   fields, option);
 
@@ -258,15 +258,15 @@ Future<Entity> loadIfAny(Access access, String oid,
 /// 
 /// * [loader] - a function to load the data back. It must
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
-Future<Entity> loadIfAny_(Access access, String oid,
-    Entity newInstance(String oid),
-    loader(Entity entity, Set<String> fields, option),
+Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
+    T newInstance(String oid),
+    loader(T entity, Set<String> fields, option),
     Iterable<String> fields, [int option]) async {
   if (oid == null)
     return null;
 
-  final Entity newEntity = newInstance(oid);
-  Entity entity = access.get(newEntity.otype, oid);
+  final T newEntity = newInstance(oid);
+  T entity = access.get(newEntity.otype, oid);
   Set<String> fds;
   if (entity == null || entity.otype != newEntity.otype) {
     fds = _toSet(fields);
@@ -289,4 +289,4 @@ Future<Entity> loadIfAny_(Access access, String oid,
   return entity;
 }
 
-Set _toSet(Iterable it) => it is Set || it == null ? it: it.toSet();
+Set<T> _toSet<T>(Iterable<T> it) => it is Set || it == null ? it: it.toSet();
