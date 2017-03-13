@@ -100,7 +100,7 @@ class AccessWriter {
    *
    * Default: serializes it by returning a list of OID (String).
    */
-  entities(Iterable<Entity> value)
+  entities<T extends Entity>(Iterable<T> value)
     => value != null ? value.map((e) => entity(e)).toList(): null;
 }
 
