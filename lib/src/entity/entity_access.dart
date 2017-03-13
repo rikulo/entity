@@ -18,7 +18,7 @@ abstract class Access {
    * > Note: if cache is supported, it also implies [oid] can identify
    * > an entity uniquely (regardless of what its otype is).
    */
-  T get<T extends Entity>(String otype, String oid);
+  T fetch<T extends Entity>(String otype, String oid);
 
   /** The access reader for converting data from what the database returns.
    */
@@ -164,7 +164,7 @@ class CachedAccessReader extends AccessReader {
   CachedAccessReader([EntityCache this.cache]);
 
   @override
-  T entity<T extends Entity>(String otype, String oid) => cache.get(otype, oid);
+  T entity<T extends Entity>(String otype, String oid) => cache.fetch(otype, oid);
 }
 
 /** Minimizes the JSON map to be stored into DB or sent over internet
@@ -204,7 +204,7 @@ abstract class EntityCache {
 
   /** Gets the entity of the given [otype] and [oid].
    */
-  T get<T extends Entity>(String otype, String oid);
+  T fetch<T extends Entity>(String otype, String oid);
   /** Caches an entity.
    */
   T put<T extends Entity>(T entity);
@@ -240,7 +240,7 @@ class _EntityCache implements EntityCache {
   _EntityCache();
 
   @override
-  T get<T extends Entity>(String otype, String oid)
+  T fetch<T extends Entity>(String otype, String oid)
   => _cache[new _CacheKey(otype, oid)] as T;
   @override
   T put<T extends Entity>(T entity)

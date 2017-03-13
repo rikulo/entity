@@ -266,7 +266,7 @@ Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
     return null;
 
   final T newEntity = newInstance(oid);
-  T entity = access.get(newEntity.otype, oid);
+  T entity = access.fetch(newEntity.otype, oid);
   Set<String> fds;
   if (entity == null || entity.otype != newEntity.otype) {
     fds = _toSet(fields);

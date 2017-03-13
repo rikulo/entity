@@ -23,8 +23,8 @@ class PostgresqlAccess implements Access {
   }
 
   @override
-  T get<T extends Entity>(String otype, String oid)
-  => _cache != null ? _cache.get(otype, oid): null;
+  T fetch<T extends Entity>(String otype, String oid)
+  => _cache != null ? _cache.fetch(otype, oid): null;
 
   @override
   final AccessReader reader = new _AccessReader();
@@ -181,7 +181,7 @@ class _AccessReader extends AccessReader {
 
   @override
   T entity<T extends Entity>(String otype, String oid)
-  => _cache != null ? _cache.get(otype, oid): null;
+  => _cache != null ? _cache.fetch(otype, oid): null;
 
   @override
   DateTime dateTime(json) => json;

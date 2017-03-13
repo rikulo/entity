@@ -15,10 +15,17 @@ final MapStorageAccess access = new MapStorageAccess();
 void main() {
   test("Entity Test on Map", test1);
 }
+
+DateTime now() {
+  final now = new DateTime.now();
+  return new DateTime(now.year, now.month, now.day,
+      now.hour, now.minute, now.second, now.millisecond);
+}
+
 Future test1() {
   Master m1 = new Master("m1");
-  Detail d1 = new Detail(new DateTime.now(), 100);
-  Detail d2 = new Detail(new DateTime.now(), 200);
+  Detail d1 = new Detail(now(), 100);
+  Detail d2 = new Detail(now(), 200);
   m1.details..add(d1)..add(d2);
   d1.save(access, null);
   d2.save(access, null);
