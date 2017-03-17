@@ -20,7 +20,7 @@ abstract class Entity {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity({String oid}): this.oid = oid != null ? oid: nextOid() {
+  Entity({String oid}): _oid = oid != null ? oid: nextOid() {
     stored = false;
   }
   /**
@@ -41,12 +41,14 @@ abstract class Entity {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(this.oid) {
+  Entity.be(String oid): _oid = oid {
     stored = true;
   }
 
   ///The OID.
-  final String oid;
+  String get oid => _oid;
+  final String _oid;
+
   /** The object type.
    *
    * The deriving class must override this method to return the unique type.
