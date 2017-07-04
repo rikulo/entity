@@ -241,7 +241,7 @@ class _EntityCache implements EntityCache {
 
   @override
   T fetch<T extends Entity>(String otype, String oid)
-  => _cache[new _CacheKey(otype, oid)] as T;
+  => _cache[new _CacheKey(otype, oid)];
   @override
   T put<T extends Entity>(T entity)
   => _cache[new _CacheKey(entity.otype, entity.oid)] = entity;
