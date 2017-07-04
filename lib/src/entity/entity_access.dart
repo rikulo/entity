@@ -206,6 +206,7 @@ abstract class EntityCache {
    */
   T fetch<T extends Entity>(String otype, String oid);
   /** Caches an entity.
+   * Note: it returns [entity]
    */
   T put<T extends Entity>(T entity);
 
