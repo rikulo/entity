@@ -88,14 +88,8 @@ final RegExp _oidPattern = new RegExp(r'^[-0-9a-zA-Z._]*$');
 ///Default implementation of [getRandomInts]
 List<int> _getRandomInts(int length) {
   final values = new List<int>(length);
-  for (int i = length; --i >= 0;) {
-    values[i] = (_random.nextDouble() * 0xffffffff).toInt();
-      //we can't use (1 << 32) -1, which causes an exception if dart2js
-
-    //make it more random since some browser doesn't generate random well
-    if (i == 2)
-      values[i] += new DateTime.now().millisecondsSinceEpoch;
-  }
+  for (int i = length; --i >= 0;)
+    values[i] = _random.nextInt(0x7fffffff);
   return values;
 }
 
