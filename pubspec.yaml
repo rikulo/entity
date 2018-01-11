@@ -1,7 +1,6 @@
 name: entity
-version: 0.9.3+2
-description: > 
-  A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
+version: 0.9.3+3
+description: A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 authors:
 - Tom Yeh <tomyeh@rikulo.org>
 homepage: https://github.com/rikulo/entity

@@ -30,7 +30,7 @@ const List<int> _CC_EXTRA = const <int> [
 
 ///The character range
 const int _CC_RANGE = 65, //26*2+10+_CC_EXTRA
-  _CC_0 = 48, _CC_9 = _CC_0 + 9, _CC_A = 65, _CC_a = 97;
+  _CC_0 = 48, /*_CC_9 = _CC_0 + 9,*/ _CC_A = 65, _CC_a = 97;
 const int
   _INT_LEN = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
   _CHAR_PER_INT = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)

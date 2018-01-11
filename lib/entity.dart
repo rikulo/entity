@@ -3,7 +3,7 @@
 // Author: tomyeh
 library entity;
 
-import "dart:async" show Future;
+import "dart:async";
 
 import "oid.dart";
 

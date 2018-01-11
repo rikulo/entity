@@ -77,8 +77,8 @@ class PostgresqlAccessAgent implements AccessAgent {
   : _cache = cache;
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      option) async {
+  Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
+      Option option) async {
     final StringBuffer sql = new StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty)

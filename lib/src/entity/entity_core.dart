@@ -234,9 +234,9 @@ abstract class MultiLoad {
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
  */
-Future<T> load<T extends Entity>(Access access, String oid,
+Future<T> load<T extends Entity, Option>(Access access, String oid,
       T newInstance(String oid),
-      [Iterable<String> fields, int option]) async {
+      [Iterable<String> fields, Option option]) async {
   final T entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
     throw new EntityNotFoundException(entity.oid);
@@ -248,9 +248,9 @@ Future<T> load<T extends Entity>(Access access, String oid,
  *
  * Please refer to [load] for details.
  */
-Future<T> loadIfAny<T extends Entity>(Access access, String oid,
+Future<T> loadIfAny<T extends Entity, Option>(Access access, String oid,
     T newInstance(String oid),
-    [Iterable<String> fields, int option])
+    [Iterable<String> fields, Option option])
 => loadIfAny_(access, oid, newInstance,
   (T entity, Set<String> fields, option)
     => access.agent.load(entity, fields, option),
@@ -260,10 +260,10 @@ Future<T> loadIfAny<T extends Entity>(Access access, String oid,
 /// 
 /// * [loader] - a function to load the data back. It must
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
-Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
+Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
     T newInstance(String oid),
-    loader(T entity, Set<String> fields, option),
-    Iterable<String> fields, [int option]) async {
+    FutureOr<Map<String, dynamic>> loader(T entity, Set<String> fields, Option option),
+    Iterable<String> fields, [Option option]) async {
   if (oid == null)
     return null;
 

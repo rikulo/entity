@@ -55,8 +55,8 @@ abstract class AccessAgent {
    * You can ignore it if not supported.
    * For SQL, it is better to supporte `null`, [FOR_SHARE] and [FOR_UPDATE].
    */
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-    option);
+  Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
+    Option option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain

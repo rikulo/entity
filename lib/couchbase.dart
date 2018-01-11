@@ -47,8 +47,8 @@ class CouchbaseAccessAgent implements AccessAgent {
   CouchbaseAccessAgent(CouchClient this.client);
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      option) {
+  Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
+      Option option) {
     final String oid = entity.oid;
     return _load(oid)
     .then((Map<String, dynamic> data) {
