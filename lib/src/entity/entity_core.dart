@@ -163,6 +163,8 @@ abstract class Entity {
   bool operator==(other) => other is Entity && oid == other.oid;
   @override
   int get hashCode => oid.hashCode;
+  @override
+  String toString() => oid;
 }
 
 /** Indicates the entity is not found.
@@ -171,7 +173,8 @@ class EntityException implements Exception {
   final String message;
 
   EntityException([this.message=""]);
-  String toString() => "$message";
+  @override
+  String toString() => message;
 }
 
 /** Indicates the entity is not found.
@@ -180,6 +183,7 @@ class EntityNotFoundException extends EntityException {
   final String oid;
 
   EntityNotFoundException(this.oid);
+  @override
   String toString() => "$oid not found";
 }
 
