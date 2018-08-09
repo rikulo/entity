@@ -10,7 +10,7 @@ import "package:entity/map_storage.dart";
 
 import "client_sample.dart";
 
-final MapStorageAccess access = MapStorageAccess();
+final access = MapStorageAccess();
 
 void main() {
   test("Entity Test on Map", test1);

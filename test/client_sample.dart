@@ -22,7 +22,7 @@ class Master extends Entity {
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     super.read(reader, data, fields);
     name = data["name"];
-    details = reader.entities("Detail", data["details"]);
+    details = reader.entities("Detail", data["details"].cast<String>());
   }
 
   @override
