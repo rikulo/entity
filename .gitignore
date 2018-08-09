@@ -2,6 +2,7 @@
 .packages
 .pub
 .DS_Store
+.dart_tool
 debug
 deploy
 codegen

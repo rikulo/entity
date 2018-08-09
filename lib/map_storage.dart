@@ -5,7 +5,7 @@
 library entity.map_storage;
 
 import "dart:async";
-import "dart:convert" show JSON;
+import "dart:convert" show json;
 
 import "entity.dart";
 
@@ -78,7 +78,7 @@ class MapStorageAccessAgent implements AccessAgent {
     if (oid != null) {
       final String value = _storage[oid];
       if (value != null) {
-        final data = JSON.decode(value);
+        final data = json.decode(value);
         assert(data is Map);
         return data;
       }
@@ -99,7 +99,7 @@ class MapStorageAccessAgent implements AccessAgent {
       data = prevValue;
     }
 
-    _storage[oid] = JSON.encode(data);
+    _storage[oid] = json.encode(data);
     return new Future.value();
   }
 
@@ -107,7 +107,7 @@ class MapStorageAccessAgent implements AccessAgent {
   Future create(Entity entity, Map<String, dynamic> data) {
     final String oid = entity.oid;
     _cache.put(entity);
-    _storage[oid] = JSON.encode(data);
+    _storage[oid] = json.encode(data);
     return new Future.value();
   }
 

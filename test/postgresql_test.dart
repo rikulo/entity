@@ -6,9 +6,9 @@ import "dart:async";
 
 import 'package:test/test.dart';
 import "package:entity/entity.dart";
-import "package:entity/postgresql.dart";
+import "package:entity/postgresql2.dart";
 
-import "package:postgresql/postgresql.dart" show Connection, connect;
+import "package:postgresql2/postgresql.dart" show Connection, connect;
 
 import "sql_sample.dart";
 

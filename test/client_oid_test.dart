@@ -4,7 +4,7 @@
 library entity.oid_test;
 
 import "dart:html";
-import "dart:convert" show JSON;
+import "dart:convert" show json;
 import "dart:typed_data";
 
 import 'package:test/test.dart';
@@ -28,7 +28,7 @@ void main() {
       expect(isValidOid(oid), isTrue);
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);
-      expect(JSON.encode(oid), '"$oid"'); //no escape
+      expect(json.encode(oid), '"$oid"'); //no escape
       expect(Uri.encodeComponent(oid), oid); //no escape
 
       if (prevOid != null)
