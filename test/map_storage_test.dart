@@ -10,22 +10,22 @@ import "package:entity/map_storage.dart";
 
 import "client_sample.dart";
 
-final MapStorageAccess access = new MapStorageAccess();
+final MapStorageAccess access = MapStorageAccess();
 
 void main() {
   test("Entity Test on Map", test1);
 }
 
 DateTime now() {
-  final now = new DateTime.now();
-  return new DateTime(now.year, now.month, now.day,
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day,
       now.hour, now.minute, now.second, now.millisecond);
 }
 
 Future test1() {
-  Master m1 = new Master("m1");
-  Detail d1 = new Detail(now(), 100);
-  Detail d2 = new Detail(now(), 200);
+  Master m1 = Master("m1");
+  Detail d1 = Detail(now(), 100);
+  Detail d2 = Detail(now(), 200);
   m1.details..add(d1)..add(d2);
   d1.save(access, null);
   d2.save(access, null);

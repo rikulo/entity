@@ -53,7 +53,7 @@ abstract class AccessAgent {
    * It is the option passed from [load] and [loadIfAny],
    * so it can be application specific.
    * You can ignore it if not supported.
-   * For SQL, it is better to supporte `null`, [FOR_SHARE] and [FOR_UPDATE].
+   * For SQL, it is better to supporte `null`, [forShare] and [forUpdate].
    */
   Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
     Option option);
@@ -113,7 +113,7 @@ class AccessWriter {
 class AccessReader {
   ///Return the [DateTime] instance representing the JSON value.
   DateTime dateTime(json)
-    => json != null ? new DateTime.fromMillisecondsSinceEpoch(json): null;
+    => json != null ? DateTime.fromMillisecondsSinceEpoch(json): null;
 
   /** Returns the entity of the given OID, or null if not loaded.
    *
@@ -200,7 +200,7 @@ Map<String, dynamic> minify(Map<String, dynamic> json) {
 /** A cache for storing entities.
  */
 abstract class EntityCache {
-  factory EntityCache() => new _EntityCache();
+  factory EntityCache() => _EntityCache();
 
   /** Gets the entity of the given [otype] and [oid].
    */
@@ -242,14 +242,14 @@ class _EntityCache implements EntityCache {
 
   @override
   T fetch<T extends Entity>(String otype, String oid)
-  => _cache[new _CacheKey(otype, oid)];
+  => _cache[_CacheKey(otype, oid)];
   @override
   T put<T extends Entity>(T entity)
-  => _cache[new _CacheKey(entity.otype, entity.oid)] = entity;
+  => _cache[_CacheKey(entity.otype, entity.oid)] = entity;
 
   @override
   bool remove(String otype, String oid)
-  => _cache.remove(new _CacheKey(otype, oid)) != null;
+  => _cache.remove(_CacheKey(otype, oid)) != null;
 
   @override
   void clear() => _cache.clear();

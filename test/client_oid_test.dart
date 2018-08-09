@@ -21,9 +21,9 @@ void main() {
     expect(isValidOid('ABCDEFGHIJKLMNOPQRST+UVW'), isFalse);
 
     String prevOid;
-    const int LOOPS = 100000;
-    final DateTime t0 = new DateTime.now();
-    for (int i = 0; i < LOOPS; i++) {
+    const int loops = 100000;
+    final DateTime t0 = DateTime.now();
+    for (int i = 0; i < loops; i++) {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);
       expect(oid.indexOf('\\'), -1);
@@ -38,7 +38,7 @@ void main() {
 //      if (i < 500)
 //        _print("$i: $oid");
     }
-    _print("Generate $LOOPS OIDs in ${new DateTime.now().difference(t0)}");
+    _print("Generate $loops OIDs in ${DateTime.now().difference(t0)}");
   });
 }
 
@@ -52,7 +52,7 @@ void _print(String message) {
 TextAreaElement _out;
 
 List<int> _getCryptoInts(int length) {
-  final values = new Uint32List(length);
+  final values = Uint32List(length);
   window.crypto.getRandomValues(values);
   return values;
 }

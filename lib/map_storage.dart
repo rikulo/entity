@@ -22,11 +22,11 @@ class MapStorageAccess implements Access {
   final MapStorageAccessAgent _agent;
   
   MapStorageAccess([Map<String, String> storage])
-  : _agent = new MapStorageAccessAgent(storage) {
+  : _agent = MapStorageAccessAgent(storage) {
   	(reader as CachedAccessReader).cache = _agent._cache;
   }
   MapStorageAccess.by(EntityCache cache, [Map<String, String> storage])
-  : _agent = new MapStorageAccessAgent.by(cache, storage) {
+  : _agent = MapStorageAccessAgent.by(cache, storage) {
   	(reader as CachedAccessReader).cache = _agent._cache;
   }
 
@@ -34,9 +34,9 @@ class MapStorageAccess implements Access {
   T fetch<T extends Entity>(String otype, String oid) => _agent._cache.fetch(otype, oid);
 
   @override
-  final AccessReader reader = new CachedAccessReader();
+  final AccessReader reader = CachedAccessReader();
   @override
-  final AccessWriter writer = new AccessWriter();
+  final AccessWriter writer = AccessWriter();
 
   @override
   AccessAgent get agent => _agent;
@@ -54,7 +54,7 @@ class MapStorageAccessAgent implements AccessAgent {
   final EntityCache _cache;
 
   MapStorageAccessAgent([Map<String, String> storage]):
-    this.by(new EntityCache(), storage);
+    this.by(EntityCache(), storage);
   /** Constructs with the given [cache].
    *
    * * [cache] - the cache for storing the entity. It can't be null.
@@ -68,10 +68,10 @@ class MapStorageAccessAgent implements AccessAgent {
       Option option) {
     final Map<String, dynamic> data = _load(entity.oid);
     if (data != null) {
-      assert(data[F_OTYPE] == entity.otype);
+      assert(data[fdOtype] == entity.otype);
       _cache.put(entity); //update cache
     }
-    return new Future.value(data);
+    return Future.value(data);
   }
 
   Map<String, dynamic> _load(String oid) {
@@ -93,14 +93,14 @@ class MapStorageAccessAgent implements AccessAgent {
     if (fields != null) {
       final Map<String, dynamic> prevValue = _load(oid);
       if (prevValue == null)
-      	throw new StateError("Not found: $oid");
+      	throw StateError("Not found: $oid");
       for (final String fd in fields)
         prevValue[fd] = data[fd];
       data = prevValue;
     }
 
     _storage[oid] = json.encode(data);
-    return new Future.value();
+    return Future.value();
   }
 
   @override
@@ -108,7 +108,7 @@ class MapStorageAccessAgent implements AccessAgent {
     final String oid = entity.oid;
     _cache.put(entity);
     _storage[oid] = json.encode(data);
-    return new Future.value();
+    return Future.value();
   }
 
   @override
@@ -116,6 +116,6 @@ class MapStorageAccessAgent implements AccessAgent {
     final String oid = entity.oid;
     _cache.remove(entity.otype, oid);
     _storage.remove(oid);
-    return new Future.value();
+    return Future.value();
   }
 }

@@ -20,26 +20,26 @@ import "dart:math" show Random;
 typedef List<int> GetRandomInts(int length);
 
 ///Total number of characters per OID.
-const int OID_LENGTH = 24;
+const int oidLength = 24;
 
-const List<int> _CC_EXTRA = const <int> [
+const List<int> _ccExtra = const <int> [
   45/*-*/, 46/*.*/, 95/*_*/,
 ]; //33/*!*/, 40/*(*/, 41/*)*/ => not valid in email
    //42/***/, => not safe
    //126/*~*/, => conservative (https://www.cs.tut.fi/~jkorpela/tilde.html)
 
 ///The character range
-const int _CC_RANGE = 65, //26*2+10+_CC_EXTRA
-  _CC_0 = 48, /*_CC_9 = _CC_0 + 9,*/ _CC_A = 65, _CC_a = 97;
+const int _ccRange = 65, //26*2+10+_CC_EXTRA
+  _cc0 = 48, /*_CC_9 = _CC_0 + 9,*/ _ccA = 65, _cca = 97;
 const int
-  _INT_LEN = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
-  _CHAR_PER_INT = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)
+  _intLen = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
+  _charPerInt = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)
 
 /** Returns the next unique object ID.
  */
 String nextOid() {
-  final values = getRandomInts(_INT_LEN);
-  assert(values.length == _INT_LEN);
+  final values = getRandomInts(_intLen);
+  assert(values.length == _intLen);
   final List<int> bytes = [];
   l_gen:
   for (int i = values.length; --i >= 0;) {
@@ -47,18 +47,18 @@ String nextOid() {
     if (val < 0)
       val = -val;
 
-    for (int j = _CHAR_PER_INT;;) {
-      bytes.add(_escOid(val % _CC_RANGE));
-      if (bytes.length >= OID_LENGTH)
+    for (int j = _charPerInt;;) {
+      bytes.add(_escOid(val % _ccRange));
+      if (bytes.length >= oidLength)
         break l_gen;
 
       if (--j == 0)
         break;
-      val = val ~/ _CC_RANGE;
+      val = val ~/ _ccRange;
     }
   }
 
-  return new String.fromCharCodes(bytes);
+  return String.fromCharCodes(bytes);
 }
 /** Creates a new OID based two OIDs.
  *
@@ -73,9 +73,9 @@ String mergeOid(String oid1, String oid2)
 ///
 ///Note: for performance reason, it does only the basic check.
 bool isValidOid(String value)
-=> value.length == OID_LENGTH && _oidPattern.hasMatch(value);
+=> value.length == oidLength && _oidPattern.hasMatch(value);
 
-final RegExp _oidPattern = new RegExp(r'^[-0-9a-zA-Z._]*$');
+final RegExp _oidPattern = RegExp(r'^[-0-9a-zA-Z._]*$');
 
 /** The function used to generate a list of random integers to construct OID.
  *
@@ -87,7 +87,7 @@ final RegExp _oidPattern = new RegExp(r'^[-0-9a-zA-Z._]*$');
 
 ///Default implementation of [getRandomInts]
 List<int> _getRandomInts(int length) {
-  final values = new List<int>(length);
+  final values = List<int>(length);
   for (int i = length; --i >= 0;)
     values[i] = _random.nextInt(0x7fffffff);
   return values;
@@ -95,12 +95,12 @@ List<int> _getRandomInts(int length) {
 
 int _escOid(int v) {
   if (v < 10)
-    return _CC_0 +  v;
+    return _cc0 +  v;
   if ((v -= 10) < 26)
-    return _CC_A + v;
+    return _ccA + v;
   if ((v -= 26) < 26)
-    return _CC_a + v;
-  return _CC_EXTRA[v - 26];
+    return _cca + v;
+  return _ccExtra[v - 26];
 }
 
-final Random _random = new Random();
+final Random _random = Random();

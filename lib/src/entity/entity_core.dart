@@ -6,11 +6,11 @@ part of entity;
 /** Used with [load] and [loadIfAny] to indicat the locking
  * is *select-for-share* (i.e., read lock).
  */
-const int FOR_SHARE = 1;
+const int forShare = 1;
 /** Used with [load] and [loadIfAny] to indicat the locking
  * is *select-for-update* (i.e., updatelock).
  */
-const int FOR_UPDATE = 2;
+const int forUpdate = 2;
 
 /** An entity which can be stored into an entity store.
  */
@@ -127,7 +127,7 @@ abstract class Entity {
    * (into [data]).
    */
   void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
-    data[F_OTYPE] = otype;
+    data[fdOtype] = otype;
   }
   /** Reads the given JSON object into the data members of this entity.
    *
@@ -233,7 +233,7 @@ abstract class MultiLoad {
  * * [option] - an option for loading the entity.
  * Technically, you can pass anything that your access provider supports.
  * For SQL, itt could be `null`,
- * [FOR_SHARE] and [FOR_UPDATE]. Default: null (means no lock at all).
+ * [forShare] and [forUpdate]. Default: null (means no lock at all).
  * 
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
@@ -243,7 +243,7 @@ Future<T> load<T extends Entity, Option>(Access access, String oid,
       [Iterable<String> fields, Option option]) async {
   final T entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
-    throw new EntityNotFoundException(entity.oid);
+    throw EntityNotFoundException(entity.oid);
   return entity;
 }
 

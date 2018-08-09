@@ -12,7 +12,7 @@ import "package:postgresql2/postgresql.dart" show Connection, connect;
 
 import "sql_sample.dart";
 
-const String DB_URI = "postgres://postgres:123@localhost:5432/testdb";
+const String dbUri = "postgres://postgres:123@localhost:5432/testdb";
 
 void main() {
   test("Entity Test on PostgreSQL", test1);
@@ -20,14 +20,14 @@ void main() {
 
 Future test1() {
   Connection conn;
-  return connect(DB_URI)
+  return connect(dbUri)
   .then((_) => initDB(conn = _))
   .then((_) {
-    final PostgresqlAccess access = new PostgresqlAccess(conn, cache: false);
-    Master m1 = new Master("m1");
-    Detail d1 = new Detail(new DateTime.now(), 100);
+    final PostgresqlAccess access = PostgresqlAccess(conn, cache: false);
+    Master m1 = Master("m1");
+    Detail d1 = Detail(DateTime.now(), 100);
     d1.master = m1.oid;
-    Detail d2 = new Detail(new DateTime.now(), 200);
+    Detail d2 = Detail(DateTime.now(), 200);
     d2.master = m1.oid;
 
     return Future.forEach([m1, d1, d2], (Entity e) => e.save(access, null))

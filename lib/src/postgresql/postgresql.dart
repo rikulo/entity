@@ -18,7 +18,7 @@ class PostgresqlAccess implements Access {
    * * [cache] - whether to enable the cache. Default: true.
    */
   PostgresqlAccess(Connection this.conn, {bool cache:true}) {
-    _agent = new PostgresqlAccessAgent(this, cache: cache);
+    _agent = PostgresqlAccessAgent(this, cache: cache);
     (reader as _AccessReader)._cache = _cache;
   }
 
@@ -27,9 +27,9 @@ class PostgresqlAccess implements Access {
   => _cache != null ? _cache.fetch(otype, oid): null;
 
   @override
-  final AccessReader reader = new _AccessReader();
+  final AccessReader reader = _AccessReader();
   @override
-  final AccessWriter writer = new _AccessWriter();
+  final AccessWriter writer = _AccessWriter();
   @override
   AccessAgent get agent => _agent;
   AccessAgent _agent;
@@ -72,17 +72,17 @@ class PostgresqlAccessAgent implements AccessAgent {
   final EntityCache _cache;
 
   PostgresqlAccessAgent(PostgresqlAccess this.access, {bool cache:true})
-  : _cache = cache ? new EntityCache(): null;
+  : _cache = cache ? EntityCache(): null;
   PostgresqlAccessAgent.by(PostgresqlAccess this.access, EntityCache cache)
   : _cache = cache;
 
   @override
   Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
       Option option) async {
-    final StringBuffer sql = new StringBuffer("select ");
+    final StringBuffer sql = StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty)
-        fields.add(F_OID); //possible and allowed
+        fields.add(fdOid); //possible and allowed
 
       bool first = true;
       for (final String fd in fields) {
@@ -99,13 +99,13 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
 
     sql..write(' from "')..write(entity.otype)..write('" where "oid"=@oid');
-    if (option == FOR_UPDATE)
+    if (option == forUpdate)
       sql.write(' for update');
-    else if (option == FOR_SHARE)
+    else if (option == forShare)
       sql.write(' for share');
 
-    await for(final Row row in access.query(sql.toString(), {F_OID: entity.oid})) {
-      final Map<String, dynamic> data = new HashMap();
+    await for(final Row row in access.query(sql.toString(), {fdOid: entity.oid})) {
+      final Map<String, dynamic> data = HashMap();
       row.forEach((String name, value) => data[name] = value);
       if (_cache != null)
         _cache.put(entity); //update cache
@@ -117,13 +117,13 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future update(Entity entity, Map<String, dynamic> data, Set<String> fields) {
-    final StringBuffer sql = new  StringBuffer('update "')
+    final StringBuffer sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
     final Iterable<String> fds = fields == null ? data.keys: fields;
 
     bool first = true;
     for (final String fd in fds) {
-      if (fd == F_OTYPE || fd == F_OID)
+      if (fd == fdOtype || fd == fdOid)
         continue;
 
       if (first) first = false;
@@ -134,21 +134,21 @@ class PostgresqlAccessAgent implements AccessAgent {
         data[fd] = null;
     }
     if (first)
-      return new Future.value(); //nothing to update
+      return Future.value(); //nothing to update
 
     sql.write(' where "oid"=@oid');
-    data[F_OID] = entity.oid;
+    data[fdOid] = entity.oid;
     return access.execute(sql.toString(), data);
   }
 
   @override
   Future create(Entity entity, Map<String, dynamic> data) async {
-    final StringBuffer sql = new  StringBuffer('insert into "')
+    final StringBuffer sql = StringBuffer('insert into "')
       ..write(entity.otype)..write('"("oid"');
-    final StringBuffer param = new StringBuffer(" values(@oid");
+    final StringBuffer param = StringBuffer(" values(@oid");
 
     for (final String fd in data.keys) {
-      if (fd == F_OTYPE || fd == F_OID || data[fd] == null)
+      if (fd == fdOtype || fd == fdOid || data[fd] == null)
         continue;
 
       sql..write(',"')..write(fd)..write('"');
@@ -156,7 +156,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
     sql.write(')');
     param.write(')');
-    data[F_OID] = entity.oid;
+    data[fdOid] = entity.oid;
 
     await access.execute(sql.toString() + param.toString(), data);
 
@@ -168,7 +168,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   Future delete(Entity entity) async {
     await access.execute(
       'delete from "${entity.otype}" where "oid"=@oid',
-      {F_OID: entity.oid});
+      {fdOid: entity.oid});
 
     if (_cache != null)
       _cache.remove(entity.otype, entity.oid); //update cache

@@ -53,5 +53,5 @@ class Detail extends Entity {
   String get otype => "Detail";
 }
 
-Master beMaster(String oid) => new Master.be(oid);
-Detail beDetail(String oid) => new Detail.be(oid);
+Master beMaster(String oid) => Master.be(oid);
+Detail beDetail(String oid) => Detail.be(oid);
