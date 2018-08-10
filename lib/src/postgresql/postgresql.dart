@@ -105,7 +105,7 @@ class PostgresqlAccessAgent implements AccessAgent {
       sql.write(' for share');
 
     await for(final Row row in access.query(sql.toString(), {fdOid: entity.oid})) {
-      final Map<String, dynamic> data = HashMap();
+      final data = HashMap<String, dynamic>();
       row.forEach((String name, value) => data[name] = value);
       if (_cache != null)
         _cache.put(entity); //update cache
