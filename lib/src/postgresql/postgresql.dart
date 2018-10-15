@@ -184,7 +184,7 @@ class _AccessReader extends AccessReader {
   => _cache != null ? _cache.fetch(otype, oid): null;
 
   @override
-  DateTime dateTime(json) => json;
+  DateTime dateTime(json) => json as DateTime;
 }
 
 class _AccessWriter extends AccessWriter {

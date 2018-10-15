@@ -289,10 +289,11 @@ Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
   if (data is Future) data = await data;
   if (data == null) return null;
 
-  entity.read(access.reader, data, fds);
+  entity.read(access.reader, data as Map<String, dynamic>, fds);
   if (entity is MultiLoad)
     (entity as MultiLoad).setFieldsLoaded(fds);
   return entity;
 }
 
-Set<T> _toSet<T>(Iterable<T> it) => it is Set || it == null ? it: it.toSet();
+Set<T> _toSet<T>(Iterable<T> it)
+=> it is Set || it == null ? it as Set<T>: it.toSet();

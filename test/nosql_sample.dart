@@ -22,8 +22,8 @@ class Master extends Entity {
   @override
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     super.read(reader, data, fields);
-    name = data["name"];
-    details = data["details"];
+    name = data["name"] as String;
+    details = (data["details"] as List).cast<String>();
   }
 
   @override
@@ -46,7 +46,7 @@ class Detail extends Entity {
   @override
   void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
     super.read(reader, data, fields);
-    value = data["value"];
+    value = data["value"] as int;
     createdAt = reader.dateTime(data["createdAt"]);
   }
 

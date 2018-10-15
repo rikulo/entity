@@ -113,7 +113,7 @@ class AccessWriter {
 class AccessReader {
   ///Return the [DateTime] instance representing the JSON value.
   DateTime dateTime(json)
-    => json != null ? DateTime.fromMillisecondsSinceEpoch(json): null;
+    => json != null ? DateTime.fromMillisecondsSinceEpoch(json as int): null;
 
   /** Returns the entity of the given OID, or null if not loaded.
    *
@@ -242,7 +242,7 @@ class _EntityCache implements EntityCache {
 
   @override
   T fetch<T extends Entity>(String otype, String oid)
-  => _cache[_CacheKey(otype, oid)];
+  => _cache[_CacheKey(otype, oid)] as T;
   @override
   T put<T extends Entity>(T entity)
   => _cache[_CacheKey(entity.otype, entity.oid)] = entity;

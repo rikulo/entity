@@ -80,7 +80,7 @@ class MapStorageAccessAgent implements AccessAgent {
       if (value != null) {
         final data = json.decode(value);
         assert(data is Map);
-        return data;
+        return data as Map<String, dynamic>;
       }
     }
     return null;

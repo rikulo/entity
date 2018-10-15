@@ -44,7 +44,7 @@ void main() {
 
 void _print(String message) {
   if (_out == null) {
-    _out = document.querySelector("#dump");
+    _out = document.querySelector("#dump") as TextAreaElement;
     _out.value = "";
   }
   _out.value = _out.value + message + '\n';
