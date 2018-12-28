@@ -55,8 +55,8 @@ abstract class AccessAgent {
    * You can ignore it if not supported.
    * For SQL, it is better to supporte `null`, [forShare] and [forUpdate].
    */
-  Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
-    Option option);
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
+    int option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain
@@ -182,17 +182,17 @@ class CachedAccessReader extends AccessReader {
  *       toJson() => minify({"some": some, "another": another})
  *     }
  */
-Map<String, dynamic> minify(Map<String, dynamic> json) {
+Map<K, dynamic> minify<K>(Map<K, dynamic> json) {
   if (json == null || json.isEmpty)
     return json;
 
-  final Map<String, dynamic> result = {};
+  final result = <K, dynamic>{};
     //Note: we have to preserve the order since it might be important
     //to the user
   for (final name in json.keys) {
     final value = json[name];
     if (value != null)
-      result[name] = value is Map<String, dynamic> ? minify(value): value;
+      result[name] = value is Map<K, dynamic> ? minify(value): value;
   }
   return result;
 }

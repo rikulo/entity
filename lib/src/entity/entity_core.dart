@@ -238,9 +238,8 @@ abstract class MultiLoad {
  * It throws [EntityNotFoundException] if the entity is not found
  * (including oid is null).
  */
-Future<T> load<T extends Entity, Option>(Access access, String oid,
-      T newInstance(String oid),
-      [Iterable<String> fields, Option option]) async {
+Future<T> load<T extends Entity>(Access access, String oid,
+      T newInstance(String oid), [Iterable<String> fields, int option]) async {
   final T entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
     throw EntityNotFoundException(entity.oid);
@@ -252,11 +251,10 @@ Future<T> load<T extends Entity, Option>(Access access, String oid,
  *
  * Please refer to [load] for details.
  */
-Future<T> loadIfAny<T extends Entity, Option>(Access access, String oid,
-    T newInstance(String oid),
-    [Iterable<String> fields, Option option])
+Future<T> loadIfAny<T extends Entity>(Access access, String oid,
+    T newInstance(String oid), [Iterable<String> fields, int option])
 => loadIfAny_(access, oid, newInstance,
-  (T entity, Set<String> fields, option)
+  (T entity, Set<String> fields, int option)
     => access.agent.load(entity, fields, option),
   fields, option);
 

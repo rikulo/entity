@@ -64,8 +64,8 @@ class MapStorageAccessAgent implements AccessAgent {
       _cache = cache;
 
   @override
-  Future<Map<String, dynamic>> load<Option>(Entity entity, Set<String> fields,
-      Option option) {
+  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
+      int option) {
     final Map<String, dynamic> data = _load(entity.oid);
     if (data != null) {
       assert(data[fdOtype] == entity.otype);
