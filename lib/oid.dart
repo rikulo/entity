@@ -4,6 +4,7 @@
 library entity.oid;
 
 import "dart:math" show Random;
+import "package:charcode/ascii.dart";
 
 //Note: we use characters a-z, A-Z, 0-9 and _, s.t., the user  can select all
 //by double-clicking it (they also valid characters no need of escapes).
@@ -23,14 +24,13 @@ typedef List<int> GetRandomInts(int length);
 const int oidLength = 24;
 
 const List<int> _ccExtra = const <int> [
-  45/*-*/, 46/*.*/, 95/*_*/,
-]; //33/*!*/, 40/*(*/, 41/*)*/ => not valid in email
-   //42/***/, => not safe
-   //126/*~*/, => conservative (https://www.cs.tut.fi/~jkorpela/tilde.html)
+  $dash, $underline, $dot,
+]; //!, (, ) => not valid in email
+   //*, => not safe
+   //~ => conservative (https://www.cs.tut.fi/~jkorpela/tilde.html)
 
 ///The character range
-const int _ccRange = 65, //26*2+10+_CC_EXTRA
-  _cc0 = 48, /*_CC_9 = _CC_0 + 9,*/ _ccA = 65, _cca = 97;
+const int _ccRange = 65; //26*2+10+_CC_EXTRA
 const int
   _intLen = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
   _charPerInt = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)
@@ -57,6 +57,11 @@ String nextOid() {
       val = val ~/ _ccRange;
     }
   }
+
+  //The last characters shall not be a dot. Otherwise, it is easy to get
+  //confused if we put URL at the end of a sentence.
+  final last = bytes.length - 1;
+  if (bytes[last] == $dot) bytes[last] = $z;
 
   return String.fromCharCodes(bytes);
 }
@@ -95,11 +100,11 @@ List<int> _getRandomInts(int length) {
 
 int _escOid(int v) {
   if (v < 10)
-    return _cc0 +  v;
+    return $0 +  v;
   if ((v -= 10) < 26)
-    return _ccA + v;
+    return $A + v;
   if ((v -= 26) < 26)
-    return _cca + v;
+    return $a + v;
   return _ccExtra[v - 26];
 }
 

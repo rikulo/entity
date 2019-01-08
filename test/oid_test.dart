@@ -21,6 +21,8 @@ void main() {
     for (int i = 0; i < loops; i++) {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);
+      expect(oid[oid.length - 1] == '.', isFalse); //don't end with dot
+
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);
       expect(json.encode(oid), '"$oid"'); //no escape

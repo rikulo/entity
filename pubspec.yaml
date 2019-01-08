@@ -8,6 +8,7 @@ documentation: https://github.com/rikulo/entity
 dev_dependencies:
   test: any
   postgresql2: any
+  charcode: any
   rikulo_commons: ">=2.0.0"
 environment:
   sdk: ">=2.0.0 <3.0.0"
