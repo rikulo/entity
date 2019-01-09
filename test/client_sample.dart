@@ -13,13 +13,13 @@ class Master extends Entity {
   Master.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String> fields) {
     super.write(writer, data, fields);
     data["name"] = name;
     data["details"] = writer.entities(details);
   }
   @override
-  void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String> fields) {
     super.read(reader, data, fields);
     name = data["name"] as String;
     details = reader.entities("Detail", (data["details"] as List).cast<String>());
@@ -37,13 +37,13 @@ class Detail extends Entity {
   Detail.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String> fields) {
     super.write(writer, data, fields);
     data["createdAt"] = writer.dateTime(createdAt);
     data["value"] = value;
   }
   @override
-  void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String> fields) {
     super.read(reader, data, fields);
     value = data["value"] as int;
     createdAt = reader.dateTime(data["createdAt"]);

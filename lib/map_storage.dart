@@ -66,7 +66,7 @@ class MapStorageAccessAgent implements AccessAgent {
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
       int option) {
-    final Map<String, dynamic> data = _load(entity.oid);
+    final data = _load(entity.oid);
     if (data != null) {
       assert(data[fdOtype] == entity.otype);
       _cache.put(entity); //update cache
@@ -87,11 +87,11 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map<String, dynamic> data, Set<String> fields) {
+  Future update(Entity entity, Map data, Set<String> fields) {
     final String oid = entity.oid;
 
     if (fields != null) {
-      final Map<String, dynamic> prevValue = _load(oid);
+      final prevValue = _load(oid);
       if (prevValue == null)
       	throw StateError("Not found: $oid");
       for (final String fd in fields)
@@ -104,7 +104,7 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future create(Entity entity, Map<String, dynamic> data) {
+  Future create(Entity entity, Map data) {
     final String oid = entity.oid;
     _cache.put(entity);
     _storage[oid] = json.encode(data);

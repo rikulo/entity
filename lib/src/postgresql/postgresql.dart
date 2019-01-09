@@ -106,7 +106,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
     await for(final Row row in access.query(sql.toString(), {fdOid: entity.oid})) {
       final data = HashMap<String, dynamic>();
-      row.forEach((String name, value) => data[name] = value);
+      row.forEach((name, value) => data[name] = value);
       if (_cache != null)
         _cache.put(entity); //update cache
       return data;
@@ -116,7 +116,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map<String, dynamic> data, Set<String> fields) {
+  Future update(Entity entity, Map data, Set<String> fields) {
     final StringBuffer sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
     final Iterable<String> fds = fields == null ? data.keys: fields;
@@ -142,7 +142,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future create(Entity entity, Map<String, dynamic> data) async {
+  Future create(Entity entity, Map data) async {
     final StringBuffer sql = StringBuffer('insert into "')
       ..write(entity.otype)..write('"("oid"');
     final StringBuffer param = StringBuffer(" values(@oid");

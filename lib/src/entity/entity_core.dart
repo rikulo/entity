@@ -72,11 +72,11 @@ abstract class Entity {
    * before saving to the database.
    */
   Future save(Access access, Iterable<String> fields,
-      [void beforeSave(Map<String, dynamic> data, Set<String> fields)]) {
+      [void beforeSave(Map data, Set<String> fields)]) {
 
     final Set<String> fds = fields != null && stored ? _toSet(fields): null;
 
-    final Map<String, dynamic> data = {};
+    final data = HashMap<String, dynamic>();
     write(access.writer, data, fds);
     if (beforeSave != null)
       beforeSave(data, fds);
@@ -107,7 +107,7 @@ abstract class Entity {
    * The deriving class must override this method to write all required
    * data members. For example,
    *
-   *     void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
+   *     void write(AccessWriter writer, Map data, Set<String> fields) {
    *       super.write(writer, data, fields);
    *       data["someData"] = someData;
    *       data["someEntity"] = writer.entity(SomeType, someEntity);
@@ -126,7 +126,7 @@ abstract class Entity {
    * In general, you check [fields] only if the field is costly to generate
    * (into [data]).
    */
-  void write(AccessWriter writer, Map<String, dynamic> data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String> fields) {
     data[fdOtype] = otype;
   }
   /** Reads the given JSON object into the data members of this entity.
@@ -140,7 +140,7 @@ abstract class Entity {
    * The deriving class must override this method to read all data member
    * stored in [write]. For example,
    *
-   *     void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
+   *     void read(AccessReader reader, Map data, Set<String> fields) {
    *       super.read(reader, data, fields);
    *       someData = data["someData"];
    *       someEntity = reader.entity(SomeType, data["someEntity"]);
@@ -153,7 +153,7 @@ abstract class Entity {
    * * [fields] - the fields being loaded. If null, it means all fields.
    * In general, you can ignore this argument (but use [data] instead).
    */
-  void read(AccessReader reader, Map<String, dynamic> data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String> fields) {
   }
 
   ///By default, it returns [oid] when jsonized.
@@ -264,7 +264,7 @@ Future<T> loadIfAny<T extends Entity>(Access access, String oid,
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
 Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
     T newInstance(String oid),
-    FutureOr<Map<String, dynamic>> loader(T entity, Set<String> fields, Option option),
+    FutureOr<Map> loader(T entity, Set<String> fields, Option option),
     Iterable<String> fields, [Option option]) async {
   if (oid == null)
     return null;
@@ -283,11 +283,10 @@ Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
         //Note: if option != null, we have to go thru [loader] to ensure the lock
   }
 
-  var data = loader(entity, fds, option);
-  if (data is Future) data = await data;
+  final data = await loader(entity, fds, option);
   if (data == null) return null;
 
-  entity.read(access.reader, data as Map<String, dynamic>, fds);
+  entity.read(access.reader, data, fds);
   if (entity is MultiLoad)
     (entity as MultiLoad).setFieldsLoaded(fds);
   return entity;
