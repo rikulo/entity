@@ -104,7 +104,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     else if (option == forShare)
       sql.write(' for share');
 
-    await for(final Row row in access.query(sql.toString(), {fdOid: entity.oid})) {
+    await for(final row in access.query(sql.toString(), {fdOid: entity.oid})) {
       final data = HashMap<String, dynamic>();
       row.forEach((name, value) => data[name] = value);
       if (_cache != null)
@@ -119,10 +119,10 @@ class PostgresqlAccessAgent implements AccessAgent {
   Future update(Entity entity, Map data, Set<String> fields) {
     final StringBuffer sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
-    final Iterable<String> fds = fields == null ? data.keys: fields;
+    final Iterable fds = fields == null ? data.keys: fields;
 
     bool first = true;
-    for (final String fd in fds) {
+    for (final fd in fds) {
       if (fd == fdOtype || fd == fdOid)
         continue;
 
@@ -147,7 +147,7 @@ class PostgresqlAccessAgent implements AccessAgent {
       ..write(entity.otype)..write('"("oid"');
     final StringBuffer param = StringBuffer(" values(@oid");
 
-    for (final String fd in data.keys) {
+    for (final fd in data.keys) {
       if (fd == fdOtype || fd == fdOid || data[fd] == null)
         continue;
 

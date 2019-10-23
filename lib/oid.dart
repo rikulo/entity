@@ -23,14 +23,14 @@ typedef List<int> GetRandomInts(int length);
 ///Total number of characters per OID.
 const int oidLength = 24;
 
-const List<int> _ccExtra = const <int> [
-  $dash, $underline, $dot,
-]; //!, (, ) => not valid in email
-   //*, => not safe
-   //~ => conservative (https://www.cs.tut.fi/~jkorpela/tilde.html)
+const _ccExtra = const <int> [
+  $dash, $underline, $dot, $tilde
+]; //( and ) => not valid in email
+   //* and , => not safe
+   //! and , => it will be encoded by encodeQueryComponent
 
 ///The character range
-const int _ccRange = 65; //26*2+10+_CC_EXTRA
+const int _ccRange = 66; //26*2+10+_CC_EXTRA
 const int
   _intLen = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
   _charPerInt = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)
@@ -80,7 +80,7 @@ String mergeOid(String oid1, String oid2)
 bool isValidOid(String value)
 => value.length == oidLength && _oidPattern.hasMatch(value);
 
-final RegExp _oidPattern = RegExp(r'^[-0-9a-zA-Z._]*$');
+final _oidPattern = RegExp(r'^[-0-9a-zA-Z._~]*$');
 
 /** The function used to generate a list of random integers to construct OID.
  *

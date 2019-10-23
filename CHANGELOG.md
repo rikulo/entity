@@ -1,5 +1,9 @@
 # Changes
 
+**1.5.0+1**
+
+* We allow tilde (`~`) to be used in OID
+
 **1.5.0**
 
 * `Entity.read()` and `Entity.write()` accepts `Map` instead of `Map<String, dynamic>`

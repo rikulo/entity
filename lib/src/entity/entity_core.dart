@@ -279,8 +279,8 @@ Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
     fds = entity is MultiLoad ?
         (entity as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
     if (fds != null && fds.isEmpty && option == null)
-        return entity;
-        //Note: if option != null, we have to go thru [loader] to ensure the lock
+      return entity;
+      //Note: if option != null, we have to go thru [loader] to ensure the lock
   }
 
   final data = await loader(entity, fds, option);

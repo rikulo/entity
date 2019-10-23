@@ -27,6 +27,7 @@ void main() {
       expect(oid.indexOf('"'), -1);
       expect(json.encode(oid), '"$oid"'); //no escape
       expect(Uri.encodeComponent(oid), oid); //no escape
+      expect(Uri.encodeQueryComponent(oid), oid); //no escape
 
       if (prevOid != null)
         expect(oid != prevOid, isTrue);
