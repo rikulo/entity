@@ -94,7 +94,7 @@ final _oidPattern = RegExp(r'^[-0-9a-zA-Z._~]*$');
 List<int> _getRandomInts(int length) {
   final values = List<int>(length);
   for (int i = length; --i >= 0;)
-    values[i] = _random.nextInt(0x7fffffff);
+    values[i] = _random.nextInt(1<<31);
   return values;
 }
 
