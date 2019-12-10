@@ -1,5 +1,5 @@
 name: entity
-version: 1.5.0+2
+version: 1.5.1
 description: A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 authors:
 - Tom Yeh <tomyeh@rikulo.org>

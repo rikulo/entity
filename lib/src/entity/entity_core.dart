@@ -14,7 +14,7 @@ const int forUpdate = 2;
 
 /** An entity which can be stored into an entity store.
  */
-abstract class Entity {
+abstract class Entity implements Comparable<Entity> {
   /** Instantiates a new entity that is not stored in DB yet.
    * 
    * * [oid] - the OID for this new entity. If omitted, a new OID
@@ -159,6 +159,8 @@ abstract class Entity {
   ///By default, it returns [oid] when jsonized.
   String toJson() => oid;
 
+  @override
+  int compareTo(Entity e) => oid.compareTo(e.oid);
   @override
   bool operator==(other) => other is Entity && oid == other.oid;
   @override

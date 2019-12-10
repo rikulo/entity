@@ -1,5 +1,9 @@
 # Changes
 
+**1.5.1**
+
+* `Entity` implements `Comparable<Entity>`
+  
 **1.5.0+1**
 
 * We allow tilde (`~`) to be used in OID
