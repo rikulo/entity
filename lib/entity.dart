@@ -10,6 +10,7 @@ import "oid.dart";
 
 part "src/entity/entity_core.dart";
 part "src/entity/entity_access.dart";
+part "src/entity/entity_helper.dart";
 
 ///The field name for storing `otype`.
 const String fdOtype = "otype";
