@@ -12,3 +12,4 @@ import "package:rikulo_commons/util.dart";
 import "entity.dart";
 
 part "src/postgresql/postgresql.dart";
+part "src/postgresql/sql_flavor.dart";

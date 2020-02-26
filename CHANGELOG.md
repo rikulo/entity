@@ -1,5 +1,9 @@
 # Changes
 
+**1.6.0**
+
+* `SqlFlavor` added for adding `on conflict do nothing` and others to INSERT and UPDATE SQL statements.
+
 **1.5.1**
 
 * `Entity` implements `Comparable<Entity>`

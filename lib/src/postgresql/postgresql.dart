@@ -138,7 +138,15 @@ class PostgresqlAccessAgent implements AccessAgent {
 
     sql.write(' where "oid"=@oid');
     data[fdOid] = entity.oid;
-    return access.execute(sql.toString(), data);
+
+    var sqlStatement = sql.toString();
+    if (entity is SqlFlavor) {
+      final flavor = (entity as SqlFlavor).updateFlavor;
+      if (flavor != null)
+        sqlStatement = flavor(sqlStatement, data);
+    }
+
+    return access.execute(sqlStatement, data);
   }
 
   @override
@@ -158,7 +166,13 @@ class PostgresqlAccessAgent implements AccessAgent {
     param.write(')');
     data[fdOid] = entity.oid;
 
-    await access.execute(sql.toString() + param.toString(), data);
+    var sqlStatement = sql.toString() + param.toString();
+    if (entity is SqlFlavor) {
+      final flavor = (entity as SqlFlavor).insertFlavor;
+      if (flavor != null)
+        sqlStatement = flavor(sqlStatement, data);
+    }
+    await access.execute(sqlStatement, data);
 
     if (_cache != null)
       _cache.put(entity); //update cache
