@@ -1,5 +1,9 @@
 # Changes
 
+**1.7.0**
+
+* The type of the option argument of `loadIfAny_` is changed to `int`
+
 **1.6.0**
 
 * `SqlFlavor` added for adding `on conflict do nothing` and others to INSERT and UPDATE SQL statements.

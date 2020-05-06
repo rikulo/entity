@@ -78,10 +78,10 @@ Future<T> loadIfAny<T extends Entity>(Access access, String oid,
 /// 
 /// * [loader] - a function to load the data back. It must
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
-Future<T> loadIfAny_<T extends Entity, Option>(Access access, String oid,
+Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
     T newInstance(String oid),
-    FutureOr<Map> loader(T entity, Set<String> fields, Option option),
-    Iterable<String> fields, [Option option]) async {
+    FutureOr<Map> loader(T entity, Set<String> fields, int option),
+    Iterable<String> fields, [int option]) async {
   if (oid == null)
     return null;
 
