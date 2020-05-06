@@ -79,7 +79,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   @override
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
       int option) async {
-    final StringBuffer sql = StringBuffer("select ");
+    final sql = StringBuffer("select ");
     if (fields != null) {
       if (fields.isEmpty)
         fields.add(fdOid); //possible and allowed
