@@ -80,10 +80,11 @@ class PostgresqlAccessAgent implements AccessAgent {
   Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
       int option) async {
     final sql = StringBuffer("select ");
-    if (fields != null) {
-      if (fields.isEmpty)
-        fields.add(fdOid); //possible and allowed
-
+    if (fields == null) {
+      sql.write("*");
+    } else if (fields.isEmpty) {
+      sql.write("1");
+    } else {
       bool first = true;
       for (final String fd in fields) {
         if (first) first = false;
@@ -94,19 +95,19 @@ class PostgresqlAccessAgent implements AccessAgent {
         else
           sql..write('"')..write(fd)..write('"');
       }
-    } else {
-      sql.write("*");
     }
 
-    sql..write(' from "')..write(entity.otype)..write('" where "oid"=@oid');
+    sql..write(' from "')..write(entity.otype)
+      ..write('" where "$fdOid"=@$fdOid');
     if (option == forUpdate)
       sql.write(' for update');
     else if (option == forShare)
       sql.write(' for share');
 
-    await for(final row in access.query(sql.toString(), {fdOid: entity.oid})) {
+    await for (final row in access.query(sql.toString(), {fdOid: entity.oid})) {
       final data = HashMap<String, dynamic>();
-      row.forEach((name, value) => data[name] = value);
+      if (fields?.isNotEmpty ?? true)
+        row.forEach((name, value) => data[name] = value);
       if (_cache != null)
         _cache.put(entity); //update cache
       return data;
