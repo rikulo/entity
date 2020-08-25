@@ -1,10 +1,11 @@
 //Copyright (C) 2014 Potix Corporation. All Rights Reserved.
 //History: Mon, Jun 30, 2014  5:51:34 PM
 // Author: tomyeh
-part of entity.postgresql;
+part of entity.postgresql2;
 
 /**
- * The PostgreSQL plugin.
+ * The PostgreSQL plugin used with
+ * [the Postgresql2 driver](https://pub.dev/packages/postgresql2).
  * 
  * **Note**
  * 
@@ -180,7 +181,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future delete(Entity entity) async {
+  Future delete(Entity entity, Map options) async {
     await access.execute(
       'delete from "${entity.otype}" where "oid"=@oid',
       {fdOid: entity.oid});

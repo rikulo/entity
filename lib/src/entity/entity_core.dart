@@ -89,11 +89,13 @@ abstract class Entity implements Comparable<Entity> {
     return access.agent.create(this, data);
   }
 
-  /** Deletes this entity.
-   */
-  Future delete(Access access) {
+  /// Deletes this entity.
+  ///
+  /// - [options] - application-specific options.
+  /// Note: it is meaningful only if `access.agent.delete()` supports it.
+  Future delete(Access access, {Map options}) {
     stored = false;
-    return access.agent.delete(this);
+    return access.agent.delete(this, options);
   }
 
   /** Writes this entity to a JSON object that can be serialized to

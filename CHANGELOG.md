@@ -1,5 +1,9 @@
 # Changes
 
+**1.8.0**
+
+* `Entity.delete()` supports the `options` argument.
+
 **1.7.0**
 
 * The type of the option argument of `loadIfAny_` is changed to `int`

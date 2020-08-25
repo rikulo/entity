@@ -1,7 +1,7 @@
 //Copyright (C) 2020 Potix Corporation. All Rights Reserved.
 //History: Wed Feb 26 10:41:23 CST 2020
 // Author: tomyeh
-part of entity.postgresql;
+part of entity.postgresql2;
 
 /// Use to add additional *flavor* to SQL statement before execution.
 /// For example, you can add "on conflict do nothing" as follows.

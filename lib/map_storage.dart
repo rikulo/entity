@@ -112,7 +112,7 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future delete(Entity entity) {
+  Future delete(Entity entity, Map options) {
     final String oid = entity.oid;
     _cache.remove(entity.otype, oid);
     _storage.remove(oid);

@@ -73,7 +73,7 @@ abstract class AccessAgent {
 
   /** Deletes the entity from database.
    */
-  Future delete(Entity entity);
+  Future delete(Entity entity, Map options);
 }
 
 /** A writer for converting data for saving to the database.
