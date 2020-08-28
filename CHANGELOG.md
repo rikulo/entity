@@ -1,5 +1,9 @@
 # Changes
 
+**1.8.1**
+
+* The `options` argument of `Entity.delete()` can be any type.
+
 **1.8.0**
 
 * `Entity.delete()` supports the `options` argument.

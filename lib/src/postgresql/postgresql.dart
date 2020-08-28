@@ -181,7 +181,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future delete(Entity entity, Map options) async {
+  Future delete(Entity entity, var options) async {
     await access.execute(
       'delete from "${entity.otype}" where "oid"=@oid',
       {fdOid: entity.oid});

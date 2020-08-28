@@ -93,7 +93,7 @@ abstract class Entity implements Comparable<Entity> {
   ///
   /// - [options] - application-specific options.
   /// Note: it is meaningful only if `access.agent.delete()` supports it.
-  Future delete(Access access, {Map options}) {
+  Future delete(Access access, {var options}) {
     stored = false;
     return access.agent.delete(this, options);
   }
