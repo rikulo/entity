@@ -20,11 +20,13 @@ abstract class Access {
    */
   T fetch<T extends Entity>(String otype, String oid);
 
-  /** The access reader for converting data from what the database returns.
-   */
+  /// Caches the entity.
+  /// It returns [entity] directly.
+  T cache<T extends Entity>(T entity);
+
+  /// The access reader for converting data from what the database returns.
   AccessReader get reader;
-  /** The access writer for converting data into what the database accepts.
-   */
+  /// The access writer for converting data into what the database accepts.
   AccessWriter get writer;
 
   /** The interface for accessing the storage (aka., database).

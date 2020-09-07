@@ -51,14 +51,12 @@ class PostgresqlAccess implements Access {
     if (_cache != null)
       _cache.clear();
   }
-  /** Caches the given entity.
-   */
-  void cache(Entity entity) {
-    if (_cache != null)
-      _cache.put(entity);
-  }
-  /** Removes the caching of the entity of the given [otype] and [oid].
-   */
+
+  @override
+  T cache<T extends Entity>(T entity)
+  => _cache != null ? _cache.put(entity): entity;
+
+  /// Removes the caching of the entity of the given [otype] and [oid].
   void uncache(String otype, String oid) {
     if (_cache != null)
       _cache.remove(otype, oid);

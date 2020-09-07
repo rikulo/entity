@@ -90,7 +90,7 @@ Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
   Set<String> fds;
   if (entity == null || entity.otype != newEntity.otype) {
     fds = _toSet(fields);
-    entity = newEntity;
+    access.cache(entity = newEntity);
   } else {
     fds = entity is MultiLoad ?
         (entity as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);

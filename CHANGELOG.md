@@ -1,5 +1,9 @@
 # Changes
 
+**1.9.0**
+
+* `Access.cache()` introduced, so `access.load()` will cache the result
+
 **1.8.1**
 
 * The `options` argument of `Entity.delete()` can be any type.
