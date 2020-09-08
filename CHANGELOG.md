@@ -1,8 +1,9 @@
 # Changes
 
-**1.9.0**
+**1.9.0+1**
 
-* `Access.cache()` introduced, so `access.load()` will cache the result
+* `Access.cache()` introduced, so `access.load()` will cache the result.
+* `Access.uncache()` introduced, so an app can reload an entity
 
 **1.8.1**
 

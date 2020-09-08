@@ -35,6 +35,10 @@ class MapStorageAccess implements Access {
   => _agent._cache.fetch(otype, oid);
   @override
   T cache<T extends Entity>(T entity) => _agent._cache.put(entity);
+  @override
+  void uncache(String otype, String oid) {
+    _agent._cache.remove(otype, oid);
+  }
 
   @override
   final AccessReader reader = CachedAccessReader();
