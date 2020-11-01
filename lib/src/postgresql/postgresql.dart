@@ -117,7 +117,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future update(Entity entity, Map data, Set<String> fields) {
-    final StringBuffer sql = StringBuffer('update "')
+    final sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
     final Iterable fds = fields == null ? data.keys: fields;
 
@@ -130,7 +130,10 @@ class PostgresqlAccessAgent implements AccessAgent {
       else sql.write(',');
       sql..write('"')..write(fd)..write('"')..write("=@")..write(fd);
 
-      if (!data.containsKey(fd)) //postgresql driver needs every field
+      final dbType = entity.getDBType(fd);
+      if (dbType?.isNotEmpty ?? false) sql..write(':')..write(dbType);
+
+      if (!data.containsKey(fd)) //postgresql2 driver needs every field
         data[fd] = null;
     }
     if (first)
@@ -151,9 +154,9 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future create(Entity entity, Map data) async {
-    final StringBuffer sql = StringBuffer('insert into "')
-      ..write(entity.otype)..write('"("oid"');
-    final StringBuffer param = StringBuffer(" values(@oid");
+    final sql = StringBuffer('insert into "')
+        ..write(entity.otype)..write('"("oid"'),
+      param = StringBuffer(" values(@oid");
 
     for (final fd in data.keys) {
       if (fd == fdOtype || fd == fdOid || data[fd] == null)
@@ -161,6 +164,9 @@ class PostgresqlAccessAgent implements AccessAgent {
 
       sql..write(',"')..write(fd)..write('"');
       param..write(',@')..write(fd);
+
+      final dbType = entity.getDBType(fd);
+      if (dbType?.isNotEmpty ?? false) param..write(':')..write(dbType);
     }
     sql.write(')');
     param.write(')');

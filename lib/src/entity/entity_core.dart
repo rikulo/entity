@@ -158,6 +158,27 @@ abstract class Entity implements Comparable<Entity> {
   void read(AccessReader reader, Map data, Set<String> fields) {
   }
 
+  /// Returns the DB type of the given field, or null if no need to handle
+  /// it specially.
+  /// 
+  /// By default, the database driver will detect the DB type from the object
+  /// itself. Thus, in most cases, you don't need to override this method.
+  /// However, for databases that can store the same type of objects
+  /// in different DB types, you have to override this method.
+  /// 
+  /// For example, PostgreSQL can store a [List] object as JSON or ARRAY.
+  /// If you're using the [postgresql2](https://github.com/tomyeh/postgresql)
+  /// driver, the [List] object will be mapped to the ARRAY type.
+  /// If it is not what you want, you have to return "json" for
+  /// the particular field(s) by overriding this method.
+  /// 
+  ///     String getDBType(String field) => field == "foo" ? "json": null;
+  /// 
+  /// > Note: for [postgresql2](https://github.com/tomyeh/postgresql),
+  /// > returning "json" or "jsonb" is no difference. They're both encoded
+  /// > in the same way.
+  String getDBType(var field) => null;
+
   ///By default, it returns [oid] when jsonized.
   String toJson() => oid;
 

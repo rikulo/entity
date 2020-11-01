@@ -1,5 +1,9 @@
 # Changes
 
+**1.10.0**
+
+* `Entity.getDBType()` added to override the default handling of a Dart object.
+
 **1.9.0+1**
 
 * `Access.cache()` introduced, so `access.load()` will cache the result.
