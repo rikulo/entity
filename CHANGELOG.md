@@ -1,5 +1,9 @@
 # Changes
 
+**1.10.1**
+
+* `Entity.toJson()` returns a dynamic type, so the subclass can override with any type.
+
 **1.10.0**
 
 * `Entity.getDBType()` added to override the default handling of a Dart object.

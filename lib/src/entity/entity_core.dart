@@ -180,7 +180,7 @@ abstract class Entity implements Comparable<Entity> {
   String getDBType(var field) => null;
 
   ///By default, it returns [oid] when jsonized.
-  String toJson() => oid;
+  toJson() => oid;
 
   @override
   int compareTo(Entity e) => oid.compareTo(e.oid);
