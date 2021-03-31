@@ -21,27 +21,27 @@ import "entity.dart";
 class MapStorageAccess implements Access {
   final MapStorageAccessAgent _agent;
   
-  MapStorageAccess([Map<String, String> storage])
+  MapStorageAccess([Map<String, String>? storage])
   : _agent = MapStorageAccessAgent(storage) {
   	(reader as CachedAccessReader).cache = _agent._cache;
   }
-  MapStorageAccess.by(EntityCache cache, [Map<String, String> storage])
+  MapStorageAccess.by(EntityCache cache, [Map<String, String>? storage])
   : _agent = MapStorageAccessAgent.by(cache, storage) {
   	(reader as CachedAccessReader).cache = _agent._cache;
   }
 
   @override
-  T fetch<T extends Entity>(String otype, String oid)
+  T? fetch<T extends Entity>(String otype, String? oid)
   => _agent._cache.fetch(otype, oid);
   @override
   T cache<T extends Entity>(T entity) => _agent._cache.put(entity);
   @override
-  void uncache(String otype, String oid) {
+  void uncache(String otype, String? oid) {
     _agent._cache.remove(otype, oid);
   }
 
   @override
-  final AccessReader reader = CachedAccessReader();
+  late final AccessReader reader = CachedAccessReader(_agent._cache);
   @override
   final AccessWriter writer = AccessWriter();
 
@@ -60,19 +60,19 @@ class MapStorageAccessAgent implements AccessAgent {
   ///The cached entities.
   final EntityCache _cache;
 
-  MapStorageAccessAgent([Map<String, String> storage]):
+  MapStorageAccessAgent([Map<String, String>? storage]):
     this.by(EntityCache(), storage);
   /** Constructs with the given [cache].
    *
    * * [cache] - the cache for storing the entity. It can't be null.
    */
-  MapStorageAccessAgent.by(EntityCache cache, [Map<String, String> storage]):
-      _storage = storage != null ? storage: {},
+  MapStorageAccessAgent.by(EntityCache cache, [Map<String, String>? storage]):
+      _storage = storage ?? {},
       _cache = cache;
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      int option) {
+  FutureOr<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
+      int? option) {
     final data = _load(entity.oid);
     if (data != null) {
       assert(data[fdOtype] == entity.otype);
@@ -81,22 +81,19 @@ class MapStorageAccessAgent implements AccessAgent {
     return Future.value(data);
   }
 
-  Map<String, dynamic> _load(String oid) {
-    if (oid != null) {
-      final String value = _storage[oid];
-      if (value != null) {
-        final data = json.decode(value);
-        assert(data is Map);
-        return data as Map<String, dynamic>;
-      }
+  Map<String, dynamic>? _load(String oid) {
+      final value = _storage[oid];
+    if (value != null) {
+      final data = json.decode(value);
+      assert(data is Map);
+      return data as Map<String, dynamic>;
     }
     return null;
   }
 
   @override
-  Future update(Entity entity, Map data, Set<String> fields) {
-    final String oid = entity.oid;
-
+  Future update(Entity entity, Map data, Set<String>? fields) {
+    final oid = entity.oid;
     if (fields != null) {
       final prevValue = _load(oid);
       if (prevValue == null)

@@ -15,9 +15,9 @@ void main() {
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRST+UVW'), isFalse);
 
-    String prevOid;
-    const int loops = 100000;
-    final DateTime t0 = DateTime.now();
+    String? prevOid;
+    const loops = 100000;
+    final t0 = DateTime.now();
     for (int i = 0; i < loops; i++) {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);

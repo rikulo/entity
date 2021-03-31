@@ -92,9 +92,9 @@ final _oidPattern = RegExp(r'^[-0-9a-zA-Z._~]*$');
 
 ///Default implementation of [getRandomInts]
 List<int> _getRandomInts(int length) {
-  final values = List<int>(length);
-  for (int i = length; --i >= 0;)
-    values[i] = _random.nextInt(1<<31);
+  final values = <int>[];
+  while (--length >= 0)
+    values.add(_random.nextInt(1<<31));
   return values;
 }
 
@@ -108,4 +108,4 @@ int _escOid(int v) {
   return _ccExtra[v - 26];
 }
 
-final Random _random = Random();
+final _random = Random();

@@ -26,7 +26,7 @@ Future test1() {
   Master m1 = Master("m1");
   Detail d1 = Detail(now(), 100);
   Detail d2 = Detail(now(), 200);
-  m1.details..add(d1)..add(d2);
+  m1.details!..add(d1)..add(d2);
   d1.save(access, null);
   d2.save(access, null);
   m1.save(access, null);
@@ -41,11 +41,11 @@ Future test1() {
   .then((Master m) {
     expect(identical(m, m1), false); //not the same instance
     expect(m.name, m1.name);
-    expect(m.details.length, m1.details.length);
+    expect(m.details!.length, m1.details!.length);
 
-    for (int i = m.details.length; --i >= 0;) {
-      expect(m.details[i].createdAt, m1.details[i].createdAt);
-      expect(m.details[i].value, m1.details[i].value);
+    for (int i = m.details!.length; --i >= 0;) {
+      expect(m.details![i].createdAt, m1.details![i].createdAt);
+      expect(m.details![i].value, m1.details![i].value);
     }
   });
 }

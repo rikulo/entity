@@ -6,21 +6,21 @@ library entity.nosql_sample;
 import "package:entity/entity.dart";
 
 class Master extends Entity {
-  String name;
+  String? name;
   ///A list of OID of [Detail] instances.
-  List<String> details;
+  List<String>? details;
 
   Master(this.name): details = [];
   Master.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String>? fields) {
     super.write(writer, data, fields);
     data["name"] = name;
     data["details"] = details;
   }
   @override
-  void read(AccessReader reader, Map data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String>? fields) {
     super.read(reader, data, fields);
     name = data["name"] as String;
     details = (data["details"] as List).cast<String>();
@@ -31,20 +31,20 @@ class Master extends Entity {
 }
 
 class Detail extends Entity {
-  DateTime createdAt;
-  int value;
+  DateTime? createdAt;
+  int? value;
 
   Detail(this.createdAt, this.value);
   Detail.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String>? fields) {
     super.write(writer, data, fields);
     data["createdAt"] = writer.dateTime(createdAt);
     data["value"] = value;
   }
   @override
-  void read(AccessReader reader, Map data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String>? fields) {
     super.read(reader, data, fields);
     value = data["value"] as int;
     createdAt = reader.dateTime(data["createdAt"]);

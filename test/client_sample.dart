@@ -6,20 +6,20 @@ library entity.client_sample;
 import 'package:entity/entity.dart';
 
 class Master extends Entity {
-  String name;
-  List<Detail> details;
+  String? name;
+  List<Detail>? details;
 
   Master(this.name): details = [];
   Master.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String>? fields) {
     super.write(writer, data, fields);
     data["name"] = name;
     data["details"] = writer.entities(details);
   }
   @override
-  void read(AccessReader reader, Map data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String>? fields) {
     super.read(reader, data, fields);
     name = data["name"] as String;
     details = reader.entities("Detail", (data["details"] as List).cast<String>());
@@ -30,20 +30,20 @@ class Master extends Entity {
 }
 
 class Detail extends Entity {
-  DateTime createdAt;
-  int value;
+  DateTime? createdAt;
+  int? value;
 
   Detail(this.createdAt, this.value);
   Detail.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String>? fields) {
     super.write(writer, data, fields);
     data["createdAt"] = writer.dateTime(createdAt);
     data["value"] = value;
   }
   @override
-  void read(AccessReader reader, Map data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String>? fields) {
     super.read(reader, data, fields);
     value = data["value"] as int;
     createdAt = reader.dateTime(data["createdAt"]);

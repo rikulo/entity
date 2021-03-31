@@ -27,11 +27,11 @@ abstract class MultiLoad {
    * 
    * * [fields] - fields the caller'd like to load. If null, it means all.
    */
-  Set<String> getFieldsToLoad(Iterable<String> fields);
+  Set<String>? getFieldsToLoad(Iterable<String>? fields);
   /** Marks the given [fields] are loaded.
    * If [fields] is null, it means all fields have been loaded.
    */
-  void setFieldsLoaded(Iterable<String> fields);
+  void setFieldsLoaded(Iterable<String>? fields);
 }
 
 /** Loads the data of the given OID from the storage into the given entity.
@@ -55,10 +55,10 @@ abstract class MultiLoad {
  * (including oid is null).
  */
 Future<T> load<T extends Entity>(Access access, String oid,
-      T newInstance(String oid), [Iterable<String> fields, int option]) async {
-  final T entity = await loadIfAny(access, oid, newInstance, fields, option);
+      T newInstance(String oid), [Iterable<String>? fields, int? option]) async {
+  final entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
-    throw EntityNotFoundException(entity.oid);
+    throw EntityNotFoundException(oid);
   return entity;
 }
 
@@ -67,10 +67,10 @@ Future<T> load<T extends Entity>(Access access, String oid,
  *
  * Please refer to [load] for details.
  */
-Future<T> loadIfAny<T extends Entity>(Access access, String oid,
-    T newInstance(String oid), [Iterable<String> fields, int option])
+Future<T?> loadIfAny<T extends Entity>(Access access, String? oid,
+    T newInstance(String oid), [Iterable<String>? fields, int? option])
 => loadIfAny_(access, oid, newInstance,
-  (T entity, Set<String> fields, int option)
+  (T entity, Set<String>? fields, int? option)
     => access.agent.load(entity, fields, option),
   fields, option);
 
@@ -78,16 +78,16 @@ Future<T> loadIfAny<T extends Entity>(Access access, String oid,
 /// 
 /// * [loader] - a function to load the data back. It must
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
-Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
+Future<T?> loadIfAny_<T extends Entity>(Access access, String? oid,
     T newInstance(String oid),
-    FutureOr<Map> loader(T entity, Set<String> fields, int option),
-    Iterable<String> fields, [int option]) async {
+    FutureOr<Map?> loader(T entity, Set<String>? fields, int? option),
+    Iterable<String>? fields, [int? option]) async {
   if (oid == null)
     return null;
 
-  final T newEntity = newInstance(oid);
-  T entity = access.fetch(newEntity.otype, oid);
-  Set<String> fds;
+  final newEntity = newInstance(oid);
+  T? entity = access.fetch(newEntity.otype, oid);
+  Set<String>? fds;
   if (entity == null || entity.otype != newEntity.otype) {
     fds = _toSet(fields);
     access.cache(entity = newEntity);
@@ -108,5 +108,5 @@ Future<T> loadIfAny_<T extends Entity>(Access access, String oid,
   return entity;
 }
 
-Set<T> _toSet<T>(Iterable<T> it)
-=> it is Set || it == null ? it as Set<T>: it.toSet();
+Set<T>? _toSet<T>(Iterable<T>? it)
+=> it is Set || it == null ? it as Set<T>?: it.toSet();

@@ -20,9 +20,7 @@ abstract class Entity implements Comparable<Entity> {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity({String oid}): _oid = oid != null ? oid: nextOid() {
-    stored = false;
-  }
+  Entity({String? oid}): _oid = oid != null ? oid: nextOid(), stored = false;
   /**
    * Instantiates an entity that will be passed to [Storage.load]
    * for holding the data loaded from database.
@@ -41,9 +39,7 @@ abstract class Entity implements Comparable<Entity> {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(String oid): _oid = oid {
-    stored = true;
-  }
+  Entity.be(String oid): _oid = oid, stored = true;
 
   ///The OID.
   String get oid => _oid;
@@ -71,10 +67,10 @@ abstract class Entity implements Comparable<Entity> {
    * * [beforeSave] - allows the caller to modify the JSON object and fields
    * before saving to the database.
    */
-  Future save(Access access, Iterable<String> fields,
-      [void beforeSave(Map data, Set<String> fields)]) {
+  Future save(Access access, Iterable<String>? fields,
+      [void beforeSave(Map data, Set<String>? fields)?]) {
 
-    final Set<String> fds = fields != null && stored ? _toSet(fields): null;
+    final fds = fields != null && stored ? _toSet(fields): null;
 
     final data = HashMap<String, dynamic>();
     write(access.writer, data, fds);
@@ -93,7 +89,7 @@ abstract class Entity implements Comparable<Entity> {
   ///
   /// - [options] - application-specific options.
   /// Note: it is meaningful only if `access.agent.delete()` supports it.
-  Future delete(Access access, {var options}) {
+  Future delete(Access access, {Object? options}) {
     stored = false;
     return access.agent.delete(this, options);
   }
@@ -128,7 +124,7 @@ abstract class Entity implements Comparable<Entity> {
    * In general, you check [fields] only if the field is costly to generate
    * (into [data]).
    */
-  void write(AccessWriter writer, Map data, Set<String> fields) {
+  void write(AccessWriter writer, Map data, Set<String>? fields) {
     data[fdOtype] = otype;
   }
   /** Reads the given JSON object into the data members of this entity.
@@ -155,7 +151,7 @@ abstract class Entity implements Comparable<Entity> {
    * * [fields] - the fields being loaded. If null, it means all fields.
    * In general, you can ignore this argument (but use [data] instead).
    */
-  void read(AccessReader reader, Map data, Set<String> fields) {
+  void read(AccessReader reader, Map data, Set<String>? fields) {
   }
 
   /// Returns the DB type of the given field, or null if no need to handle
@@ -177,7 +173,7 @@ abstract class Entity implements Comparable<Entity> {
   /// > Note: for [postgresql2](https://github.com/tomyeh/postgresql),
   /// > returning "json" or "jsonb" is no difference. They're both encoded
   /// > in the same way.
-  String getDBType(var field) => null;
+  String? getDBType(var field) => null;
 
   ///By default, it returns [oid] when jsonized.
   toJson() => oid;

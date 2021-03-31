@@ -24,8 +24,8 @@ class PostgresqlAccess implements Access {
   }
 
   @override
-  T fetch<T extends Entity>(String otype, String oid)
-  => _cache != null ? _cache.fetch(otype, oid): null;
+  T? fetch<T extends Entity>(String otype, String? oid)
+  => _cache?.fetch(otype, oid);
 
   @override
   final AccessReader reader = _AccessReader();
@@ -33,12 +33,12 @@ class PostgresqlAccess implements Access {
   final AccessWriter writer = _AccessWriter();
   @override
   AccessAgent get agent => _agent;
-  AccessAgent _agent;
+  late AccessAgent _agent;
 
   ///The connection to the postgreSQL server.
   final Connection conn;
 
-  EntityCache get _cache => (agent as PostgresqlAccessAgent)._cache;
+  EntityCache? get _cache => (agent as PostgresqlAccessAgent)._cache;
 
   /// Queues a command for execution, and when done, returns the number of rows
   /// affected by the SQL command.
@@ -48,18 +48,16 @@ class PostgresqlAccess implements Access {
 
   ///Clear the cache.
   void clearCache() {
-    if (_cache != null)
-      _cache.clear();
+    _cache?.clear();
   }
 
   @override
   T cache<T extends Entity>(T entity)
-  => _cache != null ? _cache.put(entity): entity;
+  => _cache?.put(entity) ?? entity;
 
   @override
-  void uncache(String otype, String oid) {
-    if (_cache != null)
-      _cache.remove(otype, oid);
+  void uncache(String otype, String? oid) {
+    _cache?.remove(otype, oid);
   }
 }
 
@@ -68,7 +66,7 @@ class PostgresqlAccess implements Access {
 class PostgresqlAccessAgent implements AccessAgent {
   ///The connection to the postgreSQL server.
   final PostgresqlAccess access;
-  final EntityCache _cache;
+  final EntityCache? _cache;
 
   PostgresqlAccessAgent(PostgresqlAccess this.access, {bool cache:true})
   : _cache = cache ? EntityCache(): null;
@@ -76,8 +74,8 @@ class PostgresqlAccessAgent implements AccessAgent {
   : _cache = cache;
 
   @override
-  Future<Map<String, dynamic>> load(Entity entity, Set<String> fields,
-      int option) async {
+  Future<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
+      int? option) async {
     final sql = StringBuffer("select ");
     if (fields == null) {
       sql.write("*");
@@ -107,8 +105,7 @@ class PostgresqlAccessAgent implements AccessAgent {
       final data = HashMap<String, dynamic>();
       if (fields?.isNotEmpty ?? true)
         row.forEach((name, value) => data[name] = value);
-      if (_cache != null)
-        _cache.put(entity); //update cache
+      _cache?.put(entity); //update cache
       return data;
     }
 
@@ -116,7 +113,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map data, Set<String> fields) {
+  Future update(Entity entity, Map data, Set<String>? fields) {
     final sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
     final Iterable fds = fields == null ? data.keys: fields;
@@ -180,8 +177,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
     await access.execute(sqlStatement, data);
 
-    if (_cache != null)
-      _cache.put(entity); //update cache
+    _cache?.put(entity); //update cache
   }
 
   @override
@@ -190,18 +186,17 @@ class PostgresqlAccessAgent implements AccessAgent {
       'delete from "${entity.otype}" where "oid"=@oid',
       {fdOid: entity.oid});
 
-    if (_cache != null)
-      _cache.remove(entity.otype, entity.oid); //update cache
+    _cache?.remove(entity.otype, entity.oid); //update cache
   }
 }
 
 class _AccessReader extends AccessReader {
-  EntityCache _cache; //not final since it might be assigned by caller
+  EntityCache? _cache; //not final since it might be assigned by caller
   _AccessReader([this._cache]);
 
   @override
-  T entity<T extends Entity>(String otype, String oid)
-  => _cache != null ? _cache.fetch(otype, oid): null;
+  T? entity<T extends Entity>(String otype, String? oid)
+  => _cache?.fetch(otype, oid);
 
   @override
   DateTime dateTime(json) => json as DateTime;
@@ -209,5 +204,5 @@ class _AccessReader extends AccessReader {
 
 class _AccessWriter extends AccessWriter {
   @override
-  dateTime(DateTime value) => value;
+  Object? dateTime(DateTime? value) => value;
 }

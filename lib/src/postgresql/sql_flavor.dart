@@ -18,19 +18,19 @@ part of entity.postgresql2;
 /// ```
 abstract class SqlFlavor {
   /// A callback to return the adjusted SQL INSERT statement ([sql]).
-  String Function(String sql, Map data) get insertFlavor;
+  String Function(String sql, Map? data)? get insertFlavor;
   /// A callback to return the adjusted SQL UPDATE statement ([sql]).
-  String Function(String sql, Map data) get updateFlavor;
+  String Function(String sql, Map? data)? get updateFlavor;
 }
 
 /// Used to simplify the implementation of [SqlFlavor].
 class SqlFlavorMixin implements SqlFlavor {
   @override
-  String Function(String sql, Map data) insertFlavor;
+  String Function(String sql, Map? data)? insertFlavor;
   @override
-  String Function(String sql, Map data) updateFlavor;
+  String Function(String sql, Map? data)? updateFlavor;
 }
 
 /// Flavor: on conflict do nothing
-String onConflictDoNothing(String sql, Map data)
+String onConflictDoNothing(String sql, Map? data)
 => "$sql on conflict do nothing";

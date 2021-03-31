@@ -18,42 +18,38 @@ void main() {
   test("Entity Test on PostgreSQL", test1);
 }
 
-Future test1() {
-  Connection conn;
-  return connect(dbUri)
-  .then((_) => initDB(conn = _))
-  .then((_) {
-    final PostgresqlAccess access = PostgresqlAccess(conn, cache: false);
+Future test1() async {
+  Connection? conn;
+  try {
+    conn = await connect(dbUri);
+    await initDB(conn);
+    final access = PostgresqlAccess(conn, cache: false);
     Master m1 = Master("m1");
     Detail d1 = Detail(DateTime.now(), 100);
     d1.master = m1.oid;
     Detail d2 = Detail(DateTime.now(), 200);
     d2.master = m1.oid;
 
-    return Future.forEach([m1, d1, d2], (Entity e) => e.save(access, null))
-    .then((_) => load(access, m1.oid, beMaster))
-    .then((Master m) {
-      expect(m, m1);
-      expect(identical(m, m1), isFalse); //not the same instance
-      expect(m.name, m1.name);
-    })
-    .then((_) => load(access, d1.oid, beDetail,
-          const ["value", "createdAt"]))
-    .then((Detail d) {
-      expect(identical(d, d1), isFalse);
-//      expect(d.createdAt, d1.createdAt);
-      expect(d.value, d1.value);
-      expect(d.master, isNull);
-    });
-  })
-  .whenComplete(() {
+    await Future.forEach([m1, d1, d2], (Entity e) => e.save(access, null));
+
+    final m = await load(access, m1.oid, beMaster);
+    expect(m, m1);
+    expect(identical(m, m1), isFalse); //not the same instance
+    expect(m.name, m1.name);
+
+    final d = await load(access, d1.oid, beDetail, const ["value", "createdAt"]);
+    expect(identical(d, d1), isFalse);
+  //      expect(d.createdAt, d1.createdAt);
+    expect(d.value, d1.value);
+    expect(d.master, isNull);
+
+  } finally {
     if (conn != null) {
       conn.close();
     } else {
-      print("Make sure you create a case-sensitive database called testdb, "
-        "and the password must be 123");
+      print("Make sure you create a case-sensitive database called testdb");
     }
-  });
+  }
 }
 
 Future initDB(Connection conn)

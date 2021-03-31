@@ -18,14 +18,14 @@ abstract class Access {
    * > Note: if cache is supported, it also implies [oid] can identify
    * > an entity uniquely (regardless of what its otype is).
    */
-  T fetch<T extends Entity>(String otype, String oid);
+  T? fetch<T extends Entity>(String otype, String? oid);
 
   /// Caches the entity.
   /// It returns [entity] directly.
   T cache<T extends Entity>(T entity);
 
   /// Removes the caching of the entity of the given [otype] and [oid].
-  void uncache(String otype, String oid);
+  void uncache(String otype, String? oid);
 
   /// The access reader for converting data from what the database returns.
   AccessReader get reader;
@@ -60,7 +60,7 @@ abstract class AccessAgent {
    * You can ignore it if not supported.
    * For SQL, it is better to supporte `null`, [forShare] and [forUpdate].
    */
-  Future<Map> load(Entity entity, Set<String> fields, int option);
+  FutureOr<Map?> load(Entity entity, Set<String>? fields, int? option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain
@@ -69,7 +69,7 @@ abstract class AccessAgent {
    * * [fields] - the fields to update. If null, all fields in [data]
    * shall be stored.
    */
-  Future update(Entity entity, Map data, Set<String> fields);
+  Future update(Entity entity, Map data, Set<String>? fields);
   /** Creates a new entity with the given OID into the database.
    * 
    * * [data] - the content of the entity to store.
@@ -78,34 +78,39 @@ abstract class AccessAgent {
 
   /** Deletes the entity from database.
    */
-  Future delete(Entity entity, var options);
+  Future delete(Entity entity, Object? options);
 }
 
-/** A writer for converting data for saving to the database.
- *
- * By default, [dateTime] will convert [DateTime] to an integer.
- *
- * The plugin can extend it and implement its own converters.
- */
+/// A writer for converting data for saving to the database.
+/// The plugin shall implement its own converters.
 class AccessWriter {
   /** Converts the [DateTime] value.
    *
    * Default: serializes it into an integer (`millisecondsSinceEpoch`).
    */
-  dateTime(DateTime value)
-    => value != null ? value.millisecondsSinceEpoch: null;
+  Object? dateTime(DateTime? value)
+  => value != null ? value.millisecondsSinceEpoch: null;
 
   /** Covnerts the [Entity] instance.
    *
    * Default: serializes it by returning OID.
    */
-  entity(Entity value) => value != null ? value.oid: null;
+  Object? entity(Entity? value) => value != null ? value.oid: null;
+
   /** Converts a collection of [Entity] instances.
    *
-   * Default: serializes it by returning a list of OID (String).
+   * Default: serializes it by converting each of them via [entity].
    */
-  entities<T extends Entity>(Iterable<T> value)
-    => value != null ? value.map((e) => entity(e)).toList(): null;
+  List? entities<T extends Entity>(Iterable<T?>? value) {
+    if (value == null) return null;
+
+    final result = [];
+    for (final each in value) {
+      final o = entity(each);
+      if (o != null) result.add(o);
+    }
+    return result;
+  }
 }
 
 /** A reader for converting data read from the database.
@@ -116,7 +121,7 @@ class AccessWriter {
  */
 class AccessReader {
   ///Return the [DateTime] instance representing the JSON value.
-  DateTime dateTime(json)
+  DateTime? dateTime(Object? json)
     => json != null ? DateTime.fromMillisecondsSinceEpoch(json as int): null;
 
   /** Returns the entity of the given OID, or null if not loaded.
@@ -126,35 +131,35 @@ class AccessReader {
    * 
    * Default: always returns null.
    */
-  T entity<T extends Entity>(String otype, String json) => null;
+  T? entity<T extends Entity>(String otype, String? json) => null;
 
   /** Parses the given collection of OIDs into the corresponding entities.
    *
-   * > Note: if OID specified in [json] is not found (and not null), it
+   * > Note: if OID specified in [json] is not found, it
    * > will be ignored. In other words, the result list can be shorter.
    
    * > For example, assume [json] is `['oidA', null, 'oidB']` and `oidA`
    * > is found while `oidB` is not, then the result is
-   * > `[entityA, null]`.
+   * > `[entityA]`.
    *
    * * [facade] - if specified and an entity is not found,
    * it will be invoked to instantiate an entity repreenting the
    * not-found entity. It is useful if an entity is no longer available. 
    */
-  List<T> entities<T extends Entity>(String otype, Iterable<String> json,
-      {T facade(String oid)}) {
+  List<T>? entities<T extends Entity>(String otype, Iterable<String?>? json,
+      {T facade(String oid)?}) {
     if (json == null)
       return null;
 
-    final List<T> entities = <T>[];
-    for (final String oid in json) {
-      T en;
+    final entities = <T>[];
+    for (final oid in json) {
+      T? en;
       if (oid != null) {
         en = entity(otype, oid);
         if (en == null && facade != null)
           en = facade(oid);
       }
-      if (oid == null || en != null)
+      if (en != null)
         entities.add(en);
     }
     return entities;
@@ -165,10 +170,11 @@ class AccessReader {
  */
 class CachedAccessReader extends AccessReader {
   EntityCache cache;
-  CachedAccessReader([EntityCache this.cache]);
+  CachedAccessReader(EntityCache this.cache);
 
   @override
-  T entity<T extends Entity>(String otype, String oid) => cache.fetch(otype, oid);
+  T? entity<T extends Entity>(String otype, String? oid)
+  => cache.fetch(otype, oid);
 }
 
 /** Minimizes the JSON map to be stored into DB or sent over internet
@@ -186,7 +192,7 @@ class CachedAccessReader extends AccessReader {
  *       toJson() => minify({"some": some, "another": another})
  *     }
  */
-Map<K, dynamic> minify<K>(Map<K, dynamic> json) {
+Map<K, dynamic>? minify<K>(Map<K, dynamic>? json) {
   if (json == null || json.isEmpty)
     return json;
 
@@ -208,7 +214,7 @@ abstract class EntityCache {
 
   /** Gets the entity of the given [otype] and [oid].
    */
-  T fetch<T extends Entity>(String otype, String oid);
+  T? fetch<T extends Entity>(String otype, String? oid);
   /** Caches an entity.
    * Note: it returns [entity]
    */
@@ -216,7 +222,7 @@ abstract class EntityCache {
 
   /** Remove the cache of an entity.
    */
-  bool remove(String otype, String oid);
+  bool remove(String otype, String? oid);
 
   /** Clears the whole cache.
    */
@@ -229,9 +235,9 @@ abstract class EntityCache {
  */
 class _CacheKey {
   final String otype;
-  final String oid;
+  final String? oid;
 
-  _CacheKey(String this.otype, String this.oid);
+  _CacheKey(String this.otype, String? this.oid);
 
 	@override
   int get hashCode => otype.hashCode + oid.hashCode;
@@ -245,14 +251,14 @@ class _EntityCache implements EntityCache {
   _EntityCache();
 
   @override
-  T fetch<T extends Entity>(String otype, String oid)
-  => _cache[_CacheKey(otype, oid)] as T;
+  T? fetch<T extends Entity>(String otype, String? oid)
+  => _cache[_CacheKey(otype, oid)] as T?;
   @override
   T put<T extends Entity>(T entity)
   => _cache[_CacheKey(entity.otype, entity.oid)] = entity;
 
   @override
-  bool remove(String otype, String oid)
+  bool remove(String otype, String? oid)
   => _cache.remove(_CacheKey(otype, oid)) != null;
 
   @override
