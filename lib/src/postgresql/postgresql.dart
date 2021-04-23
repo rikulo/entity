@@ -145,8 +145,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     var sqlStatement = sql.toString();
     if (entity is SqlFlavor) {
       final flavor = (entity as SqlFlavor).updateFlavor;
-      if (flavor != null)
-        sqlStatement = flavor(sqlStatement, data);
+      if (flavor != null) sqlStatement = flavor(sqlStatement, data);
     }
 
     return access.execute(sqlStatement, data);
@@ -175,8 +174,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     var sqlStatement = sql.toString() + param.toString();
     if (entity is SqlFlavor) {
       final flavor = (entity as SqlFlavor).insertFlavor;
-      if (flavor != null)
-        sqlStatement = flavor(sqlStatement, data);
+      if (flavor != null) sqlStatement = flavor(sqlStatement, data);
     }
     await access.execute(sqlStatement, data);
 
@@ -186,9 +184,15 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future delete(Entity entity, var options) async {
-    await access.execute(
-      'delete from "${entity.otype}" where "oid"=@oid',
-      {fdOid: entity.oid});
+    var sql = 'delete from "${entity.otype}" where "oid"=@oid',
+      data = {fdOid: entity.oid};
+
+    if (entity is SqlFlavor) {
+      final flavor = (entity as SqlFlavor).deleteFlavor;
+      if (flavor != null) sql = flavor(sql, data);
+    }
+
+    await access.execute(sql, data);
 
     if (_cache != null)
       _cache.remove(entity.otype, entity.oid); //update cache

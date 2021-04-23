@@ -1,5 +1,9 @@
 # Changes
 
+**1.11.0**
+
+* `SqlFlavor.deleteFlavor` added
+
 **1.10.1**
 
 * `Entity.toJson()` returns a dynamic type, so the subclass can override with any type.
