@@ -97,7 +97,7 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
 
     sql..write(' from "')..write(entity.otype)
-      ..write('" where "$fdOid"=@$fdOid');
+      ..write('" where "$fdOid"=@$fdOid limit 1');
     if (option == forUpdate)
       sql.write(' for update');
     else if (option == forShare)
