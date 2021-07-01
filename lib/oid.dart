@@ -40,20 +40,23 @@ const int
 String nextOid() {
   final values = getRandomInts(_intLen);
   assert(values.length == _intLen);
-  final List<int> bytes = [];
+  final bytes = <int>[];
   l_gen:
-  for (int i = values.length; --i >= 0;) {
+  for (int i = values.length, bl = 0; --i >= 0;) {
     int val = values[i];
     if (val < 0)
       val = -val;
 
     for (int j = _charPerInt;;) {
-      bytes.add(_escOid(val % _ccRange));
-      if (bytes.length >= oidLength)
-        break l_gen;
+      final done = ++bl >= oidLength;
+      var cc = _escOid(val % _ccRange);
+      if (cc == $dot && (done || (bl > 1 && bytes[bl - 2] == $dot)))
+        cc = _escOid(_random.nextInt(10 + 26*2)); //replace with alphanumeric
 
-      if (--j == 0)
-        break;
+      bytes.add(cc);
+      if (done) break l_gen;
+
+      if (--j == 0) break;
       val = val ~/ _ccRange;
     }
   }
@@ -108,4 +111,4 @@ int _escOid(int v) {
   return _ccExtra[v - 26];
 }
 
-final Random _random = Random();
+final _random = Random();
