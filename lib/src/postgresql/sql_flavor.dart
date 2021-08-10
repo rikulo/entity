@@ -21,14 +21,25 @@ abstract class SqlFlavor {
   String Function(String sql, Map? data)? get insertFlavor;
   /// A callback to return the adjusted SQL UPDATE statement ([sql]).
   String Function(String sql, Map? data)? get updateFlavor;
+  /// A callback to return the adjusted SQL DELETE statement ([sql]).
+  String Function(String sql, Map? data)? get deleteFlavor;
 }
 
-/// Used to simplify the implementation of [SqlFlavor].
+/// A mixin for [SqlFlavor] that allows callers to plug in
+/// flavors on demand. For example,
+/// 
+/// ```
+/// FooEntity fe = await access.load(...);
+/// ...
+/// fe.insertFlavor = onConflictDoNothing;
+/// ```
 class SqlFlavorMixin implements SqlFlavor {
   @override
   String Function(String sql, Map? data)? insertFlavor;
   @override
   String Function(String sql, Map? data)? updateFlavor;
+  @override
+  String Function(String sql, Map? data)? deleteFlavor;
 }
 
 /// Flavor: on conflict do nothing

@@ -1,8 +1,16 @@
 # Changes
 
+**2.0.1**
+
+* Merged 1.11.0
+
 **2.0.0**
 
 * `AccessReader.entities` and `AccessWriter.entities` will return a list containing non-nullable items only.
+
+**1.11.0**
+
+* `SqlFlavor.deleteFlavor` added
 
 **1.10.1**
 

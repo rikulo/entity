@@ -22,6 +22,7 @@ void main() {
       final String oid = nextOid();
       expect(isValidOid(oid), isTrue);
       expect(oid[oid.length - 1] == '.', isFalse); //don't end with dot
+      expect(oid.contains('..'), isFalse);
 
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);
