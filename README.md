@@ -4,8 +4,6 @@ A very simple ORM for relational, NoSQL database, and simple maps. It is designe
 
 * [API Reference](https://pub.dev/documentation/entity/latest/)
 
-[![Build Status](https://drone.io/github.com/rikulo/entity/status.png)](https://drone.io/github.com/rikulo/entity/latest)
-
 ## Who Uses
 
 * [Quire](https://quire.io) - a simple, collaborative, multi-level task management tool.
