@@ -31,12 +31,12 @@ class MapStorageAccess implements Access {
   }
 
   @override
-  T? fetch<T extends Entity>(String otype, String? oid)
+  T? fetch<T extends Entity>(String? otype, String? oid)
   => _agent._cache.fetch(otype, oid);
   @override
   T cache<T extends Entity>(T entity) => _agent._cache.put(entity);
   @override
-  void uncache(String otype, String? oid) {
+  void uncache(String? otype, String? oid) {
     _agent._cache.remove(otype, oid);
   }
 
@@ -92,7 +92,7 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map data, Set<String>? fields) {
+  Future? update(Entity entity, Map data, Set<String>? fields) {
     final oid = entity.oid;
     if (fields != null) {
       final prevValue = _load(oid);
@@ -104,22 +104,19 @@ class MapStorageAccessAgent implements AccessAgent {
     }
 
     _storage[oid] = json.encode(data);
-    return Future.value();
   }
 
   @override
-  Future create(Entity entity, Map data) {
+  Future? create(Entity entity, Map data) {
     final String oid = entity.oid;
     _cache.put(entity);
     _storage[oid] = json.encode(data);
-    return Future.value();
   }
 
   @override
-  Future delete(Entity entity, var options) {
+  Future? delete(Entity entity, var options) {
     final String oid = entity.oid;
     _cache.remove(entity.otype, oid);
     _storage.remove(oid);
-    return Future.value();
   }
 }

@@ -67,7 +67,7 @@ abstract class Entity implements Comparable<Entity> {
    * * [beforeSave] - allows the caller to modify the JSON object and fields
    * before saving to the database.
    */
-  Future save(Access access, Iterable<String>? fields,
+  Future? save(Access access, Iterable<String>? fields,
       [void beforeSave(Map data, Set<String>? fields)?]) {
 
     final fds = fields != null && stored ? _toSet(fields): null;
@@ -89,7 +89,7 @@ abstract class Entity implements Comparable<Entity> {
   ///
   /// - [options] - application-specific options.
   /// Note: it is meaningful only if `access.agent.delete()` supports it.
-  Future delete(Access access, {Object? options}) {
+  Future? delete(Access access, {Object? options}) {
     stored = false;
     return access.agent.delete(this, options);
   }

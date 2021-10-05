@@ -18,14 +18,14 @@ abstract class Access {
    * > Note: if cache is supported, it also implies [oid] can identify
    * > an entity uniquely (regardless of what its otype is).
    */
-  T? fetch<T extends Entity>(String otype, String? oid);
+  T? fetch<T extends Entity>(String? otype, String? oid);
 
   /// Caches the entity.
   /// It returns [entity] directly.
   T cache<T extends Entity>(T entity);
 
   /// Removes the caching of the entity of the given [otype] and [oid].
-  void uncache(String otype, String? oid);
+  void uncache(String? otype, String? oid);
 
   /// The access reader for converting data from what the database returns.
   AccessReader get reader;
@@ -69,16 +69,16 @@ abstract class AccessAgent {
    * * [fields] - the fields to update. If null, all fields in [data]
    * shall be stored.
    */
-  Future update(Entity entity, Map data, Set<String>? fields);
+  Future? update(Entity entity, Map data, Set<String>? fields);
   /** Creates a new entity with the given OID into the database.
    * 
    * * [data] - the content of the entity to store.
    */
-  Future create(Entity entity, Map data);
+  Future? create(Entity entity, Map data);
 
   /** Deletes the entity from database.
    */
-  Future delete(Entity entity, Object? options);
+  Future? delete(Entity entity, Object? options);
 }
 
 /// A writer for converting data for saving to the database.
@@ -173,7 +173,7 @@ class CachedAccessReader extends AccessReader {
   CachedAccessReader(EntityCache this.cache);
 
   @override
-  T? entity<T extends Entity>(String otype, String? oid)
+  T? entity<T extends Entity>(String? otype, String? oid)
   => cache.fetch(otype, oid);
 }
 
@@ -214,7 +214,7 @@ abstract class EntityCache {
 
   /** Gets the entity of the given [otype] and [oid].
    */
-  T? fetch<T extends Entity>(String otype, String? oid);
+  T? fetch<T extends Entity>(String? otype, String? oid);
   /** Caches an entity.
    * Note: it returns [entity]
    */
@@ -222,7 +222,7 @@ abstract class EntityCache {
 
   /** Remove the cache of an entity.
    */
-  bool remove(String otype, String? oid);
+  bool remove(String? otype, String? oid);
 
   /** Clears the whole cache.
    */
@@ -234,10 +234,10 @@ abstract class EntityCache {
  * of entities.
  */
 class _CacheKey {
-  final String otype;
+  final String? otype;
   final String? oid;
 
-  _CacheKey(String this.otype, String? this.oid);
+  _CacheKey(this.otype, this.oid);
 
 	@override
   int get hashCode => otype.hashCode + oid.hashCode;
@@ -251,14 +251,14 @@ class _EntityCache implements EntityCache {
   _EntityCache();
 
   @override
-  T? fetch<T extends Entity>(String otype, String? oid)
+  T? fetch<T extends Entity>(String? otype, String? oid)
   => _cache[_CacheKey(otype, oid)] as T?;
   @override
   T put<T extends Entity>(T entity)
   => _cache[_CacheKey(entity.otype, entity.oid)] = entity;
 
   @override
-  bool remove(String otype, String? oid)
+  bool remove(String? otype, String? oid)
   => _cache.remove(_CacheKey(otype, oid)) != null;
 
   @override

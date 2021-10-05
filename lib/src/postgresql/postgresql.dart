@@ -24,7 +24,7 @@ class PostgresqlAccess implements Access {
   }
 
   @override
-  T? fetch<T extends Entity>(String otype, String? oid)
+  T? fetch<T extends Entity>(String? otype, String? oid)
   => _cache?.fetch(otype, oid);
 
   @override
@@ -56,7 +56,7 @@ class PostgresqlAccess implements Access {
   => _cache?.put(entity) ?? entity;
 
   @override
-  void uncache(String otype, String? oid) {
+  void uncache(String? otype, String? oid) {
     _cache?.remove(otype, oid);
   }
 }
