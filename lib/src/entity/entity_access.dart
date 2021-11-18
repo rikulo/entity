@@ -242,7 +242,7 @@ class _CacheKey {
 	@override
   int get hashCode => otype.hashCode + oid.hashCode;
 	@override
-  bool operator==(o) => o is _CacheKey && o.otype == otype && o.oid == oid;
+  bool operator==(Object? o) => o is _CacheKey && o.otype == otype && o.oid == oid;
 }
 
 class _EntityCache implements EntityCache {

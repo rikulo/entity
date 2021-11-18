@@ -181,7 +181,7 @@ abstract class Entity implements Comparable<Entity> {
   @override
   int compareTo(Entity e) => oid.compareTo(e.oid);
   @override
-  bool operator==(other) => other is Entity && oid == other.oid;
+  bool operator==(Object? o) => o is Entity && oid == o.oid;
   @override
   int get hashCode => oid.hashCode;
   @override
