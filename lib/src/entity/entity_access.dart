@@ -192,9 +192,12 @@ class CachedAccessReader extends AccessReader {
  *       toJson() => minify({"some": some, "another": another})
  *     }
  */
-Map<K, dynamic>? minify<K>(Map<K, dynamic>? json) {
-  if (json == null || json.isEmpty)
-    return json;
+Map<K, dynamic>? minify<K>(Map<K, dynamic>? json)
+=> json == null ? null: minifyNS(json);
+
+/// A null-safety version of [minify].
+Map<K, dynamic> minifyNS<K>(Map<K, dynamic> json) {
+  if (json.isEmpty) return json;
 
   final result = <K, dynamic>{};
     //Note: we have to preserve the order since it might be important
@@ -202,7 +205,7 @@ Map<K, dynamic>? minify<K>(Map<K, dynamic>? json) {
   for (final name in json.keys) {
     final value = json[name];
     if (value != null)
-      result[name] = value is Map<K, dynamic> ? minify(value): value;
+      result[name] = value is Map<K, dynamic> ? minifyNS(value): value;
   }
   return result;
 }

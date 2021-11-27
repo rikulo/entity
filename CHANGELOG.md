@@ -1,5 +1,9 @@
 # Changes
 
+**2.0.3**
+
+* `minifyNS` added.
+
 **2.0.1**
 
 * Merged 1.11.0
