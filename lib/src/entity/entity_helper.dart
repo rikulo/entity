@@ -108,18 +108,16 @@ Trio<T, bool, Set<String>?> _fetch<T extends Entity>(Access access, T entity,
      Iterable<String>? fields, [int? option]) {
   final otype = entity.otype,
     cached = access.fetch(otype, entity.oid);
-  Set<String>? fds;
   if (cached == null || cached.otype != otype) {
-    fds = _toSet(fields);
     access.cache(entity);
-  } else {
-    fds = cached is MultiLoad ?
-        (cached as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
-    if (fds != null && fds.isEmpty && option == null)
-      return Trio(cached as T, true/*done*/, null);
-      //Note: if option != null, we have to go thru [loader] to ensure the lock
+    return Trio(entity, false, _toSet(fields));
   }
-  return Trio(entity, false, fds);
+
+  final fds = cached is MultiLoad ?
+      (cached as MultiLoad).getFieldsToLoad(fields): _toSet(fields);
+  return Trio(cached as T,
+      fds != null && fds.isEmpty && option == null/*done*/, fds);
+    //Note: if option != null, we have to go thru [loader] to ensure the lock
 }
 
 /// Reads properties from [data] into [entity], by calling [Entity.read].
