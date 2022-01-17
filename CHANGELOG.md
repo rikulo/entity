@@ -1,5 +1,10 @@
 # Changes
 
+**2.1.0**
+
+* `bind_` and `read_` added.
+* `oidPattern` added.
+
 **2.0.3**
 
 * `minifyNS` added.

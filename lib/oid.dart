@@ -81,9 +81,11 @@ String mergeOid(String oid1, String oid2)
 ///
 ///Note: for performance reason, it does only the basic check.
 bool isValidOid(String value)
-=> value.length == oidLength && _oidPattern.hasMatch(value);
+=> value.length == oidLength && _reOid.hasMatch(value);
 
-final _oidPattern = RegExp(r'^[-0-9a-zA-Z._~]*$');
+/// OID's regular expression pattern.
+final oidPattern = '[-0-9a-zA-Z._~]+';
+final _reOid = RegExp('^$oidPattern\$');
 
 /** The function used to generate a list of random integers to construct OID.
  *

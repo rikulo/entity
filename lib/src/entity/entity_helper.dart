@@ -82,29 +82,54 @@ Future<T?> loadIfAny_<T extends Entity>(Access access, String? oid,
     T newInstance(String oid),
     FutureOr<Map?> loader(T entity, Set<String>? fields, int? option),
     Iterable<String>? fields, [int? option]) async {
-  if (oid == null)
-    return null;
+  if (oid == null) return null;
 
-  final newEntity = newInstance(oid);
-  T? entity = access.fetch(newEntity.otype, oid);
+  final ei = _fetch<T>(access, newInstance(oid), fields, option),
+    entity = ei.first;
+  if (ei.second) return entity;
+
+  final fds = ei.third,
+    data = await loader(entity, fds, option);
+  return data == null ? null: read_(access, entity, data, fds);
+}
+
+/// Binds the [data] to the entify with the given [oid].
+/// If the entity doesn't exists, it will instantiate one.
+///
+/// It is a utility for implementation.
+T bind_<T extends Entity>(Access access, String oid,
+    T newInstance(String oid), Map data, Iterable<String>? fields) {
+  final ei = _fetch<T>(access, newInstance(oid), fields),
+    entity = ei.first;
+  return ei.second ? entity: read_(access, entity, data, ei.third);
+}
+
+Trio<T, bool, Set<String>?> _fetch<T extends Entity>(Access access, T entity,
+     Iterable<String>? fields, [int? option]) {
+  final otype = entity.otype,
+    cached = access.fetch(otype, entity.oid);
   Set<String>? fds;
-  if (entity == null || entity.otype != newEntity.otype) {
+  if (cached == null || cached.otype != otype) {
     fds = _toSet(fields);
-    access.cache(entity = newEntity);
+    access.cache(entity);
   } else {
-    fds = entity is MultiLoad ?
-        (entity as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
+    fds = cached is MultiLoad ?
+        (cached as MultiLoad).getFieldsToLoad(fields):  _toSet(fields);
     if (fds != null && fds.isEmpty && option == null)
-      return entity;
+      return Trio(cached as T, true/*done*/, null);
       //Note: if option != null, we have to go thru [loader] to ensure the lock
   }
+  return Trio(entity, false, fds);
+}
 
-  final data = await loader(entity, fds, option);
-  if (data == null) return null;
-
-  entity.read(access.reader, data, fds);
+/// Reads properties from [data] into [entity], by calling [Entity.read].
+/// It also handles if [entity] implements [MultiLoad].
+///
+/// It is a utility for implementation.
+T read_<T extends Entity>(Access access, T entity, Map data, Set<String>? fields) {
+  entity.read(access.reader, data, fields);
   if (entity is MultiLoad)
-    (entity as MultiLoad).setFieldsLoaded(fds);
+    (entity as MultiLoad).setFieldsLoaded(fields);
   return entity;
 }
 

@@ -6,6 +6,8 @@ library entity;
 import "dart:async";
 import "dart:collection";
 
+import "package:rikulo_commons/util.dart";
+
 import "oid.dart";
 
 part "src/entity/entity_core.dart";
