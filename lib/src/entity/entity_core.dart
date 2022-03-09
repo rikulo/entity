@@ -3,14 +3,16 @@
 // Author: tomyeh
 part of entity;
 
-/** Used with [load] and [loadIfAny] to indicat the locking
- * is *select-for-share* (i.e., read lock).
- */
-const int forShare = 1;
-/** Used with [load] and [loadIfAny] to indicat the locking
- * is *select-for-update* (i.e., updatelock).
- */
-const int forUpdate = 2;
+/// Options to access the database.
+class AccessOption {
+}
+
+/// Used with [load] and [loadIfAny] to indicat the locking
+/// is *select-for-share* (i.e., read lock).
+final forShare = AccessOption(),
+/// Used with [load] and [loadIfAny] to indicat the locking
+/// is *select-for-update* (i.e., updatelock).
+  forUpdate = AccessOption();
 
 /** An entity which can be stored into an entity store.
  */
@@ -87,11 +89,11 @@ abstract class Entity implements Comparable<Entity> {
 
   /// Deletes this entity.
   ///
-  /// - [options] - application-specific options.
+  /// - [option] - application-specific option.
   /// Note: it is meaningful only if `access.agent.delete()` supports it.
-  Future? delete(Access access, {Object? options}) {
+  Future? delete(Access access, {AccessOption? option}) {
     stored = false;
-    return access.agent.delete(this, options);
+    return access.agent.delete(this, option);
   }
 
   /** Writes this entity to a JSON object that can be serialized to

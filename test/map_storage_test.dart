@@ -39,6 +39,7 @@ Future test1() {
       load(access, d2.oid, beDetail)])
   .then((_) => load(access, m1.oid, beMaster))
   .then((Master m) {
+    expect(forUpdate != forShare, true);
     expect(identical(m, m1), false); //not the same instance
     expect(m.name, m1.name);
     expect(m.details!.length, m1.details!.length);

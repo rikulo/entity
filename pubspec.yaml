@@ -1,5 +1,5 @@
 name: entity
-version: 2.1.0+2
+version: 2.5.0
 description: A simple ORM for Relational and NoSQL database, such as Couchbase and PostgreSQL.
 homepage: https://github.com/rikulo/entity
 documentation: https://github.com/rikulo/entity

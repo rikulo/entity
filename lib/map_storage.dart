@@ -72,7 +72,7 @@ class MapStorageAccessAgent implements AccessAgent {
 
   @override
   FutureOr<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
-      int? option) {
+      AccessOption? option) {
     final data = _load(entity.oid);
     if (data != null) {
       assert(data[fdOtype] == entity.otype);
@@ -114,7 +114,7 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future? delete(Entity entity, var options) {
+  Future? delete(Entity entity, AccessOption? option) {
     final String oid = entity.oid;
     _cache.remove(entity.otype, oid);
     _storage.remove(oid);

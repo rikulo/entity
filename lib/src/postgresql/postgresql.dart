@@ -75,7 +75,7 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
-      int? option) async {
+      AccessOption? option) async {
     final sql = StringBuffer("select ");
     if (fields == null) {
       sql.write("*");
@@ -179,7 +179,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future delete(Entity entity, var options) async {
+  Future delete(Entity entity, AccessOption? option) async {
     var sql = 'delete from "${entity.otype}" where "oid"=@oid',
       data = {fdOid: entity.oid};
 

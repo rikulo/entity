@@ -1,5 +1,11 @@
 # Changes
 
+**2.5.0**
+
+* **BREAK CHANGE**
+  * `AccessOption` introduced and `forUpdate` and `forShare` are instances of it.
+  * Signatures of `Access.load`, `Access.delete`, `load` and `loadIfAny` changed.
+
 **2.1.0**
 
 * `bind_` and `read_` added.

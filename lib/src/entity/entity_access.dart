@@ -55,12 +55,12 @@ abstract class AccessAgent {
    * Note: it shall return a Future carrying null if not found.
    * 
    * * [option] - an option for loading the entity.
-   * It is the option passed from [load] and [loadIfAny],
-   * so it can be application specific.
+   * It is the option passed from [load] and [loadIfAny].
+   * It can be application specific.
    * You can ignore it if not supported.
-   * For SQL, it is better to supporte `null`, [forShare] and [forUpdate].
+   * For SQL, it is better to supported `null`, [forShare] and [forUpdate].
    */
-  FutureOr<Map?> load(Entity entity, Set<String>? fields, int? option);
+  FutureOr<Map?> load(Entity entity, Set<String>? fields, AccessOption? option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain
@@ -76,9 +76,12 @@ abstract class AccessAgent {
    */
   Future? create(Entity entity, Map data);
 
-  /** Deletes the entity from database.
-   */
-  Future? delete(Entity entity, Object? options);
+  /// Deletes the entity from database.
+  ///
+  /// - [option] - an option for deleting this entity.
+  /// It is the option, if any. passed from `access.delete()`.
+  /// It is application specific, and not used in most implementations.
+  Future? delete(Entity entity, AccessOption? option);
 }
 
 /// A writer for converting data for saving to the database.

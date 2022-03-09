@@ -3,6 +3,8 @@ analyzer:
      implicit-casts: false
   errors:
     todo: ignore
+    missing_return: ignore
+    body_might_complete_normally_nullable: ignore
 linter:
   rules:
     - annotate_overrides

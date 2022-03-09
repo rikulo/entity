@@ -55,7 +55,8 @@ abstract class MultiLoad {
  * (including oid is null).
  */
 Future<T> load<T extends Entity>(Access access, String oid,
-      T newInstance(String oid), [Iterable<String>? fields, int? option]) async {
+      T newInstance(String oid), [Iterable<String>? fields,
+      AccessOption? option]) async {
   final entity = await loadIfAny(access, oid, newInstance, fields, option);
   if (entity == null)
     throw EntityNotFoundException(oid);
@@ -68,11 +69,9 @@ Future<T> load<T extends Entity>(Access access, String oid,
  * Please refer to [load] for details.
  */
 Future<T?> loadIfAny<T extends Entity>(Access access, String? oid,
-    T newInstance(String oid), [Iterable<String>? fields, int? option])
-=> loadIfAny_(access, oid, newInstance,
-  (T entity, Set<String>? fields, int? option)
-    => access.agent.load(entity, fields, option),
-  fields, option);
+    T newInstance(String oid), [Iterable<String>? fields,
+    AccessOption? option])
+=> loadIfAny_(access, oid, newInstance, access.agent.load, fields, option);
 
 /// A utility to implement [loadIfAny] and custom load functions.
 /// 
@@ -80,8 +79,8 @@ Future<T?> loadIfAny<T extends Entity>(Access access, String? oid,
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
 Future<T?> loadIfAny_<T extends Entity>(Access access, String? oid,
     T newInstance(String oid),
-    FutureOr<Map?> loader(T entity, Set<String>? fields, int? option),
-    Iterable<String>? fields, [int? option]) async {
+    FutureOr<Map?> loader(T entity, Set<String>? fields, AccessOption? option),
+    Iterable<String>? fields, [AccessOption? option]) async {
   if (oid == null) return null;
 
   final ei = _fetch<T>(access, newInstance(oid), fields, option),
@@ -105,7 +104,7 @@ T bind_<T extends Entity>(Access access, String oid,
 }
 
 Trio<T, bool, Set<String>?> _fetch<T extends Entity>(Access access, T entity,
-     Iterable<String>? fields, [int? option]) {
+     Iterable<String>? fields, [AccessOption? option]) {
   final otype = entity.otype,
     cached = access.fetch(otype, entity.oid);
   if (cached == null || cached.otype != otype) {
