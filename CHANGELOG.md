@@ -1,5 +1,9 @@
 # Changes
 
+**2.5.1**
+
+* Use `Random.secure` to generate OID.
+
 **2.5.0**
 
 * **BREAK CHANGE**

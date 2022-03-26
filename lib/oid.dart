@@ -26,14 +26,16 @@ const int oidLength = 24;
 const _ccExtra = const <int> [
   $dash, $underline, $dot, $tilde
 ]; //( and ) => not valid in email
-   //* and , => not safe
-   //! and , => it will be encoded by encodeQueryComponent
+   //*, ! and , => encoded by encodeQueryComponent
+//const _ccExtra2 = [..._ccExtra, $lparen, $rparen, $asterisk, $exclamation];
+  //(, ), *, !, => NOT encoded by encodeURIComponent 
+  //69^24 = 1.35e44 => 2.9x => not worth
 
 ///The character range
 const int _ccRange = 66; //26*2+10+_CC_EXTRA
 const int
-  _intLen = 5, //# of integers: _INT_LEN * _CHAR_PER_INT >= OID_LENGTH - 1 + 2
-  _charPerInt = 5; //65^5 < 2^31 (65^5: 1,160,290,625, 2^31: 2,147,483,648)
+  _intLen = 5, //# of integers: [_intLen] * [_charPerInt] >= [oidLength]
+  _charPerInt = 5; //65^5 < 2^32 (65^5: 1,160,290,625, 2^32: 4,294,967,296)
 
 /** Returns the next unique object ID.
  */
@@ -99,7 +101,7 @@ final _reOid = RegExp('^$oidPattern\$');
 List<int> _getRandomInts(int length) {
   final values = <int>[];
   while (--length >= 0)
-    values.add(_random.nextInt(1<<31));
+    values.add(_random.nextInt(1<<32));
   return values;
 }
 
@@ -113,4 +115,10 @@ int _escOid(int v) {
   return _ccExtra[v - 26];
 }
 
-final _random = Random();
+final _random = (() {
+  try {
+    return Random.secure();
+  } catch (_) {
+    return Random(DateTime.now().millisecondsSinceEpoch);
+  }
+})();
