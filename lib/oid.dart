@@ -24,11 +24,11 @@ typedef List<int> GetRandomInts(int length);
 const int oidLength = 24;
 
 const _ccExtra = const <int> [
-  $dash, $underline, $dot, $tilde
+  $dash, $underline, $tilde, $dot //NOTE: $dot must be the last; see below
 ]; //( and ) => not valid in email
-   //*, ! and , => encoded by encodeQueryComponent
-//const _ccExtra2 = [..._ccExtra, $lparen, $rparen, $asterisk, $exclamation];
-  //(, ), *, !, => NOT encoded by encodeURIComponent 
+   //(, ), *, ! and , => encoded by encodeQueryComponent
+//const _ccExtra2 = [$lparen, $rparen, $asterisk, $exclamation, ..._ccExtra];
+  //(, ), *, !, => NOT encoded by JS encodeURIComponent 
   //69^24 = 1.35e44 => 2.9x => not worth
 
 ///The character range
@@ -37,12 +37,13 @@ const int
   _intLen = 5, //# of integers: [_intLen] * [_charPerInt] >= [oidLength]
   _charPerInt = 5; //65^5 < 2^32 (65^5: 1,160,290,625, 2^32: 4,294,967,296)
 
-/** Returns the next unique object ID.
- */
+/// Returns the next unique object ID.
 String nextOid() {
-  final values = getRandomInts(_intLen);
+  final bytes = <int>[],
+    values = getRandomInts(_intLen);
   assert(values.length == _intLen);
-  final bytes = <int>[];
+  var remainding = 0;
+
   l_gen:
   for (int i = values.length, bl = 0; --i >= 0;) {
     int val = values[i];
@@ -50,26 +51,26 @@ String nextOid() {
       val = -val;
 
     for (int j = _charPerInt;;) {
-      final done = ++bl >= oidLength;
-      var cc = _escOid(val % _ccRange);
-      if (cc == $dot && (done || (bl > 1 && bytes[bl - 2] == $dot)))
-        cc = _escOid(_random.nextInt(10 + 26*2)); //replace with alphanumeric
+      bytes.add(_escOid(val % _ccRange));
+      if (++bl >= oidLength) break l_gen;
 
-      bytes.add(cc);
-      if (done) break l_gen;
-
-      if (--j == 0) break;
       val = val ~/ _ccRange;
+      if (--j == 0) {
+        remainding = (remainding << 2) + val;
+        break;
+      }
     }
   }
 
-  //The last characters shall not be a dot. Otherwise, it is easy to get
-  //confused if we put URL at the end of a sentence.
-  final last = bytes.length - 1;
-  if (bytes[last] == $dot) bytes[last] = $z;
+  // We don't end OID with [$dot] (for easy parsing in, say, markdown)
+  if (bytes.last == $dot) {
+    assert(_ccExtra.last == $dot); //we assumet it so we mod `_ccRange - 1` below
+    bytes.last = _escOid(remainding % (_ccRange - 1));
+  }
 
   return String.fromCharCodes(bytes);
 }
+
 /** Creates a new OID based two OIDs.
  *
  * > To shorten the result OID, we retrieve the substring of [oid1] and [oid2]
@@ -101,7 +102,7 @@ final _reOid = RegExp('^$oidPattern\$');
 List<int> _getRandomInts(int length) {
   final values = <int>[];
   while (--length >= 0)
-    values.add(_random.nextInt(1<<32));
+    values.add(_nextRandom(1 << 32));
   return values;
 }
 
@@ -115,10 +116,19 @@ int _escOid(int v) {
   return _ccExtra[v - 26];
 }
 
-final _random = (() {
+int _nextRandom(int max) {
+  try {
+    return _secureRandom.nextInt(max);
+  } catch (_) { //possible if running out of file descriptors
+    return _simpleRandom.nextInt(max);
+  }
+}
+
+final _secureRandom = (() {
   try {
     return Random.secure();
   } catch (_) {
-    return Random(DateTime.now().millisecondsSinceEpoch);
+    return _simpleRandom;
   }
 })();
+final _simpleRandom = Random();

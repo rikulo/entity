@@ -19,10 +19,9 @@ void main() {
     const loops = 100000;
     final t0 = DateTime.now();
     for (int i = 0; i < loops; i++) {
-      final String oid = nextOid();
+      final oid = nextOid();
       expect(isValidOid(oid), isTrue);
-      expect(oid[oid.length - 1] == '.', isFalse); //don't end with dot
-      expect(oid.contains('..'), isFalse);
+      expect(oid[oid.length - 1] == '.', isFalse); //never end with dot
 
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);

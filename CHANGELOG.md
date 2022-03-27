@@ -1,7 +1,8 @@
 # Changes
 
-**2.5.1**
+**2.5.2**
 
+* `Entity.oid` becomes mutable.
 * Use `Random.secure` to generate OID.
 
 **2.5.0**

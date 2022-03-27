@@ -22,7 +22,7 @@ abstract class Entity implements Comparable<Entity> {
    * * [oid] - the OID for this new entity. If omitted, a new OID
    * is generated and assigned.
    */
-  Entity({String? oid}): _oid = oid != null ? oid: nextOid(), stored = false;
+  Entity({String? oid}): this.oid = oid ?? nextOid(), stored = false;
   /**
    * Instantiates an entity that will be passed to [Storage.load]
    * for holding the data loaded from database.
@@ -41,11 +41,10 @@ abstract class Entity implements Comparable<Entity> {
    *
    *      MyEntity.be(String oid): super(oid);
    */
-  Entity.be(String oid): _oid = oid, stored = true;
+  Entity.be(this.oid): stored = true;
 
   ///The OID.
-  String get oid => _oid;
-  final String _oid;
+  String oid;
 
   /** The object type.
    *
