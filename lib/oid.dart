@@ -102,9 +102,10 @@ final _reOid = RegExp('^$oidPattern\$');
 List<int> _getRandomInts(int length) {
   final values = <int>[];
   while (--length >= 0)
-    values.add(_nextRandom(1 << 32));
+    values.add(_nextRandom(_maxRandom));
   return values;
 }
+const _maxRandom = 0xffffffff; //note: we can't use 1 << 32
 
 int _escOid(int v) {
   if (v < 10)
