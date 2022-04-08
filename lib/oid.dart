@@ -105,7 +105,7 @@ List<int> _getRandomInts(int length) {
     values.add(_nextRandom(_maxRandom));
   return values;
 }
-const _maxRandom = 0xffffffff; //note: we can't use 1 << 32
+const _maxRandom = 4294967296; //note: we can't use 1 << 32 (in JS, it will be 1)
 
 int _escOid(int v) {
   if (v < 10)
