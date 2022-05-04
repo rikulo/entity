@@ -186,7 +186,7 @@ abstract class Entity implements Comparable<Entity> {
   @override
   int get hashCode => oid.hashCode;
   @override
-  String toString() => oid;
+  String toString() => "$otype($oid)";
 }
 
 /** Indicates the entity is not found.
