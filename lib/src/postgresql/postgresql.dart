@@ -196,7 +196,9 @@ class PostgresqlAccessAgent implements AccessAgent {
 
 class _AccessReader extends AccessReader {
   EntityCache? _cache; //not final since it might be assigned by caller
-  _AccessReader([this._cache]);
+
+  @override
+  bool get isDateTimeDirectly => true;
 
   @override
   T? entity<T extends Entity>(String otype, String? oid)
@@ -207,6 +209,9 @@ class _AccessReader extends AccessReader {
 }
 
 class _AccessWriter extends AccessWriter {
+  @override
+  bool get isDateTimeDirectly => true;
+
   @override
   Object? dateTime(DateTime? value) => value;
 }

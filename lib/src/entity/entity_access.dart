@@ -94,6 +94,12 @@ class AccessWriter {
   Object? dateTime(DateTime? value)
   => value != null ? value.millisecondsSinceEpoch: null;
 
+  /// Whether [DateTime] can be saved directly without converting.
+  /// If true, it means [dateTime] basically does nothing.
+  /// 
+  /// For database, it is usually true. For sending via network, it is not.
+  bool get isDateTimeDirectly => false;
+
   /** Covnerts the [Entity] instance.
    *
    * Default: serializes it by returning OID.
@@ -126,6 +132,12 @@ class AccessReader {
   ///Return the [DateTime] instance representing the JSON value.
   DateTime? dateTime(Object? json)
     => json != null ? DateTime.fromMillisecondsSinceEpoch(json as int): null;
+
+  /// Whether [DateTime] can be read directly without converting.
+  /// If true, it means [dateTime] basically does nothing.
+  /// 
+  /// For database, it is usually true. For sending via network, it is not.
+  bool get isDateTimeDirectly => false;
 
   /** Returns the entity of the given OID, or null if not loaded.
    *

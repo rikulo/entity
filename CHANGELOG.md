@@ -1,5 +1,9 @@
 # Changes
 
+**2.6.0**
+
+* `AccessReader.isDateTimeDirectly` and `AccessWriter.isDateTimeDirectly` added
+
 **2.5.2**
 
 * `Entity.oid` becomes mutable.
