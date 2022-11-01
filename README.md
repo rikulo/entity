@@ -3,6 +3,7 @@
 A very simple ORM for relational, NoSQL database, and simple maps. It is designed to work on browsers, so it doesn't use mirrors or annotations.
 
 * [API Reference](https://pub.dev/documentation/entity/latest/)
+* [Git Repository](https://github.com/rikulo/entity)
 
 ## Who Uses
 
