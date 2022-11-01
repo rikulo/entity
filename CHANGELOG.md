@@ -1,5 +1,9 @@
 # Changes
 
+**2.7.0**
+
+* `EntityCache.removeWhere` added
+
 **2.6.0**
 
 * `AccessReader.isDateTimeDirectly` and `AccessWriter.isDateTimeDirectly` added

@@ -245,6 +245,9 @@ abstract class EntityCache {
   /** Clears the whole cache.
    */
   void clear();
+
+  /// Remove the cached entities that satisfy the given [test].
+  void removeWhere(bool test(String oid, Entity entity));
 }
 
 /** A utility class for storing the pair of [otype] and [oid].
@@ -256,11 +259,12 @@ class _CacheKey {
   final String? oid;
 
   _CacheKey(this.otype, this.oid);
+  _CacheKey._(String this.otype, String this.oid);
 
 	@override
-  int get hashCode => otype.hashCode + oid.hashCode;
+  int get hashCode => oid.hashCode;
 	@override
-  bool operator==(Object? o) => o is _CacheKey && o.otype == otype && o.oid == oid;
+  bool operator==(Object? o) => o is _CacheKey && o.oid == oid && o.otype == otype;
 }
 
 class _EntityCache implements EntityCache {
@@ -271,9 +275,10 @@ class _EntityCache implements EntityCache {
   @override
   T? fetch<T extends Entity>(String? otype, String? oid)
   => _cache[_CacheKey(otype, oid)] as T?;
+
   @override
   T put<T extends Entity>(T entity)
-  => _cache[_CacheKey(entity.otype, entity.oid)] = entity;
+  => _cache[_CacheKey._(entity.otype, entity.oid)] = entity;
 
   @override
   bool remove(String? otype, String? oid)
@@ -281,4 +286,8 @@ class _EntityCache implements EntityCache {
 
   @override
   void clear() => _cache.clear();
+
+  @override
+  void removeWhere(bool test(String oid, Entity entity))
+  => _cache.removeWhere((k, e) => test(k.oid!, e));
 }
