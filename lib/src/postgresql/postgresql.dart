@@ -56,9 +56,8 @@ class PostgresqlAccess implements Access {
   => _cache?.put(entity) ?? entity;
 
   @override
-  void uncache(String? otype, String? oid) {
-    _cache?.remove(otype, oid);
-  }
+  Entity? uncache(String? otype, String? oid)
+  => _cache?.remove(otype, oid);
 }
 
 /** The agent for accessing PostgreSQL.

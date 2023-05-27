@@ -1,8 +1,9 @@
 # Changes
 
-**2.8.0**
+**2.8.1**
 
 * `Entity.remove` returns the entity being removed, instead of bool.
+* `Access.uncache` returns the entity being removed, instead of void.
 
 **2.7.0**
 

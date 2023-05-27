@@ -25,7 +25,7 @@ abstract class Access {
   T cache<T extends Entity>(T entity);
 
   /// Removes the caching of the entity of the given [otype] and [oid].
-  void uncache(String? otype, String? oid);
+  Entity? uncache(String? otype, String? oid);
 
   /// The access reader for converting data from what the database returns.
   AccessReader get reader;
