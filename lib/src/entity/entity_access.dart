@@ -240,7 +240,7 @@ abstract class EntityCache {
 
   /** Remove the cache of an entity.
    */
-  bool remove(String? otype, String? oid);
+  Entity? remove(String? otype, String? oid);
 
   /** Clears the whole cache.
    */
@@ -281,8 +281,8 @@ class _EntityCache implements EntityCache {
   => _cache[_CacheKey._(entity.otype, entity.oid)] = entity;
 
   @override
-  bool remove(String? otype, String? oid)
-  => _cache.remove(_CacheKey(otype, oid)) != null;
+  Entity? remove(String? otype, String? oid)
+  => _cache.remove(_CacheKey(otype, oid));
 
   @override
   void clear() => _cache.clear();

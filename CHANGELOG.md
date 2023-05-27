@@ -1,5 +1,9 @@
 # Changes
 
+**2.8.0**
+
+* `Entity.remove` returns the entity being removed, instead of bool.
+
 **2.7.0**
 
 * `EntityCache.removeWhere` added

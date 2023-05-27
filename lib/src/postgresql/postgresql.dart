@@ -18,7 +18,7 @@ class PostgresqlAccess implements Access {
    *
    * * [cache] - whether to enable the cache. Default: true.
    */
-  PostgresqlAccess(Connection this.conn, {bool cache:true}) {
+  PostgresqlAccess(Connection this.conn, {bool cache = true}) {
     _agent = PostgresqlAccessAgent(this, cache: cache);
     (reader as _AccessReader)._cache = _cache;
   }
@@ -68,7 +68,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   final PostgresqlAccess access;
   final EntityCache? _cache;
 
-  PostgresqlAccessAgent(PostgresqlAccess this.access, {bool cache:true})
+  PostgresqlAccessAgent(PostgresqlAccess this.access, {bool cache = true})
   : _cache = cache ? EntityCache(): null;
   PostgresqlAccessAgent.by(PostgresqlAccess this.access, EntityCache cache)
   : _cache = cache;
