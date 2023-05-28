@@ -163,20 +163,15 @@ class AccessReader {
    */
   List<T>? entities<T extends Entity>(String otype, Iterable<String?>? json,
       {T facade(String oid)?}) {
-    if (json == null)
-      return null;
+    if (json == null) return null;
 
     final entities = <T>[];
-    for (final oid in json) {
-      T? en;
+    for (final oid in json)
       if (oid != null) {
-        en = entity(otype, oid);
-        if (en == null && facade != null)
-          en = facade(oid);
+        final e = entity<T>(otype, oid);
+        if (e != null) entities.add(e);
+        else if (facade != null) entities.add(facade(oid));
       }
-      if (en != null)
-        entities.add(en);
-    }
     return entities;
   }
 }
