@@ -4,7 +4,7 @@ description: A simple ORM for Relational and NoSQL database, such as Couchbase a
 homepage: https://github.com/rikulo/entity
 documentation: https://github.com/rikulo/entity
 environment:
-  sdk: ">=2.13.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   postgresql2: '>=1.0.0-beta'
