@@ -4,7 +4,7 @@
 library entity.postgresql2;
 
 import "dart:async";
-import "dart:collection" show HashMap;
+import "dart:collection";
 
 import "package:postgresql2/postgresql.dart" show Connection, Row;
 import "package:rikulo_commons/util.dart";

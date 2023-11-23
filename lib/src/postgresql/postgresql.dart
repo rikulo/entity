@@ -81,11 +81,10 @@ class PostgresqlAccessAgent implements AccessAgent {
     } else if (fields.isEmpty) {
       sql.write("1");
     } else {
-      assert(fields is Set || fields.toSet().length == fields.length,
-        'dup? $fields'); //Remove duplicated items for better performance
+      assert(_assertNoDup(fields));
 
       bool first = true;
-      for (final String fd in fields) {
+      for (final fd in fields) {
         if (first) first = false;
         else sql.write(',');
 
@@ -112,6 +111,20 @@ class PostgresqlAccessAgent implements AccessAgent {
     }
 
     return null;
+  }
+
+  /// Detects if any duplication in [fields] for better performance
+  static bool _assertNoDup(Iterable<String> fields) {
+    if (fields is! Set<String>) {
+      final found = HashSet<String>(),
+        dups = <String>[];
+      for (final fd in fields)
+        if (!found.add(fd))
+          dups.add(fd);
+      if (dups.isNotEmpty)
+        print("Dup: $dups in $fields\n${StackTrace.current}");
+    }
+    return true;
   }
 
   @override
