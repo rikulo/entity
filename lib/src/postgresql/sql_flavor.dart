@@ -33,7 +33,7 @@ abstract class SqlFlavor {
 /// ...
 /// fe.insertFlavor = onConflictDoNothing;
 /// ```
-class SqlFlavorMixin implements SqlFlavor {
+mixin SqlFlavorMixin implements SqlFlavor {
   @override
   String Function(String sql, Map? data)? insertFlavor;
   @override
