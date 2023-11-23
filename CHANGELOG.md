@@ -1,5 +1,9 @@
 # Changes
 
+**3.0.0**
+
+* `Entity.write` and `Entity.read` accept `Iterable<String>` as fields instead of `Set<String>`.
+
 **2.8.1**
 
 * `Entity.remove` returns the entity being removed, instead of bool.

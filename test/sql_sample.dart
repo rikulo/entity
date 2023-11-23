@@ -12,12 +12,12 @@ class Master extends Entity {
   Master.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String>? fields) {
+  void write(AccessWriter writer, Map data, Iterable<String>? fields) {
     super.write(writer, data, fields);
     data["name"] = name;
   }
   @override
-  void read(AccessReader reader, Map data, Set<String>? fields) {
+  void read(AccessReader reader, Map data, Iterable<String>? fields) {
     super.read(reader, data, fields);
     name = data["name"] as String?;
   }
@@ -35,14 +35,14 @@ class Detail extends Entity {
   Detail.be(String oid): super.be(oid);
 
   @override
-  void write(AccessWriter writer, Map data, Set<String>? fields) {
+  void write(AccessWriter writer, Map data, Iterable<String>? fields) {
     super.write(writer, data, fields);
     data["createdAt"] = createdAt;
     data["value"] = value;
     data["master"] = master;
   }
   @override
-  void read(AccessReader reader, Map data, Set<String>? fields) {
+  void read(AccessReader reader, Map data, Iterable<String>? fields) {
     super.read(reader, data, fields);
     value = data["value"] as int?;
     createdAt = data["createdAt"] as DateTime?;

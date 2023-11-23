@@ -23,11 +23,11 @@ class MapStorageAccess implements Access {
   
   MapStorageAccess([Map<String, String>? storage])
   : _agent = MapStorageAccessAgent(storage) {
-  	(reader as CachedAccessReader).cache = _agent._cache;
+    (reader as CachedAccessReader).cache = _agent._cache;
   }
   MapStorageAccess.by(EntityCache cache, [Map<String, String>? storage])
   : _agent = MapStorageAccessAgent.by(cache, storage) {
-  	(reader as CachedAccessReader).cache = _agent._cache;
+    (reader as CachedAccessReader).cache = _agent._cache;
   }
 
   @override
@@ -70,7 +70,7 @@ class MapStorageAccessAgent implements AccessAgent {
       _cache = cache;
 
   @override
-  FutureOr<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
+  FutureOr<Map<String, dynamic>?> load(Entity entity, Iterable<String>? fields,
       AccessOption? option) {
     final data = _load(entity.oid);
     if (data != null) {
@@ -91,13 +91,13 @@ class MapStorageAccessAgent implements AccessAgent {
   }
 
   @override
-  Future? update(Entity entity, Map data, Set<String>? fields) {
+  Future? update(Entity entity, Map data, Iterable<String>? fields) {
     final oid = entity.oid;
     if (fields != null) {
       final prevValue = _load(oid);
       if (prevValue == null)
-      	throw StateError("Not found: $oid");
-      for (final String fd in fields)
+        throw StateError("Not found: $oid");
+      for (final fd in fields)
         prevValue[fd] = data[fd];
       data = prevValue;
     }

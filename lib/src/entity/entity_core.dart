@@ -69,9 +69,8 @@ abstract class Entity implements Comparable<Entity> {
    * before saving to the database.
    */
   Future? save(Access access, Iterable<String>? fields,
-      [void beforeSave(Map data, Set<String>? fields)?]) {
-
-    final fds = fields != null && stored ? _toSet(fields): null;
+      [void beforeSave(Map data, Iterable<String>? fields)?]) {
+    final fds = fields != null && stored ? fields: null;
 
     final data = HashMap<String, dynamic>();
     write(access.writer, data, fds);
@@ -106,7 +105,7 @@ abstract class Entity implements Comparable<Entity> {
    * The deriving class must override this method to write all required
    * data members. For example,
    *
-   *     void write(AccessWriter writer, Map data, Set<String> fields) {
+   *     void write(AccessWriter writer, Map data, Iterable<String> fields) {
    *       super.write(writer, data, fields);
    *       data["someData"] = someData;
    *       data["someEntity"] = writer.entity(SomeType, someEntity);
@@ -125,7 +124,7 @@ abstract class Entity implements Comparable<Entity> {
    * In general, you check [fields] only if the field is costly to generate
    * (into [data]).
    */
-  void write(AccessWriter writer, Map data, Set<String>? fields) {
+  void write(AccessWriter writer, Map data, Iterable<String>? fields) {
     data[fdOtype] = otype;
   }
   /** Reads the given JSON object into the data members of this entity.
@@ -139,7 +138,7 @@ abstract class Entity implements Comparable<Entity> {
    * The deriving class must override this method to read all data member
    * stored in [write]. For example,
    *
-   *     void read(AccessReader reader, Map data, Set<String> fields) {
+   *     void read(AccessReader reader, Map data, Iterable<String> fields) {
    *       super.read(reader, data, fields);
    *       someData = data["someData"];
    *       someEntity = reader.entity(SomeType, data["someEntity"]);
@@ -152,7 +151,7 @@ abstract class Entity implements Comparable<Entity> {
    * * [fields] - the fields being loaded. If null, it means all fields.
    * In general, you can ignore this argument (but use [data] instead).
    */
-  void read(AccessReader reader, Map data, Set<String>? fields) {
+  void read(AccessReader reader, Map data, Iterable<String>? fields) {
   }
 
   /// Returns the DB type of the given field, or null if no need to handle

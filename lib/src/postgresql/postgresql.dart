@@ -73,14 +73,17 @@ class PostgresqlAccessAgent implements AccessAgent {
   : _cache = cache;
 
   @override
-  Future<Map<String, dynamic>?> load(Entity entity, Set<String>? fields,
-      AccessOption? option) async {
+  Future<Map<String, dynamic>?> load(Entity entity,
+      Iterable<String>? fields, AccessOption? option) async {
     final sql = StringBuffer("select ");
     if (fields == null) {
       sql.write("*");
     } else if (fields.isEmpty) {
       sql.write("1");
     } else {
+      assert(fields is Set || fields.toSet().length == fields.length,
+        'dup? $fields'); //Remove duplicated items for better performance
+
       bool first = true;
       for (final String fd in fields) {
         if (first) first = false;
@@ -112,7 +115,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map data, Set<String>? fields) {
+  Future update(Entity entity, Map data, Iterable<String>? fields) {
     final sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
     final Iterable fds = fields == null ? data.keys: fields;

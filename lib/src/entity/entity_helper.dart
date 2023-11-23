@@ -27,7 +27,7 @@ abstract class MultiLoad {
    * 
    * * [fields] - fields the caller'd like to load. If null, it means all.
    */
-  Set<String>? getFieldsToLoad(Iterable<String>? fields);
+  Iterable<String>? getFieldsToLoad(Iterable<String>? fields);
   /** Marks the given [fields] are loaded.
    * If [fields] is null, it means all fields have been loaded.
    */
@@ -79,16 +79,15 @@ Future<T?> loadIfAny<T extends Entity>(Access access, String? oid,
 /// return `Future<Map<String, dynamic>>` or `Map<String, dynamic>`
 Future<T?> loadIfAny_<T extends Entity>(Access access, String? oid,
     T newInstance(String oid),
-    FutureOr<Map?> loader(T entity, Set<String>? fields, AccessOption? option),
+    FutureOr<Map?> loader(T entity, Iterable<String>? fields, AccessOption? option),
     Iterable<String>? fields, [AccessOption? option]) async {
   if (oid == null) return null;
 
-  final ei = _fetch<T>(access, newInstance(oid), fields, option),
-    entity = ei.first;
-  if (ei.second) return entity;
+  final (entity, done, fds)
+      = _fetch<T>(access, newInstance(oid), fields, option);
+  if (done) return entity;
 
-  final fds = ei.third,
-    data = await loader(entity, fds, option);
+  final data = await loader(entity, fds, option);
   return data == null ? null: read_(access, entity, data, fds);
 }
 
@@ -98,23 +97,23 @@ Future<T?> loadIfAny_<T extends Entity>(Access access, String? oid,
 /// It is a utility for implementation.
 T bind_<T extends Entity>(Access access, String oid,
     T newInstance(String oid), Map data, Iterable<String>? fields) {
-  final ei = _fetch<T>(access, newInstance(oid), fields),
-    entity = ei.first;
-  return ei.second ? entity: read_(access, entity, data, ei.third);
+  final (entity, done, fds) = _fetch<T>(access, newInstance(oid), fields);
+  return done ? entity: read_(access, entity, data, fds);
 }
 
-Trio<T, bool, Set<String>?> _fetch<T extends Entity>(Access access, T entity,
-     Iterable<String>? fields, [AccessOption? option]) {
+(T entity, bool done, Iterable<String>? fields)
+_fetch<T extends Entity>(Access access, T entity,
+    Iterable<String>? fields, [AccessOption? option]) {
   final otype = entity.otype,
     cached = access.fetch(otype, entity.oid);
   if (cached == null || cached.otype != otype) {
     access.cache(entity);
-    return Trio(entity, false, _toSet(fields));
+    return (entity, false, fields);
   }
 
   final fds = cached is MultiLoad ?
-      (cached as MultiLoad).getFieldsToLoad(fields): _toSet(fields);
-  return Trio(cached as T,
+      (cached as MultiLoad).getFieldsToLoad(fields): fields;
+  return (cached as T,
       fds != null && fds.isEmpty && option == null/*done*/, fds);
     //Note: if option != null, we have to go thru [loader] to ensure the lock
 }
@@ -123,12 +122,10 @@ Trio<T, bool, Set<String>?> _fetch<T extends Entity>(Access access, T entity,
 /// It also handles if [entity] implements [MultiLoad].
 ///
 /// It is a utility for implementation.
-T read_<T extends Entity>(Access access, T entity, Map data, Set<String>? fields) {
+T read_<T extends Entity>(Access access, T entity,
+    Map data, Iterable<String>? fields) {
   entity.read(access.reader, data, fields);
   if (entity is MultiLoad)
     (entity as MultiLoad).setFieldsLoaded(fields);
   return entity;
 }
-
-Set<T>? _toSet<T>(Iterable<T>? it)
-=> it is Set || it == null ? it as Set<T>?: it.toSet();
