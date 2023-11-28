@@ -1,5 +1,9 @@
 # Changes
 
+**3.0.1**
+
+* `isValidOid()` introduced the `ignoreLength` argument.
+
 **3.0.0**
 
 * `Entity.write` and `Entity.read` accept `Iterable<String>` as fields instead of `Set<String>`.

@@ -80,11 +80,14 @@ String nextOid() {
 String mergeOid(String oid1, String oid2)
 => "${oid1.substring(0, 12)}${oid2.substring(0, 12)}";
 
-///Test if the given value is a valid OID.
+/// Test if the given value is a valid OID.
 ///
-///Note: for performance reason, it does only the basic check.
-bool isValidOid(String value)
-=> value.length == oidLength && _reOid.hasMatch(value);
+/// Note: for performance reason, it does only the basic check.
+///
+/// - [ignoreLength] whether to check `value.length` is the same as
+/// [oidLength].
+bool isValidOid(String value, {bool ignoreLength = false})
+=> (ignoreLength || value.length == oidLength) && _reOid.hasMatch(value);
 
 /// OID's regular expression pattern.
 final oidPattern = '[-0-9a-zA-Z._~]+';

@@ -9,11 +9,14 @@ import 'package:entity/oid.dart';
 
 void main() {
   test("OID Test", () {
-    expect(isValidOid('_bcdefghijkl.nop-rstuvwx'), isTrue);
+    expect(isValidOid('_bcdefghijkl.nop-rs~uvwx'), isTrue);
     expect(isValidOid('0bcdefghijklmn/pqrstuvwx'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW;'), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);
     expect(isValidOid('ABCDEFGHIJKLMNOPQRST+UVW'), isFalse);
+
+    expect(isValidOid('_bcdefghijkl.nop-rs~'), isFalse);
+    expect(isValidOid('_bcdefghijkl.nop-rs~', ignoreLength: true), isTrue);
 
     String? prevOid;
     const loops = 100000;
