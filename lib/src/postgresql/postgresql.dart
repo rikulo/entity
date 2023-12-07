@@ -129,9 +129,12 @@ class PostgresqlAccessAgent implements AccessAgent {
 
   @override
   Future update(Entity entity, Map data, Iterable<String>? fields) {
+    assert(fields == null || fields is Set
+        || fields.toSet().length == fields.length, "Dup? $fields");
+
     final sql = StringBuffer('update "')
       ..write(entity.otype)..write('" set ');
-    final Iterable fds = fields == null ? data.keys: fields;
+    final fds = fields == null ? data.keys: fields;
 
     bool first = true;
     for (final fd in fds) {

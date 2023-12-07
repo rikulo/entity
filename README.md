@@ -9,3 +9,4 @@ A very simple ORM for relational, NoSQL database, and simple maps. It is designe
 
 * [Quire](https://quire.io) - a simple, collaborative, multi-level task management tool.
 * [Keikai](https://keikai.io) - a sophisticated spreadsheet for big data
+* [Ottava](https://ottava.io) - a no-code SaaS platform simplifying data management, chart creation, and data analysis.
