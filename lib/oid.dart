@@ -92,7 +92,7 @@ bool isValidOid(String value, {bool ignoreLength = false})
 /// Regular expression pattern for matching single OID character.
 const oidCharPattern = r'[-0-9a-zA-Z._~]';
 /// Regular expression pattern for matching OID.
-const oidPattern = '$oidCharPatter+';
+const oidPattern = '$oidCharPattern+';
 final _reOid = RegExp('^$oidPattern\$');
 
 /** The function used to generate a list of random integers to construct OID.
