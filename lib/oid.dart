@@ -24,7 +24,7 @@ typedef List<int> GetRandomInts(int length);
 const int oidLength = 24;
 
 const _ccExtra = const <int> [
-  $dash, $underline, $tilde, $dot //NOTE: $dot must be the last; see below
+  $dash, $underline, $tilde, $dot //NOTE: $dot must NOT be the last; see below
 ]; //( and ) => not valid in email
    //(, ), *, ! and , => encoded by encodeQueryComponent
 //const _ccExtra2 = [$lparen, $rparen, $asterisk, $exclamation, ..._ccExtra];
@@ -89,8 +89,10 @@ String mergeOid(String oid1, String oid2)
 bool isValidOid(String value, {bool ignoreLength = false})
 => (ignoreLength || value.length == oidLength) && _reOid.hasMatch(value);
 
-/// OID's regular expression pattern.
-final oidPattern = '[-0-9a-zA-Z._~]+';
+/// Regular expression pattern for matching single OID character.
+const oidCharPattern = r'[-0-9a-zA-Z._~]';
+/// Regular expression pattern for matching OID.
+const oidPattern = '$oidCharPatter+';
 final _reOid = RegExp('^$oidPattern\$');
 
 /** The function used to generate a list of random integers to construct OID.
