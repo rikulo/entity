@@ -1,5 +1,9 @@
 # Changes
 
+**3.1.0**
+
+* The `values` paramter of `PostgresqlAccess.query` and `execute` must be `Map`.
+
 **3.0.1**
 
 * `isValidOid()` introduced the `ignoreLength` argument.

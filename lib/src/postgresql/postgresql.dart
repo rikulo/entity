@@ -42,9 +42,11 @@ class PostgresqlAccess implements Access {
 
   /// Queues a command for execution, and when done, returns the number of rows
   /// affected by the SQL command.
-  Future<int> execute(String sql, [values]) => conn.execute(sql, values);
+  Future<int> execute(String sql, [Map? values])
+  => conn.execute(sql, values);
   /// Queue a SQL query to be run, returning a [Stream] of rows.
-  Stream<Row> query(String sql, [values]) => conn.query(sql, values);
+  Stream<Row> query(String sql, [Map? values])
+  => conn.query(sql, values);
 
   ///Clear the cache.
   void clearCache() {
