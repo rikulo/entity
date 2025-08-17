@@ -42,10 +42,10 @@ class PostgresqlAccess implements Access {
 
   /// Queues a command for execution, and when done, returns the number of rows
   /// affected by the SQL command.
-  Future<int> execute(String sql, [Map? values])
+  Future<int> execute(String sql, [Map<String, dynamic>? values])
   => conn.execute(sql, values);
   /// Queue a SQL query to be run, returning a [Stream] of rows.
-  Stream<Row> query(String sql, [Map? values])
+  Stream<Row> query(String sql, [Map<String, dynamic>? values])
   => conn.query(sql, values);
 
   ///Clear the cache.
@@ -65,7 +65,7 @@ class PostgresqlAccess implements Access {
 /** The agent for accessing PostgreSQL.
  */
 class PostgresqlAccessAgent implements AccessAgent {
-  ///The connection to the postgreSQL server.
+  ///The connection to the PostgreSQL server.
   final PostgresqlAccess access;
   final EntityCache? _cache;
 
@@ -130,7 +130,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future update(Entity entity, Map data, Iterable<String>? fields) {
+  Future update(Entity entity, Map<String, dynamic> data, Iterable<String>? fields) {
     assert(fields == null || fields is Set
         || fields.toSet().length == fields.length, "Dup? $fields");
 
@@ -169,7 +169,7 @@ class PostgresqlAccessAgent implements AccessAgent {
   }
 
   @override
-  Future create(Entity entity, Map data) async {
+  Future create(Entity entity, Map<String, dynamic> data) async {
     final sql = StringBuffer('insert into "')
         ..write(entity.otype)..write('"("oid"'),
       param = StringBuffer(" values(@oid");

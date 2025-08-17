@@ -60,7 +60,7 @@ abstract class AccessAgent {
    * You can ignore it if not supported.
    * For SQL, it is better to supported `null`, [forShare] and [forUpdate].
    */
-  FutureOr<Map?> load(Entity entity, Iterable<String>? fields, AccessOption? option);
+  FutureOr<Map<String, dynamic>?> load(Entity entity, Iterable<String>? fields, AccessOption? option);
   /** Updates the entity with the given OID into database.
    *
    * * [data] - the content of the entity. It might contain
@@ -69,12 +69,12 @@ abstract class AccessAgent {
    * * [fields] - the fields to update. If null, all fields in [data]
    * shall be stored.
    */
-  Future? update(Entity entity, Map data, Iterable<String>? fields);
+  Future? update(Entity entity, Map<String, dynamic> data, Iterable<String>? fields);
   /** Creates a new entity with the given OID into the database.
    * 
    * * [data] - the content of the entity to store.
    */
-  Future? create(Entity entity, Map data);
+  Future? create(Entity entity, Map<String, dynamic> data);
 
   /// Deletes the entity from database.
   ///

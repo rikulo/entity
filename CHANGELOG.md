@@ -1,8 +1,12 @@
 # Changes
 
+**3.2.0**
+
+* The `data` parameter of `AccessAgent.update` and `AccessAgent.create` must be of type `Map<String, dynamic>`.
+
 **3.1.0**
 
-* The `values` paramter of `PostgresqlAccess.query` and `execute` must be `Map`.
+* The `values` paramter of `PostgresqlAccess.query` and `PostgresqlAccess.execute` must be of type `Map`.
 
 **3.0.1**
 
