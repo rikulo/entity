@@ -47,7 +47,8 @@ const _ccRange = 66, //26*2+10+_ccExtra
     //Thus, we need: _threshold % _maxValuePerInt == 0
 
   //Like UUIDv7, preserve a couple character for time-part
-  //66^5 ms => 14.5 days => good enough for b-tree blocks
+  //66^5 ms * 512 => 20.3 years => for b-tree locality
+  _msPerTimeUnit = 512,
   _lenTimePart = 5,
   _maxTimePart = _ccRange*_ccRange*_ccRange*_ccRange*_ccRange, //66 ^ [_lenTimePart]
   _divTimePart = _maxTimePart ~/ _ccRange;
@@ -58,7 +59,7 @@ String nextOid() {
   var out = 0;
 
   // ---- time part (MSB-first) ----
-  var time = DateTime.now().millisecondsSinceEpoch % _maxTimePart;
+  var time = (DateTime.now().millisecondsSinceEpoch ~/ _msPerTimeUnit) % _maxTimePart;
   for (var i = _lenTimePart, div = _divTimePart; --i >= 0;) {
     final digit = time ~/ div;
     time %= div;
