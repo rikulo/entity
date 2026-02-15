@@ -137,6 +137,8 @@ class _SafeRandom {
     assert(_divTimePart == pow(_ccRange, _lenTimePart -1));
 
     assert(_maxValuePerInt == pow(_ccRange, _charPerInt));
+
+    assert(_batchSize > _intLen); //better to be larger
   }
 
   int next() {
@@ -153,7 +155,7 @@ class _SafeRandom {
   }
 }
 final _safeRandom = _SafeRandom();
-const _batchSize = _intLen * 2;
+const _batchSize = 256;
 
 /// Default implementation of [getRandomInts].
 List<int> _getRandomInts(int length) {
