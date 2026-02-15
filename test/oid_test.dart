@@ -19,11 +19,19 @@ void main() {
     expect(isValidOid('_bcdefghijkl.nop-rs~', ignoreLength: true), isTrue);
 
     String? prevOid;
+    String? prevTimePart;
     const loops = 100000;
     final t0 = DateTime.now();
     for (int i = 0; i < loops; i++) {
       final oid = nextOid();
       expect(isValidOid(oid), isTrue);
+
+      //make sure time part in alphabetica order
+      final timePart = oid.substring(0, 5);
+      if (prevTimePart != null)
+        expect(timePart.compareTo(prevTimePart) >= 0, true,
+            reason: 'pre=$prevOid vs oid=$oid');
+      prevTimePart = timePart;
 
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);
