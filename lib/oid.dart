@@ -46,9 +46,9 @@ const _ccRange = 66, //26*2+10+_ccExtra
     //Thus, we need: _threshold % _maxValuePerInt == 0
 
   //Like UUIDv7, preserve a couple character for time-part
-  //66^4 ms => 5.27 hours => good enough for b-tree blocks
-  _lenTimePart = 4,
-  _maxTimePart = _ccRange*_ccRange*_ccRange*_ccRange, //66 ^ [_lenTimePart]
+  //66^5 ms => 14.5 days => good enough for b-tree blocks
+  _lenTimePart = 5,
+  _maxTimePart = _ccRange*_ccRange*_ccRange*_ccRange*_ccRange, //66 ^ [_lenTimePart]
   _divTimePart = _maxTimePart ~/ _ccRange;
 
 /// Returns the next unique object ID.
