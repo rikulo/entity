@@ -85,7 +85,7 @@ String nextOid() {
 String mergeOid(String oid1, String oid2) {
   assert(isValidOid(oid1), oid1);
   assert(isValidOid(oid2), oid2);
-  return "${oid1.substring(0, 12)}${oid2.substring(0, 12)}";
+  return "${oid1.substring(0, 12)}${oid2.substring(_lenTimePart, 12 + _lenTimePart)}";
 }
 
 /// Test if the given value is a valid OID.
@@ -109,15 +109,6 @@ final _reOid = RegExp('^$oidPattern\$');
 /// `Crypto.getRandomValues`.
 GetRandomInts getRandomInts = _getRandomInts;
 
-/// Default implementation of [getRandomInts].
-List<int> _getRandomInts(int length) {
-  final values = List<int>.filled(length, 0);
-  for (var i = 0; i < length; i++) {
-    values[i] = _random.nextInt(_maxInt32);
-  }
-  return values;
-}
-
 int _escOid(int v) {
   if (v < 10) return $0 + v;
   if ((v -= 10) < 26) return $A + v;
@@ -127,8 +118,19 @@ int _escOid(int v) {
 
 /// Used to retrieve the next integer without so-called modulo bias.
 class _SafeRandom {
-  var _values = getRandomInts(_batchSize);
-  var _i = _batchSize;
+  late List<int> _values;
+  var _i = 0;
+
+  _SafeRandom() {
+    assert(_threshold == 3756997728); //double check the calc
+    assert(_threshold % _maxValuePerInt == 0);
+
+    assert(_maxInt32 == pow(2, 32));
+    assert(_maxValuePerInt < _maxInt32);
+    assert(_ccRange == 26*2+10+_ccExtra.length);
+    assert(_maxTimePart == pow(_ccRange, _lenTimePart));
+    assert(_maxValuePerInt == pow(_ccRange, _charPerInt));
+  }
 
   int next() {
     for (;;) {
@@ -138,26 +140,24 @@ class _SafeRandom {
   }
 
   int _rawNext() {
-    if (--_i < 0) {
-      _values = getRandomInts(_batchSize);
-      _i = _batchSize - 1;
-    }
-    return _values[_i];
+    if (_i <= 0)
+      _values = getRandomInts(_i = _batchSize);
+    return _values[--_i];
   }
 }
 final _safeRandom = _SafeRandom();
 const _batchSize = _intLen * 2;
 
+/// Default implementation of [getRandomInts].
+List<int> _getRandomInts(int length) {
+  final values = List<int>.filled(length, 0);
+  for (var i = 0; i < length; i++) {
+    values[i] = _random.nextInt(_maxInt32);
+  }
+  return values;
+}
+
 final _random = (() {
-  assert(_threshold == 3756997728); //double check the calc
-  assert(_threshold % _maxValuePerInt == 0);
-
-  assert(_maxInt32 == pow(2, 32));
-  assert(_maxValuePerInt < _maxInt32);
-  assert(_ccRange == 26*2+10+_ccExtra.length);
-  assert(_maxTimePart == pow(_ccRange, _lenTimePart));
-  assert(_maxValuePerInt == pow(_ccRange, _charPerInt));
-
   try {
     final random = Random.secure();
     random.nextInt(2); //make sure it works
