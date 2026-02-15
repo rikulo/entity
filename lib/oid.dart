@@ -61,8 +61,8 @@ String nextOid() {
   var time = DateTime.now().millisecondsSinceEpoch % _maxTimePart;
   for (var i = _lenTimePart, div = _divTimePart; --i >= 0;) {
     final digit = time ~/ div;
-    bytes[out++] = _escOid(digit);
     time %= div;
+    bytes[out++] = _escOid(digit);
     div ~/= _ccRange;
   }
 
@@ -131,7 +131,10 @@ class _SafeRandom {
     assert(_maxInt32 == pow(2, 32));
     assert(_maxValuePerInt < _maxInt32);
     assert(_ccRange == 26*2+10+_ccExtra.length);
+
     assert(_maxTimePart == pow(_ccRange, _lenTimePart));
+    assert(_divTimePart == pow(_ccRange, _lenTimePart -1));
+
     assert(_maxValuePerInt == pow(_ccRange, _charPerInt));
   }
 
