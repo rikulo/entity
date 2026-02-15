@@ -1,5 +1,9 @@
 # Changes
 
+**3.3.0**
+
+- `nextOid` is prefixed with a timestamp to improve B-tree locality.
+
 **3.2.0**
 
 * The `data` parameter of `AccessAgent.update` and `AccessAgent.create` must be of type `Map<String, dynamic>`.
