@@ -3,28 +3,28 @@
 // Author: tomyeh
 library entity.oid;
 
-import "dart:math" show Random;
-import "package:charcode/ascii.dart";
-
 //Note: we use characters a-z, A-Z, 0-9 and _, s.t., the user  can select all
 //by double-clicking it (they also valid characters no need of escapes).
-//So, it is 26 * 2 + 10 + _CC_EXTRA => 65 diff chars
+//So, it is 26 * 2 + 10 + _ccExtra => 66 diff chars
 //
-//OID is 24 chars = 65^24 = 3.2e43
-//so it is about 2.8e6 more than 128 bit UUID (where 122 is effective: 5.3e36)
+//OID is 24 chars = 66^24 = 4.67e43
+//so it is about 8.8e6 more than 128 bit UUID (where 122 is effective: 5.3e36)
 //(note: Git revision is 36^40 about 1.79e62)
 
-/** The type of random generator
- *
- * * [length] specifies the number of integers to generate.
- */
+import "dart:math" show Random, pow;
+import "package:charcode/ascii.dart";
+
+/// The type of random generator.
+///
+/// * [length] specifies the number of integers to generate.
+/// * Returned ints MUST be in the range [0, 2^32).
 typedef List<int> GetRandomInts(int length);
 
-///Total number of characters per OID.
-const int oidLength = 24;
+/// Total number of characters per OID.
+const oidLength = 24;
 
 const _ccExtra = const <int> [
-  $dash, $underline, $tilde, $dot //NOTE: $dot must NOT be the last; see below
+  $dash, $underline, $tilde, $dot
 ]; //( and ) => not valid in email
    //(, ), *, ! and , => encoded by encodeQueryComponent
 //const _ccExtra2 = [$lparen, $rparen, $asterisk, $exclamation, ..._ccExtra];
@@ -32,60 +32,67 @@ const _ccExtra = const <int> [
   //69^24 = 1.35e44 => 2.9x => not worth
 
 ///The character range
-const int _ccRange = 66; //26*2+10+_CC_EXTRA
-const int
-  _intLen = 5, //# of integers: [_intLen] * [_charPerInt] >= [oidLength]
-  _charPerInt = 5; //65^5 < 2^32 (65^5: 1,160,290,625, 2^32: 4,294,967,296)
+const _ccRange = 66, //26*2+10+_ccExtra
+
+  _intLen = 4, //# of integers: [_intLen] * [_charPerInt] + [_oidTimePart] >= [oidLength]
+  _charPerInt = 5, //66^5 < 2^31 (66^5 / 2^31 = 0.5)
+  _maxValuePerInt = _ccRange*_ccRange*_ccRange*_ccRange*_ccRange, //66 ^ [_charPerInt]
+
+  _maxInt32 = 4294967296, //= 1 << 32 (note: in JS, we can't use 1 << 32 => 1)
+  _threshold = _maxInt32 - (_maxInt32 % _maxValuePerInt),
+    //To avoid modulo bias, use: value < _threshold
+    //Modulo bias happens when you do `x % n` but x is uniform over a range
+    //whose size isn't a multiple of n. Some remainders occur more often.
+    //Thus, we need: _threshold % _maxValuePerInt == 0
+
+  //Like UUIDv7, preserve a couple character for time-part
+  //66^4 ms => 5.27 hours => good enough for b-tree blocks
+  _lenTimePart = 4,
+  _maxTimePart = _ccRange*_ccRange*_ccRange*_ccRange, //66 ^ [_lenTimePart]
+  _divTimePart = _maxTimePart ~/ _ccRange;
 
 /// Returns the next unique object ID.
 String nextOid() {
-  final bytes = <int>[],
-    values = getRandomInts(_intLen);
-  assert(values.length == _intLen);
-  var remainding = 0;
+  final bytes = List<int>.filled(oidLength, 0);
+  var out = 0;
 
-  l_gen:
-  for (int i = values.length, bl = 0; --i >= 0;) {
-    int val = values[i];
-    if (val < 0)
-      val = -val;
+  // ---- time part (MSB-first) ----
+  var time = DateTime.now().millisecondsSinceEpoch % _maxTimePart;
+  for (var i = _lenTimePart, div = _divTimePart; --i >= 0;) {
+    final digit = time ~/ div;
+    bytes[out++] = _escOid(digit);
+    time %= div;
+    div ~/= _ccRange;
+  }
 
-    for (int j = _charPerInt;;) {
-      bytes.add(_escOid(val % _ccRange));
-      if (++bl >= oidLength) break l_gen;
+  // ---- random part ----
+  for (;;) {
+    var val = _safeRandom.next(); // uniform in [0, _threshold)
+    assert(val >= 0);
 
-      val = val ~/ _ccRange;
-      if (--j == 0) {
-        remainding = (remainding << 2) + val;
-        break;
-      }
+    for (var j = _charPerInt; --j >= 0;) {
+      bytes[out++] = _escOid(val % _ccRange);
+      if (out >= oidLength)
+        return String.fromCharCodes(bytes);
+      val ~/= _ccRange;
     }
   }
-
-  // We don't end OID with [$dot] (for easy parsing in, say, markdown)
-  if (bytes.last == $dot) {
-    assert(_ccExtra.last == $dot); //we assumet it so we mod `_ccRange - 1` below
-    bytes.last = _escOid(remainding % (_ccRange - 1));
-  }
-
-  return String.fromCharCodes(bytes);
 }
 
-/** Creates a new OID based two OIDs.
- *
- * > To shorten the result OID, we retrieve the substring of [oid1] and [oid2]
- * and concatenate them together. Of course, there might be conflict but
- * the chance is so low that we can ignore (like OID generator),
- */
-String mergeOid(String oid1, String oid2)
-=> "${oid1.substring(0, 12)}${oid2.substring(0, 12)}";
+/// Creates a new OID based two OIDs.
+///
+/// NOTE: requires oid1 and oid2 to be at least 12 chars long.
+String mergeOid(String oid1, String oid2) {
+  assert(isValidOid(oid1), oid1);
+  assert(isValidOid(oid2), oid2);
+  return "${oid1.substring(0, 12)}${oid2.substring(0, 12)}";
+}
 
 /// Test if the given value is a valid OID.
 ///
 /// Note: for performance reason, it does only the basic check.
 ///
-/// - [ignoreLength] whether to check `value.length` is the same as
-/// [oidLength].
+/// - [ignoreLength] whether to check `value.length` is the same as [oidLength].
 bool isValidOid(String value, {bool ignoreLength = false})
 => (ignoreLength || value.length == oidLength) && _reOid.hasMatch(value);
 
@@ -95,46 +102,67 @@ const oidCharPattern = r'[-0-9a-zA-Z._~]';
 const oidPattern = '$oidCharPattern+';
 final _reOid = RegExp('^$oidPattern\$');
 
-/** The function used to generate a list of random integers to construct OID.
- *
- * The default implementation uses [Random] to generate the random number.
- * When running at the browser, it is better to replace with
- * `Crypto.getRandomValues`.
- */
- GetRandomInts getRandomInts = _getRandomInts;
+/// The function used to generate a list of random integers to construct OID.
+///
+/// The default implementation uses [Random] to generate the random number.
+/// When running at the browser, it is better to replace with
+/// `Crypto.getRandomValues`.
+GetRandomInts getRandomInts = _getRandomInts;
 
-///Default implementation of [getRandomInts]
+/// Default implementation of [getRandomInts].
 List<int> _getRandomInts(int length) {
-  final values = <int>[];
-  while (--length >= 0)
-    values.add(_nextRandom(_maxRandom));
+  final values = List<int>.filled(length, 0);
+  for (var i = 0; i < length; i++) {
+    values[i] = _random.nextInt(_maxInt32);
+  }
   return values;
 }
-const _maxRandom = 4294967296; //note: we can't use 1 << 32 (in JS, it will be 1)
 
 int _escOid(int v) {
-  if (v < 10)
-    return $0 +  v;
-  if ((v -= 10) < 26)
-    return $A + v;
-  if ((v -= 26) < 26)
-    return $a + v;
+  if (v < 10) return $0 + v;
+  if ((v -= 10) < 26) return $A + v;
+  if ((v -= 26) < 26) return $a + v;
   return _ccExtra[v - 26];
 }
 
-int _nextRandom(int max) {
-  try {
-    return _secureRandom.nextInt(max);
-  } catch (_) { //possible if running out of file descriptors
-    return _simpleRandom.nextInt(max);
+/// Used to retrieve the next integer without so-called modulo bias.
+class _SafeRandom {
+  var _values = getRandomInts(_batchSize);
+  var _i = _batchSize;
+
+  int next() {
+    for (;;) {
+      final val = _rawNext();
+      if (val < _threshold) return val;
+    }
+  }
+
+  int _rawNext() {
+    if (--_i < 0) {
+      _values = getRandomInts(_batchSize);
+      _i = _batchSize - 1;
+    }
+    return _values[_i];
   }
 }
+final _safeRandom = _SafeRandom();
+const _batchSize = _intLen * 2;
 
-final _secureRandom = (() {
+final _random = (() {
+  assert(_threshold == 3756997728); //double check the calc
+  assert(_threshold % _maxValuePerInt == 0);
+
+  assert(_maxInt32 == pow(2, 32));
+  assert(_maxValuePerInt < _maxInt32);
+  assert(_ccRange == 26*2+10+_ccExtra.length);
+  assert(_maxTimePart == pow(_ccRange, _lenTimePart));
+  assert(_maxValuePerInt == pow(_ccRange, _charPerInt));
+
   try {
-    return Random.secure();
+    final random = Random.secure();
+    random.nextInt(2); //make sure it works
+    return random;
   } catch (_) {
-    return _simpleRandom;
+    return Random();
   }
 })();
-final _simpleRandom = Random();

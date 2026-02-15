@@ -4,6 +4,7 @@
 library entity.oid_test;
 
 import "dart:convert" show json;
+import "dart:math";
 import 'package:test/test.dart';
 import 'package:entity/oid.dart';
 
@@ -24,7 +25,6 @@ void main() {
     for (int i = 0; i < loops; i++) {
       final oid = nextOid();
       expect(isValidOid(oid), isTrue);
-      expect(oid[oid.length - 1] == '.', isFalse); //never end with dot
 
       expect(oid.indexOf('\\'), -1);
       expect(oid.indexOf('"'), -1);
@@ -36,8 +36,7 @@ void main() {
         expect(oid != prevOid, isTrue);
       prevOid = oid;
 
-//      if (i < 500)
-//        print("$i: $oid");
+      if (i < 20) print("$i: $oid");
     }
     print("Generate $loops OIDs in ${DateTime.now().difference(t0)}");
   });
