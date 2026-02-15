@@ -4,7 +4,6 @@
 library entity.oid_test;
 
 import "dart:convert" show json;
-import "dart:math";
 import 'package:test/test.dart';
 import 'package:entity/oid.dart';
 

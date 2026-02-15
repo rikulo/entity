@@ -12,6 +12,7 @@ library entity.oid;
 //(note: Git revision is 36^40 about 1.79e62)
 
 import "dart:math" show Random, pow;
+import 'dart:typed_data';
 import "package:charcode/ascii.dart";
 
 /// The type of random generator.
@@ -109,12 +110,13 @@ final _reOid = RegExp('^$oidPattern\$');
 /// `Crypto.getRandomValues`.
 GetRandomInts getRandomInts = _getRandomInts;
 
-int _escOid(int v) {
-  if (v < 10) return $0 + v;
-  if ((v -= 10) < 26) return $A + v;
-  if ((v -= 26) < 26) return $a + v;
-  return _ccExtra[v - 26];
-}
+int _escOid(int v) => _charmap[v];
+final _charmap = Uint8List.fromList([
+  ...List.generate(10, (i) => $0 + i),
+  ...List.generate(26, (i) => $A + i),
+  ...List.generate(26, (i) => $a + i),
+  ..._ccExtra
+])..sort();
 
 /// Used to retrieve the next integer without so-called modulo bias.
 class _SafeRandom {
@@ -122,6 +124,7 @@ class _SafeRandom {
   var _i = 0;
 
   _SafeRandom() {
+    assert(_charmap.length == _ccRange);
     assert(_threshold == 3756997728); //double check the calc
     assert(_threshold % _maxValuePerInt == 0);
 
