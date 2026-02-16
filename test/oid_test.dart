@@ -9,22 +9,24 @@ import 'package:entity/oid.dart';
 
 void main() {
   test("OID Test", () {
-    expect(isValidOid('_bcdefghijkl.nop-rs~uvwx'), isTrue);
-    expect(isValidOid('0bcdefghijklmn/pqrstuvwx'), isFalse);
-    expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW;'), isFalse);
-    expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), isFalse);
-    expect(isValidOid('ABCDEFGHIJKLMNOPQRST+UVW'), isFalse);
+    expect(isValidOid('_bcdefghijkl.nop-rs~uvwx'), true);
+    expect(isValidOid('0bcdefghijklmn/pqrstuvwx'), false);
+    expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW;'), false);
+    expect(isValidOid('ABCDEFGHIJKLMNOPQRSTUVW '), false);
+    expect(isValidOid('ABCDEFGHIJKLMNOPQRST+UVW'), false);
 
-    expect(isValidOid('_bcdefghijkl.nop-rs~'), isFalse);
-    expect(isValidOid('_bcdefghijkl.nop-rs~', ignoreLength: true), isTrue);
+    expect(isValidOid('_bcdefghijkl.nop-rs~'), false);
+    expect(isValidOid('_bcdefghijkl.nop-rs~', ignoreLength: true), true);
 
     String? prevOid;
     String? prevTimePart;
     const loops = 100000;
-    final t0 = DateTime.now();
+    final t0 = DateTime.now(),
+      oids = <String>{};
     for (int i = 0; i < loops; i++) {
       final oid = nextOid();
-      expect(isValidOid(oid), isTrue);
+      expect(isValidOid(oid), true);
+      expect(oids.add(oid), true); //not dup
 
       //make sure time part in alphabetica order
       final timePart = oid.substring(0, 5);
@@ -40,7 +42,7 @@ void main() {
       expect(Uri.encodeQueryComponent(oid), oid); //no escape
 
       if (prevOid != null)
-        expect(oid != prevOid, isTrue);
+        expect(oid != prevOid, true);
       prevOid = oid;
 
       if (i < 20) print("$i: $oid");
