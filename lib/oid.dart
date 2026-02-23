@@ -59,7 +59,8 @@ String nextOid() {
   var out = 0;
 
   // ---- time part (MSB-first) ----
-  var time = (DateTime.now().millisecondsSinceEpoch ~/ _msPerTimeUnit) % _maxTimePart;
+  var time = (DateTime.now().millisecondsSinceEpoch ~/ _msPerTimeUnit
+      - 3420000000/*=> start around '0xxx'*/) % _maxTimePart;
   for (var i = _lenTimePart, div = _divTimePart; --i >= 0;) {
     final digit = time ~/ div;
     time %= div;
@@ -109,7 +110,7 @@ final _reOid = RegExp('^$oidPattern\$');
 /// The default implementation uses [Random] to generate the random number.
 /// When running at the browser, it is better to replace with
 /// `Crypto.getRandomValues`.
-GetRandomInts getRandomInts = _getRandomInts;
+late GetRandomInts getRandomInts = _getRandomInts;
 
 int _escOid(int v) => _charmap[v];
 final _charmap = Uint8List.fromList([
