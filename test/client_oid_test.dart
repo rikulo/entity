@@ -3,11 +3,12 @@
 // Author: tomyeh
 library entity.oid_test;
 
-import "dart:html";
 import "dart:convert" show json;
+import "dart:js_interop";
 import "dart:typed_data";
 
 import 'package:test/test.dart';
+import 'package:web/web.dart' hide Uint32List;
 import 'package:entity/oid.dart';
 
 void main() {
@@ -45,15 +46,15 @@ void main() {
 void _print(String message) {
   var out = _out;
   if (out == null) {
-    _out = out = document.querySelector("#dump") as TextAreaElement;
+    _out = out = document.querySelector("#dump") as HTMLTextAreaElement;
     out.value = "";
   }
-  out.value = out.value! + message + '\n';
+  out.value = out.value + message + '\n';
 }
-TextAreaElement? _out;
+HTMLTextAreaElement? _out;
 
 List<int> _getCryptoInts(int length) {
   final values = Uint32List(length);
-  window.crypto?.getRandomValues(values);
+  window.crypto.getRandomValues(values.toJS);
   return values;
 }

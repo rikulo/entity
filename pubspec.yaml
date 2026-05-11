@@ -13,3 +13,4 @@ dependencies:
 
 dev_dependencies:
   test: any
+  web: any
