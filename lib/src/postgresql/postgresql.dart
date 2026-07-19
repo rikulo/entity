@@ -208,9 +208,10 @@ class PostgresqlAccessAgent implements AccessAgent {
       if (flavor != null) sql = flavor(sql, data);
     }
 
-    await access.execute(sql, data);
+    final nRows = await access.execute(sql, data);
 
     _cache?.remove(entity.otype, entity.oid); //update cache
+    return nRows; //#rows deleted, like [update]
   }
 }
 
