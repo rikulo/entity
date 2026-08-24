@@ -168,12 +168,12 @@ abstract class Entity implements Comparable<Entity> {
   /// If it is not what you want, you have to return "json" for
   /// the particular field(s) by overriding this method.
   /// 
-  ///     String getDBType(String field) => field == "foo" ? "json": null;
-  /// 
+  ///     String? getDBType(String field) => field == "foo" ? "json": null;
+  ///
   /// > Note: for [postgresql2](https://github.com/tomyeh/postgresql),
   /// > returning "json" or "jsonb" is no difference. They're both encoded
   /// > in the same way.
-  String? getDBType(var field) => null;
+  String? getDBType(String field) => null;
 
   ///By default, it returns [oid] when jsonized.
   toJson() => oid;
