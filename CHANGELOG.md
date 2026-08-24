@@ -1,5 +1,10 @@
 # Changes
 
+**3.4.0**
+
+* The `field` parameter of `Entity.getDBType` must be of type `String`.
+* `Entity.delete` (SQL) returns the number of rows deleted, like `update`, so callers can detect a no-op delete.
+
 **3.3.0**
 
 - `nextOid` is prefixed with a timestamp to improve B-tree locality.
